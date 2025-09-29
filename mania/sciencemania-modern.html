@@ -515,7 +515,7 @@
                     <i class="fas fa-search"></i>
                 </button>
             </div>
-            
+
             <select class="filter-select" id="categoryFilter" onchange="filterArticles()">
                 <option value="">Todas as categorias</option>
                 <option value="fisica">⚛️ Física</option>
@@ -683,7 +683,7 @@
             return categories[category]?.icon || '🔬';
         }
 
-        async function openModal(articleId) {
+        async function openArticle(articleId) {
             const article = currentArticles.find(a => a.id === articleId);
             if (!article) return;
 
@@ -706,7 +706,7 @@
             document.getElementById('modalViews').textContent = article.views || 0;
             document.getElementById('modalLikes').textContent = article.likes || 0;
             document.getElementById('modalContent').innerHTML = article.content.replace(/\n/g, '<br>');
-            
+
             // Tags
             const tagsContainer = document.getElementById('modalTags');
             if (article.tags && article.tags.length > 0) {
@@ -791,11 +791,9 @@
         }
 
         // Global functions
-        window.openModal = openModal;
+        window.openArticle = openArticle;
         window.closeModal = closeModal;
         window.searchArticles = searchArticles;
-        window.filterArticles = filterArticles;
-        window.sortArticles = sortArticles;
         window.filterByCategory = filterByCategory;
 
         // Search on enter
