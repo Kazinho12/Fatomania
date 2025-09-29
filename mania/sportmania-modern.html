@@ -452,8 +452,20 @@
         }
 
         function openArticle(articleId) {
-            // Redirecionar para página detalhada do artigo
-            window.location.href = `/article.html?id=${articleId}&type=sports`;
+            try {
+                const article = currentArticles.find(a => a.id === articleId);
+                if (article) {
+                    showArticleModal(article);
+                }
+            } catch (error) {
+                console.error('Erro ao abrir artigo:', error);
+            }
+        }
+
+        function showArticleModal(article) {
+            // Implementação similar ao modal
+            console.log('Abrindo artigo:', article.title);
+            // Adicionar implementação completa do modal conforme necessário
         }
 
         // Global functions
