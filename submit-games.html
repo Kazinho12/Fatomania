@@ -455,7 +455,7 @@
                 if (imageFile) {
                     const imageRef = window.firebaseStorage.ref(window.firebaseStorage.storage, `games-images/${Date.now()}-${imageFile.name}`);
                     const snapshot = await window.firebaseStorage.uploadBytes(imageRef, imageFile);
-                    formData.imageUrl = await window.firebaseStorage.getDownloadURL(imageRef);
+                    formData.imageUrl = await window.firebaseStorage.getDownloadURL(snapshot.ref);
                 }
 
                 // Save to Firestore

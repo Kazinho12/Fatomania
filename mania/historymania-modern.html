@@ -548,23 +548,52 @@
 
         async function loadArticles() {
             try {
-                const articlesQuery = window.firebaseDB.query(
-                    window.firebaseDB.collection(window.firebaseDB.db, 'history-articles'),
-                    window.firebaseDB.where('status', '==', 'published'),
-                    window.firebaseDB.orderBy('createdAt', 'desc')
-                );
+                // Try to get all documents first, then filter
+                const articlesCollection = window.firebaseDB.collection(window.firebaseDB.db, 'history-articles');
+                const snapshot = await window.firebaseDB.getDocs(articlesCollection);
+                
+                currentArticles = snapshot.docs.map(doc => {
+                    const data = doc.data();
+                    return {
+                        id: doc.id,
+                        ...data,
+                        // Convert Firestore timestamp to date if needed
+                        createdAt: data.createdAt?.toDate?.() || data.createdAt || new Date()
+                    };
+                }).filter(article => article.status === 'published');
 
-                const snapshot = await window.firebaseDB.getDocs(articlesQuery);
-                currentArticles = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
+                // Sort by creation date (newest first)
+                currentArticles.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
                 filteredArticles = [...currentArticles];
                 renderArticles();
             } catch (error) {
                 console.error('Erro ao carregar artigos:', error);
-                document.getElementById('loading').innerHTML = '<p>Erro ao carregar artigos. Tente novamente.</p>';
+                
+                // Try alternative approach if collection doesn't exist
+                try {
+                    // Initialize collection if it doesn't exist
+                    const testDoc = {
+                        title: 'Artigo de Teste',
+                        summary: 'Artigo de teste para inicializar a coleção',
+                        content: 'Conteúdo de teste',
+                        author: 'Sistema',
+                        authorId: 'system',
+                        createdAt: window.firebaseDB.serverTimestamp(),
+                        status: 'draft',
+                        likes: 0,
+                        views: 0
+                    };
+                    
+                    await window.firebaseDB.addDoc(window.firebaseDB.collection(window.firebaseDB.db, 'history-articles'), testDoc);
+                    console.log('Coleção inicializada, recarregando...');
+                    
+                    // Try to load again
+                    setTimeout(() => loadArticles(), 1000);
+                } catch (initError) {
+                    console.error('Erro ao inicializar coleção:', initError);
+                    document.getElementById('loading').innerHTML = '<p>Erro ao carregar artigos. A coleção será criada quando o primeiro artigo for publicado.</p>';
+                }
             }
         }
 
@@ -588,28 +617,51 @@
 
             if (filteredArticles.length === 0) {
                 noResults.style.display = 'block';
-                articlesGrid.innerHTML = '';
+                articlesGrid.innerHTML = '<div style="text-align: center; padding: 2rem; color: #d4af37;"><i class="fas fa-plus-circle" style="font-size: 3rem; margin-bottom: 1rem;"></i><h3>Nenhum artigo histórico encontrado</h3><p>Seja o primeiro a compartilhar uma descoberta histórica!</p><a href="/submit-history.html" style="display: inline-block; margin-top: 1rem; padding: 0.8rem 1.5rem; background: linear-gradient(45deg, #d4af37, #cd7f32); color: #2c1810; text-decoration: none; border-radius: 10px; font-weight: bold;">Enviar Artigo</a></div>';
                 return;
             }
 
             noResults.style.display = 'none';
 
-            articlesGrid.innerHTML = filteredArticles.map(article => `
-                <div class="article-card" onclick="openArticle('${article.id}')">
-                    <div class="article-image" style="background-image: url('${article.imageUrl || 'https://images.unsplash.com/photo-1461360370896-922624d12aa1?w=800'}')">
-                        <div class="article-period">${getPeriodIcon(article.historicalPeriod)} ${article.historicalPeriod || 'História'}</div>
-                        <div class="article-era">${article.historicalEra || 'Geral'}</div>
-                    </div>
-                    <div class="article-content">
-                        <h3 class="article-title">${article.title}</h3>
-                        <p class="article-summary">${article.summary}</p>
-                        <div class="article-meta">
-                            <span><i class="fas fa-user"></i> ${article.author}</span>
-                            <span><i class="fas fa-heart"></i> ${article.likes || 0}</span>
+            articlesGrid.innerHTML = filteredArticles.map(article => {
+                const imageUrl = article.imageUrl || 'https://images.unsplash.com/photo-1461360370896-922624d12aa1?w=800';
+                const period = article.period || article.category || 'História';
+                const author = article.author || 'Anônimo';
+                const title = article.title || 'Artigo sem título';
+                const summary = article.summary || 'Resumo não disponível';
+                
+                return `
+                    <div class="article-card" onclick="openArticle('${article.id}')">
+                        <div class="article-image" style="background-image: url('${imageUrl}')">
+                            <div class="article-period">${getPeriodIcon(period)} ${period}</div>
+                            <div class="article-era">${formatDate(article.createdAt)}</div>
+                        </div>
+                        <div class="article-content">
+                            <h3 class="article-title">${title}</h3>
+                            <p class="article-summary">${summary}</p>
+                            <div class="article-meta">
+                                <span><i class="fas fa-user"></i> ${author}</span>
+                                <span><i class="fas fa-heart"></i> ${article.likes || 0}</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
+        }
+
+        function formatDate(date) {
+            if (!date) return 'Data desconhecida';
+            
+            try {
+                const dateObj = date instanceof Date ? date : new Date(date);
+                return dateObj.toLocaleDateString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+            } catch {
+                return 'Data inválida';
+            }
         }
 
         function getPeriodIcon(period) {
