@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -279,6 +278,129 @@
             color: var(--destaque);
         }
 
+        /* Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--fundo-card);
+            margin: 5% auto; /* 15% from the top and centered */
+            padding: 0;
+            border: 2px solid var(--destaque);
+            border-radius: 20px;
+            width: 80%; /* Could be more or less, depending on screen size */
+            max-width: 800px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--perigo);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .modal-close:hover {
+            transform: scale(1.1);
+            background: var(--sport-red);
+        }
+
+        .modal-image {
+            width: 100%;
+            height: 300px;
+            background-size: cover;
+            background-position: center;
+            border-top-left-radius: 17px;
+            border-top-right-radius: 17px;
+            position: relative;
+            display: none; /* Initially hidden */
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--destaque);
+            margin-bottom: 15px;
+            line-height: 1.3;
+        }
+
+        .modal-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            font-size: 0.9rem;
+            color: var(--sport-blue);
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .modal-meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-content-text {
+            font-size: 1rem;
+            color: var(--texto-claro);
+            line-height: 1.7;
+            margin-bottom: 25px;
+        }
+
+        .modal-content-text p {
+            margin-bottom: 1rem;
+        }
+
+        .modal-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .tag {
+            background: var(--sport-blue);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
         @media (max-width: 768px) {
             header {
                 flex-direction: column;
@@ -299,6 +421,15 @@
 
             .articles-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 2% auto;
+            }
+
+            .modal-image {
+                height: 200px;
             }
         }
     </style>
@@ -335,7 +466,7 @@
                     <i class="fas fa-search"></i>
                 </button>
             </div>
-            
+
             <select class="filter-select" id="categoryFilter" onchange="filterArticles()">
                 <option value="">Todas as categorias</option>
                 <option value="biomechanics">🏃 Biomecânica</option>
@@ -451,63 +582,102 @@
             return icons[category] || '🏃';
         }
 
-        function openArticle(articleId) {
+        async function openArticle(articleId) {
             try {
                 const article = currentArticles.find(a => a.id === articleId);
-                if (article) {
-                    showArticleModal(article);
+                if (!article) return;
+
+                // Increment view count
+                try {
+                    const articleRef = window.firebaseDB.doc(window.firebaseDB.db, 'sports-articles', articleId);
+                    await window.firebaseDB.updateDoc(articleRef, {
+                        views: window.firebaseDB.increment(1)
+                    });
+                    article.views = (article.views || 0) + 1;
+                } catch (error) {
+                    console.error('Erro ao atualizar visualizações:', error);
                 }
+
+                showArticleModal(article);
             } catch (error) {
                 console.error('Erro ao abrir artigo:', error);
             }
         }
 
         function showArticleModal(article) {
-            // Implementação similar ao modal
-            console.log('Abrindo artigo:', article.title);
-            // Adicionar implementação completa do modal conforme necessário
+            // Create modal if it doesn't exist
+            let modal = document.getElementById('articleModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'articleModal';
+                modal.className = 'modal';
+                modal.innerHTML = `
+                    <div class="modal-content">
+                        <button class="modal-close" onclick="closeModal()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="modal-image" id="modalImage"></div>
+                        <div class="modal-body">
+                            <h2 class="modal-title" id="modalTitle"></h2>
+                            <div class="modal-meta">
+                                <span><i class="fas fa-user"></i> <span id="modalAuthor"></span></span>
+                                <span><i class="fas fa-calendar"></i> <span id="modalDate"></span></span>
+                                <span><i class="fas fa-eye"></i> <span id="modalViews"></span> visualizações</span>
+                                <span><i class="fas fa-heart"></i> <span id="modalLikes"></span> curtidas</span>
+                            </div>
+                            <div class="modal-content-text" id="modalContent"></div>
+                            <div class="modal-tags" id="modalTags"></div>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+
+            // Populate modal
+            document.getElementById('modalTitle').textContent = article.title;
+            document.getElementById('modalAuthor').textContent = article.author;
+            document.getElementById('modalDate').textContent = formatDate(article.createdAt);
+            document.getElementById('modalViews').textContent = article.views || 0;
+            document.getElementById('modalLikes').textContent = article.likes || 0;
+            document.getElementById('modalContent').innerHTML = article.content;
+
+            const modalImage = document.getElementById('modalImage');
+            if (article.imageUrl) {
+                modalImage.style.backgroundImage = `url('${article.imageUrl}')`;
+                modalImage.style.display = 'block';
+            } else {
+                modalImage.style.display = 'none';
+            }
+
+            if (article.tags && article.tags.length > 0) {
+                document.getElementById('modalTags').innerHTML = article.tags.map(tag => 
+                    `<span class="tag">${tag}</span>`
+                ).join('');
+            }
+
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('articleModal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
+
+        function formatDate(timestamp) {
+            if (!timestamp) return '';
+            const date = timestamp.seconds ? new Date(timestamp.seconds * 1000) : new Date(timestamp);
+            return date.toLocaleDateString('pt-BR');
         }
 
         // Global functions
-        window.searchArticles = function() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            filteredArticles = currentArticles.filter(article =>
-                article.title.toLowerCase().includes(searchTerm) ||
-                article.summary.toLowerCase().includes(searchTerm) ||
-                article.content.toLowerCase().includes(searchTerm)
-            );
-            renderArticles();
-        };
-
-        window.filterArticles = function() {
-            const categoryFilter = document.getElementById('categoryFilter').value;
-            filteredArticles = categoryFilter
-                ? currentArticles.filter(article => article.category === categoryFilter)
-                : [...currentArticles];
-            renderArticles();
-        };
-
-        window.sortArticles = function() {
-            const sortBy = document.getElementById('sortFilter').value;
-            switch(sortBy) {
-                case 'oldest':
-                    filteredArticles.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-                    break;
-                case 'popular':
-                    filteredArticles.sort((a, b) => (b.likes || 0) - (a.likes || 0));
-                    break;
-                case 'mostViewed':
-                    filteredArticles.sort((a, b) => (b.views || 0) - (a.views || 0));
-                    break;
-                default:
-                    filteredArticles.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-            }
-            renderArticles();
-        };
-
-        window.toggleFavorites = function() {
-            console.log('Toggle favorites');
-        };
+        window.openArticle = openArticle;
+        window.closeModal = closeModal;
+        window.searchArticles = searchArticles;
+        window.filterArticles = filterArticles;
+        window.sortArticles = sortArticles;
+        window.toggleFavorites = toggleFavorites; // Keep this from original code
     </script>
 </body>
 </html>

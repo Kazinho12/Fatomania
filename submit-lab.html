@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -192,6 +191,43 @@
             border-color: var(--azul);
         }
 
+        #imagePreview {
+            display: none;
+            margin-top: 1rem;
+            max-width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 2px solid var(--destaque);
+        }
+
+        #progressContainer {
+            display: none;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+
+        #progressBar {
+            height: 30px;
+            width: 0%;
+            background-color: var(--azul);
+            border-radius: 10px;
+            text-align: center;
+            line-height: 30px;
+            color: var(--texto-claro);
+            transition: width 0.3s ease-in-out;
+        }
+
+        #progressText {
+            margin-top: 0.5rem;
+            text-align: center;
+            color: var(--azul);
+            font-size: 0.9rem;
+        }
+
         .submit-btn {
             width: 100%;
             padding: 1rem;
@@ -371,6 +407,7 @@
                             <small>JPG, PNG ou GIF (máx. 5MB)</small>
                         </label>
                     </div>
+                    <img id="imagePreview" src="#" alt="Preview da imagem">
                 </div>
 
                 <div class="form-group">
@@ -393,6 +430,11 @@
                     </label>
                     <input type="text" id="tags" class="form-input" placeholder="experimento, física, química, educação">
                 </div>
+
+                <div id="progressContainer">
+                    <div id="progressBar"></div>
+                </div>
+                <div id="progressText"></div>
 
                 <button type="submit" class="submit-btn" id="submitBtn">
                     <i class="fas fa-flask"></i> Publicar Experimento
@@ -426,30 +468,54 @@
 
         function handleImageSelect(event) {
             const file = event.target.files[0];
+            const label = event.target.nextElementSibling;
+            const preview = document.getElementById('imagePreview');
+            const previewImg = document.getElementById('previewImg');
+
             if (file) {
-                if (file.size > 5 * 1024 * 1024) {
+                if (file.size > 5 * 1024 * 1024) { // 5MB limit
                     showMessage('A imagem deve ter no máximo 5MB.', 'error');
                     event.target.value = '';
+                    preview.style.display = 'none';
                     return;
                 }
-                
-                const label = document.querySelector('.file-input-label');
-                label.innerHTML = `
-                    <i class="fas fa-check"></i><br>
-                    ${file.name}<br>
-                    <small>Imagem selecionada com sucesso!</small>
-                `;
+
+                label.innerHTML = `<i class="fas fa-check-circle"></i><br>Imagem selecionada: ${file.name}`;
+
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = 'none';
             }
         }
 
         async function handleSubmit(event) {
             event.preventDefault();
-            
+
             const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.innerHTML;
+
+            // Show progress bar
+            showProgressBar();
+            updateProgress(10, 'Validando dados...');
+
+            submitBtn.innerHTML = '<div class="loading"></div> Publicando...';
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="loading"></span> Publicando...';
 
             try {
+                const user = window.firebaseAuth.auth.currentUser;
+                if (!user) {
+                    throw new Error('Usuário não autenticado');
+                }
+
+                updateProgress(20, 'Verificando autenticação...');
+                updateProgress(30, 'Preparando dados...');
+
                 const formData = {
                     title: document.getElementById('title').value,
                     category: document.getElementById('category').value,
@@ -470,34 +536,59 @@
                     views: 0
                 };
 
-                // Upload image if selected
+                updateProgress(50, 'Processando conteúdo...');
+
+                // Handle image upload if provided
                 const imageFile = document.getElementById('image').files[0];
                 if (imageFile) {
-                    const imageRef = window.firebaseStorage.ref(window.firebaseStorage.storage, `lab-images/${Date.now()}_${imageFile.name}`);
-                    const uploadResult = await window.firebaseStorage.uploadBytes(imageRef, imageFile);
-                    formData.imageUrl = await window.firebaseStorage.getDownloadURL(imageRef);
+                    updateProgress(70, 'Enviando imagem...');
+                    const imageRef = window.firebaseStorage.ref(window.firebaseStorage.storage, `lab-images/${Date.now()}-${imageFile.name}`);
+                    const snapshot = await window.firebaseStorage.uploadBytes(imageRef, imageFile);
+                    formData.imageUrl = await window.firebaseStorage.getDownloadURL(snapshot.ref);
                 }
 
-                // Save to Firestore
-                await window.firebaseDB.addDoc(window.firebaseDB.collection(window.firebaseDB.db, 'lab-experiments'), formData);
+                updateProgress(85, 'Salvando artigo...');
 
-                showMessage('Experimento publicado com sucesso!', 'success');
+                // Save to Firestore
+                await window.firebaseDB.addDoc(window.firebaseDB.collection(window.firebaseDB.db, 'lab-articles'), formData);
+
+                updateProgress(100, 'Artigo publicado!');
+                showMessage('Artigo de laboratório publicado com sucesso!', 'success');
+
                 document.getElementById('labForm').reset();
-                
-                // Reset file input label
+
+                // Reset file input label and preview
                 document.querySelector('.file-input-label').innerHTML = `
                     <i class="fas fa-cloud-upload-alt"></i><br>
                     Clique para selecionar uma imagem<br>
                     <small>JPG, PNG ou GIF (máx. 5MB)</small>
                 `;
+                document.getElementById('imagePreview').style.display = 'none';
 
             } catch (error) {
-                console.error('Erro ao publicar experimento:', error);
-                showMessage('Erro ao publicar experimento. Tente novamente.', 'error');
+                console.error('Erro ao publicar artigo:', error);
+                showMessage('Erro ao publicar artigo. Tente novamente.', 'error');
             } finally {
+                hideProgressBar();
+                submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-flask"></i> Publicar Experimento';
             }
+        }
+
+        // Progress bar functions
+        function showProgressBar() {
+            document.getElementById('progressContainer').style.display = 'block';
+        }
+
+        function hideProgressBar() {
+            setTimeout(() => {
+                document.getElementById('progressContainer').style.display = 'none';
+            }, 2000);
+        }
+
+        function updateProgress(percentage, text) {
+            document.getElementById('progressBar').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = text;
         }
     </script>
 </body>

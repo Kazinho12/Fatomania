@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -394,6 +393,104 @@
             color: var(--destaque);
         }
 
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: var(--fundo-card);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+            border: 2px solid var(--destaque);
+            box-shadow: 0 20px 60px rgba(212, 175, 55, 0.3);
+            position: relative;
+        }
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: var(--texto-claro);
+            font-size: 2rem;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+            transition: color 0.3s;
+        }
+        .modal-close:hover {
+            color: var(--destaque);
+        }
+        .modal-image {
+            width: 100%;
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            border: 2px solid var(--destaque);
+        }
+        .modal-body {
+            padding-top: 1.5rem; /* Space for the close button */
+        }
+        .modal-title {
+            color: var(--destaque);
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+        .modal-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--history-bronze);
+        }
+        .modal-meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .modal-content-text {
+            color: var(--texto-claro);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            white-space: pre-wrap; /* Preserve line breaks from content */
+        }
+        .modal-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+        .modal-tags .tag {
+            background: rgba(212, 175, 55, 0.2);
+            color: var(--destaque);
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            border: 1px solid var(--destaque);
+        }
+
         @media (max-width: 768px) {
             header {
                 flex-direction: column;
@@ -423,6 +520,14 @@
 
             .articles-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                padding: 1.5rem;
+            }
+
+            .modal-title {
+                font-size: 1.5rem;
             }
         }
     </style>
@@ -471,7 +576,7 @@
                     <i class="fas fa-search"></i>
                 </button>
             </div>
-            
+
             <select class="filter-select" id="categoryFilter" onchange="filterArticles()">
                 <option value="">Todas as categorias</option>
                 <option value="archaeology">🔍 Arqueologia</option>
@@ -514,6 +619,7 @@
         let currentArticles = [];
         let filteredArticles = [];
         let currentPeriod = 'all';
+        let allArticles = []; // To store all articles for modal access
 
         // Wait for Firebase to be ready
         window.addEventListener('load', async () => {
@@ -548,52 +654,28 @@
 
         async function loadArticles() {
             try {
-                // Try to get all documents first, then filter
                 const articlesCollection = window.firebaseDB.collection(window.firebaseDB.db, 'history-articles');
                 const snapshot = await window.firebaseDB.getDocs(articlesCollection);
-                
+
                 currentArticles = snapshot.docs.map(doc => {
                     const data = doc.data();
                     return {
                         id: doc.id,
                         ...data,
-                        // Convert Firestore timestamp to date if needed
-                        createdAt: data.createdAt?.toDate?.() || data.createdAt || new Date()
+                        createdAt: data.createdAt?.toDate?.() || data.createdAt || new Date(),
+                        views: data.views || 0,
+                        likes: data.likes || 0
                     };
                 }).filter(article => article.status === 'published');
 
-                // Sort by creation date (newest first)
                 currentArticles.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
+                allArticles = [...currentArticles]; // Store all fetched articles
                 filteredArticles = [...currentArticles];
                 renderArticles();
             } catch (error) {
                 console.error('Erro ao carregar artigos:', error);
-                
-                // Try alternative approach if collection doesn't exist
-                try {
-                    // Initialize collection if it doesn't exist
-                    const testDoc = {
-                        title: 'Artigo de Teste',
-                        summary: 'Artigo de teste para inicializar a coleção',
-                        content: 'Conteúdo de teste',
-                        author: 'Sistema',
-                        authorId: 'system',
-                        createdAt: window.firebaseDB.serverTimestamp(),
-                        status: 'draft',
-                        likes: 0,
-                        views: 0
-                    };
-                    
-                    await window.firebaseDB.addDoc(window.firebaseDB.collection(window.firebaseDB.db, 'history-articles'), testDoc);
-                    console.log('Coleção inicializada, recarregando...');
-                    
-                    // Try to load again
-                    setTimeout(() => loadArticles(), 1000);
-                } catch (initError) {
-                    console.error('Erro ao inicializar coleção:', initError);
-                    document.getElementById('loading').innerHTML = '<p>Erro ao carregar artigos. A coleção será criada quando o primeiro artigo for publicado.</p>';
-                }
+                document.getElementById('loading').innerHTML = '<p>Erro ao carregar artigos. Verifique a conexão ou se a coleção existe no Firestore.</p>';
             }
         }
 
@@ -629,7 +711,7 @@
                 const author = article.author || 'Anônimo';
                 const title = article.title || 'Artigo sem título';
                 const summary = article.summary || 'Resumo não disponível';
-                
+
                 return `
                     <div class="article-card" onclick="openArticle('${article.id}')">
                         <div class="article-image" style="background-image: url('${imageUrl}')">
@@ -651,7 +733,7 @@
 
         function formatDate(date) {
             if (!date) return 'Data desconhecida';
-            
+
             try {
                 const dateObj = date instanceof Date ? date : new Date(date);
                 return dateObj.toLocaleDateString('pt-BR', {
@@ -677,24 +759,29 @@
 
         async function openArticle(articleId) {
             try {
-                // Buscar o artigo específico
                 const article = allArticles.find(a => a.id === articleId);
                 if (!article) {
                     console.error('Artigo não encontrado');
                     return;
                 }
 
-                // Incrementar visualizações
+                // Increment view count
                 try {
                     const articleRef = window.firebaseDB.doc(window.firebaseDB.db, 'history-articles', articleId);
                     await window.firebaseDB.updateDoc(articleRef, {
-                        views: (article.views || 0) + 1
+                        views: window.firebaseDB.increment(1)
                     });
+                    // Update local copy for immediate display
+                    article.views = (article.views || 0) + 1;
+                    // Re-render to show updated view count if the modal is already open (though not required by prompt)
+                    if (document.getElementById('articleModal')?.classList.contains('active')) {
+                         document.getElementById('modalViews').textContent = article.views;
+                    }
                 } catch (error) {
-                    console.log('Erro ao atualizar visualizações:', error);
+                    console.error('Erro ao atualizar visualizações:', error);
                 }
 
-                // Abrir modal com o artigo
+                // Show modal
                 showArticleModal(article);
             } catch (error) {
                 console.error('Erro ao abrir artigo:', error);
@@ -702,7 +789,6 @@
         }
 
         function showArticleModal(article) {
-            // Criar modal se não existir
             let modal = document.getElementById('articleModal');
             if (!modal) {
                 modal = document.createElement('div');
@@ -710,124 +796,33 @@
                 modal.className = 'modal';
                 modal.innerHTML = `
                     <div class="modal-content">
-                        <div class="modal-header">
-                            <h2 id="modalTitle"></h2>
-                            <button class="close-btn" onclick="closeModal()">&times;</button>
-                        </div>
+                        <button class="modal-close" onclick="closeModal()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="modal-image" id="modalImage"></div>
                         <div class="modal-body">
-                            <div id="modalImage" class="modal-image"></div>
+                            <h2 class="modal-title" id="modalTitle"></h2>
                             <div class="modal-meta">
-                                <span id="modalAuthor"></span>
-                                <span id="modalDate"></span>
-                                <span id="modalPeriod"></span>
+                                <span><i class="fas fa-user"></i> <span id="modalAuthor"></span></span>
+                                <span><i class="fas fa-calendar"></i> <span id="modalDate"></span></span>
+                                <span><i class="fas fa-eye"></i> <span id="modalViews"></span> visualizações</span>
+                                <span><i class="fas fa-heart"></i> <span id="modalLikes"></span> curtidas</span>
                             </div>
-                            <div id="modalContent" class="modal-text"></div>
-                            <div id="modalTags" class="modal-tags"></div>
+                            <div class="modal-content-text" id="modalContent"></div>
+                            <div class="modal-tags" id="modalTags"></div>
                         </div>
                     </div>
                 `;
                 document.body.appendChild(modal);
-
-                // Adicionar estilos do modal
-                const modalStyles = document.createElement('style');
-                modalStyles.textContent = `
-                    .modal {
-                        display: none;
-                        position: fixed;
-                        top: 0;
-                        left: 0;
-                        width: 100%;
-                        height: 100%;
-                        background: rgba(0, 0, 0, 0.9);
-                        z-index: 1000;
-                        backdrop-filter: blur(10px);
-                    }
-                    .modal.active {
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                    }
-                    .modal-content {
-                        background: var(--fundo-card);
-                        border-radius: 20px;
-                        padding: 2rem;
-                        max-width: 800px;
-                        width: 90%;
-                        max-height: 90%;
-                        overflow-y: auto;
-                        border: 2px solid var(--destaque);
-                        box-shadow: 0 20px 60px rgba(212, 175, 55, 0.3);
-                    }
-                    .modal-header {
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: flex-start;
-                        margin-bottom: 1.5rem;
-                    }
-                    .modal-header h2 {
-                        color: var(--destaque);
-                        font-size: 1.8rem;
-                        margin: 0;
-                        flex: 1;
-                        margin-right: 1rem;
-                    }
-                    .close-btn {
-                        background: none;
-                        border: none;
-                        color: var(--texto-claro);
-                        font-size: 2rem;
-                        cursor: pointer;
-                        padding: 0;
-                        line-height: 1;
-                    }
-                    .close-btn:hover {
-                        color: var(--destaque);
-                    }
-                    .modal-image {
-                        width: 100%;
-                        height: 200px;
-                        background-size: cover;
-                        background-position: center;
-                        border-radius: 10px;
-                        margin-bottom: 1rem;
-                        border: 2px solid var(--destaque);
-                    }
-                    .modal-meta {
-                        display: flex;
-                        flex-wrap: wrap;
-                        gap: 1rem;
-                        margin-bottom: 1.5rem;
-                        font-size: 0.9rem;
-                        color: var(--bronze);
-                    }
-                    .modal-text {
-                        color: var(--texto-claro);
-                        line-height: 1.6;
-                        margin-bottom: 1.5rem;
-                    }
-                    .modal-tags {
-                        display: flex;
-                        flex-wrap: wrap;
-                        gap: 0.5rem;
-                    }
-                    .modal-tags .tag {
-                        background: rgba(212, 175, 55, 0.2);
-                        color: var(--destaque);
-                        padding: 0.3rem 0.8rem;
-                        border-radius: 15px;
-                        font-size: 0.8rem;
-                        border: 1px solid var(--destaque);
-                    }
-                `;
-                document.head.appendChild(modalStyles);
             }
 
-            // Preencher modal
-            document.getElementById('modalTitle').textContent = article.title;
-            document.getElementById('modalAuthor').textContent = `Por ${article.author}`;
+            document.getElementById('modalTitle').textContent = article.title || 'Título Indisponível';
+            document.getElementById('modalAuthor').textContent = article.author || 'Anônimo';
             document.getElementById('modalDate').textContent = formatDate(article.createdAt);
-            document.getElementById('modalPeriod').textContent = article.period || '';
-            
+            document.getElementById('modalViews').textContent = article.views || 0;
+            document.getElementById('modalLikes').textContent = article.likes || 0;
+            document.getElementById('modalContent').innerHTML = (article.content || 'Conteúdo indisponível').replace(/\n/g, '<br>'); // Preserve line breaks
+
             const modalImage = document.getElementById('modalImage');
             if (article.imageUrl) {
                 modalImage.style.backgroundImage = `url('${article.imageUrl}')`;
@@ -835,15 +830,16 @@
             } else {
                 modalImage.style.display = 'none';
             }
-            
-            document.getElementById('modalContent').innerHTML = article.content.replace(/\n/g, '<br>');
-            
-            // Tags
+
             const tagsContainer = document.getElementById('modalTags');
             if (article.tags && article.tags.length > 0) {
-                tagsContainer.innerHTML = article.tags.map(tag => `<span class="tag">#${tag}</span>`).join('');
+                tagsContainer.innerHTML = article.tags.map(tag => 
+                    `<span class="tag">#${tag}</span>`
+                ).join('');
+                tagsContainer.style.display = 'flex';
             } else {
                 tagsContainer.innerHTML = '';
+                tagsContainer.style.display = 'none';
             }
 
             modal.classList.add('active');
@@ -858,32 +854,44 @@
 
         function formatDate(timestamp) {
             if (!timestamp) return '';
-            
-            if (timestamp.toDate) {
-                return timestamp.toDate().toLocaleDateString('pt-BR');
-            } else if (timestamp instanceof Date) {
-                return timestamp.toLocaleDateString('pt-BR');
-            } else {
-                return new Date(timestamp).toLocaleDateString('pt-BR');
+            try {
+                const date = timestamp.seconds ? new Date(timestamp.seconds * 1000) : new Date(timestamp);
+                if (isNaN(date.getTime())) {
+                    return 'Data Inválida';
+                }
+                return date.toLocaleDateString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+            } catch (e) {
+                console.error("Error formatting date:", timestamp, e);
+                return 'Erro na Data';
             }
         }
 
         // Global functions
+        window.openArticle = openArticle;
+        window.closeModal = closeModal;
         window.searchArticles = function() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            filteredArticles = currentArticles.filter(article =>
-                article.title.toLowerCase().includes(searchTerm) ||
-                article.summary.toLowerCase().includes(searchTerm) ||
-                article.content.toLowerCase().includes(searchTerm)
+            filteredArticles = allArticles.filter(article =>
+                (article.title?.toLowerCase().includes(searchTerm) || '') ||
+                (article.summary?.toLowerCase().includes(searchTerm) || '') ||
+                (article.content?.toLowerCase().includes(searchTerm) || '')
             );
             renderArticles();
         };
 
         window.filterArticles = function() {
             const categoryFilter = document.getElementById('categoryFilter').value;
-            filteredArticles = categoryFilter
-                ? currentArticles.filter(article => article.category === categoryFilter)
-                : [...currentArticles];
+            let articlesToFilter = currentPeriod === 'all' ? [...allArticles] : allArticles.filter(article => article.historicalPeriod === currentPeriod);
+            
+            if (categoryFilter) {
+                filteredArticles = articlesToFilter.filter(article => article.category === categoryFilter);
+            } else {
+                filteredArticles = articlesToFilter;
+            }
             renderArticles();
         };
 
@@ -894,19 +902,19 @@
                     filteredArticles.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
                     break;
                 case 'chronological':
-                    filteredArticles.sort((a, b) => (a.historicalYear || 0) - (b.historicalYear || 0));
+                    filteredArticles.sort((a, b) => (a.historicalYear || Infinity) - (b.historicalYear || Infinity)); // Use Infinity for articles without year
                     break;
                 case 'popular':
                     filteredArticles.sort((a, b) => (b.likes || 0) - (a.likes || 0));
                     break;
-                default:
+                default: // newest
                     filteredArticles.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
             }
             renderArticles();
         };
 
         window.toggleFavorites = function() {
-            console.log('Toggle favorites');
+            console.log('Favoritos ainda não implementados.');
         };
     </script>
 </body>
