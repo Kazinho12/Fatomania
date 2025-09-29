@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reações Químicas Interativas - LABMANIA</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --roxo: #6a00ff;
+            --azul: #f72585;
+            --verde: #00ffaa;
+            --fundo: #0f0c29;
+            --fundo-card: #16213e;
+            --destaque: #ff00aa;
+            --perigo: #ff3d00;
+            --sucesso: #00e676;
+            --alerta: #ffc107;
+            --chemistry-primary: #f72585;
+            --chemistry-secondary: #e91e63;
+            --chemistry-accent: #ff006e;
+            --chemistry-fire: #ff4500;
+            --chemistry-blue: #4fc3f7;
+            --chemistry-green: #4caf50;
+            --chemistry-yellow: #ffeb3b;
+            --texto: #ffffff;
+            --texto-secundario: rgba(255, 255, 255, 0.8);
+            --borda: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: linear-gradient(135deg, var(--fundo) 0%, #24243e 50%, var(--fundo) 100%);
+            color: var(--texto);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Fundo químico animado */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(247, 37, 133, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(233, 30, 99, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 50% 20%, rgba(255, 0, 110, 0.1) 0%, transparent 50%);
+            z-index: -1;
+            animation: chemicalReaction 25s ease-in-out infinite;
+        }
+
+        @keyframes chemicalReaction {
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.8; }
+            25% { transform: scale(1.1) rotate(90deg); opacity: 1; }
+            50% { transform: scale(0.9) rotate(180deg); opacity: 0.9; }
+            75% { transform: scale(1.05) rotate(270deg); opacity: 0.7; }
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: linear-gradient(to right, rgba(15, 12, 41, 0.9), rgba(106, 0, 255, 0.7));
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--azul);
+        }
+
+        .logo h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.2rem;
+            margin: 0;
+            background: linear-gradient(90deg, var(--chemistry-primary), var(--chemistry-secondary), var(--chemistry-accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 20px rgba(247, 37, 133, 0.5);
+        }
+
+        .logo h1::after {
+            content: '🧪';
+            margin-left: 10px;
+            font-size: 1.5rem;
+            animation: chemicalBubble 3s ease-in-out infinite;
+        }
+
+        @keyframes chemicalBubble {
+            0%, 100% { transform: translateY(0) scale(1); }
+            25% { transform: translateY(-5px) scale(1.1); }
+            50% { transform: translateY(0) scale(1.2); }
+            75% { transform: translateY(-3px) scale(1.1); }
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: 600;
+            transition: color 0.3s;
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        nav a:hover {
+            color: var(--chemistry-primary);
+            background: rgba(247, 37, 133, 0.1);
+        }
+
+        nav a i {
+            margin-right: 5px;
+        }
+
+        .lab-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 20px;
+            padding: 20px 5%;
+            min-height: calc(100vh - 120px);
+        }
+
+        .reagents-panel, .reactions-panel {
+            background: var(--fundo-card);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(106, 0, 255, 0.3);
+        }
+
+        .reagents-panel h2, .reactions-panel h2, .workbench h2 {
+            margin-top: 0;
+            color: var(--chemistry-primary);
+            border-bottom: 1px solid rgba(247, 37, 133, 0.3);
+            padding-bottom: 10px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .workbench {
+            background: var(--fundo-card);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(106, 0, 255, 0.3);
+            position: relative;
+        }
+
+        /* Área de elementos */
+        .search-box {
+            margin-bottom: 15px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--chemistry-primary);
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .search-box input::placeholder {
+            color: #aaa;
+        }
+
+        .category-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .category-btn {
+            background: rgba(247, 37, 133, 0.2);
+            border: 1px solid var(--chemistry-primary);
+            border-radius: 15px;
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.8rem;
+            color: white;
+        }
+
+        .category-btn:hover, .category-btn.active {
+            background: rgba(247, 37, 133, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .reagent {
+            background: rgba(247, 37, 133, 0.2);
+            border: 2px solid var(--chemistry-primary);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: grab;
+            transition: all 0.3s;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .reagent i {
+            margin-right: 8px;
+            width: 20px;
+            text-align: center;
+            color: var(--chemistry-primary);
+        }
+
+        .reagent-category {
+            font-size: 0.7rem;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 10px;
+            color: var(--chemistry-secondary);
+        }
+
+        .reagent:hover {
+            background: rgba(247, 37, 133, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(247, 37, 133, 0.3);
+        }
+
+        .reagent.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+
+        .element-grid {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .element-grid::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .element-grid::-webkit-scrollbar-track {
+            background: rgba(247, 37, 133, 0.1);
+            border-radius: 4px;
+        }
+
+        .element-grid::-webkit-scrollbar-thumb {
+            background: var(--chemistry-primary);
+            border-radius: 4px;
+        }
+
+        /* Bancada do laboratório */
+        .lab-bench {
+            position: relative;
+            width: 100%;
+            height: 350px;
+            background: linear-gradient(to bottom, #8B4513 0%, #654321 100%);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Bico de Bunsen - CORRIGIDO Z-INDEX */
+        .bunsen-burner {
+            position: absolute;
+            bottom: 20px;
+            left: 50px;
+            width: 50px;
+            height: 100px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10; /* ADICIONADO Z-INDEX */
+        }
+
+        .bunsen-base {
+            width: 50px;
+            height: 30px;
+            background: linear-gradient(to bottom, #666, #333);
+            border-radius: 5px;
+            position: absolute;
+            bottom: 0;
+            z-index: 11;
+        }
+
+        .bunsen-tube {
+            width: 16px;
+            height: 70px;
+            background: linear-gradient(to right, #888, #555);
+            border-radius: 8px 8px 4px 4px;
+            position: absolute;
+            bottom: 30px;
+            left: 17px;
+            z-index: 11;
+        }
+
+        .bunsen-flame {
+            width: 25px;
+            height: 35px;
+            position: absolute;
+            bottom: 100px;
+            left: 12px;
+            background: radial-gradient(ellipse at bottom, var(--chemistry-fire) 0%, transparent 70%);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            animation: flameFlicker 1s ease-in-out infinite alternate;
+            z-index: 12;
+        }
+
+        .bunsen-flame.active {
+            opacity: 1;
+        }
+
+        @keyframes flameFlicker {
+            0% { transform: scale(1) rotate(-2deg); }
+            100% { transform: scale(1.1) rotate(2deg); }
+        }
+
+        /* APENAS UM BALÃO DE REAÇÃO */
+        .reaction-flask {
+            position: absolute;
+            bottom: 30px;
+            left: 220px;
+            width: 70px;
+            height: 100px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 5; /* Z-INDEX MENOR QUE BUNSEN */
+        }
+
+        .flask-body {
+            width: 50px;
+            height: 70px;
+            background: var(--fundo-card);
+            border: 3px solid #ccc;
+            border-radius: 0 0 25px 25px;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .flask-neck {
+            width: 16px;
+            height: 30px;
+            background: var(--fundo-card);
+            border: 3px solid #ccc;
+            border-bottom: none;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .flask-liquid {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 0;
+            background: var(--chemistry-blue);
+            border-radius: 0 0 22px 22px;
+            transition: all 0.5s ease;
+        }
+
+        .flask-bubbles {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 50px;
+            pointer-events: none;
+        }
+
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            animation: bubbleRise 2s infinite ease-in-out;
+            opacity: 0;
+        }
+
+        @keyframes bubbleRise {
+            0% { bottom: 0; opacity: 1; transform: scale(0.1); }
+            50% { opacity: 1; transform: scale(1); }
+            100% { bottom: 50px; opacity: 0; transform: scale(0.1); }
+        }
+
+        .temperature-indicator, .ph-indicator {
+            position: absolute;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            border: 1px solid var(--chemistry-primary);
+            color: var(--chemistry-primary);
+        }
+
+        .temperature-indicator {
+            top: 20px;
+        }
+
+        .ph-indicator {
+            top: 70px;
+        }
+
+        /* Controles de reação */
+        .reaction-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: var(--chemistry-primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-btn:hover {
+            background: var(--chemistry-secondary);
+            transform: translateY(-2px);
+        }
+
+        .control-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Histórico de reações */
+        .reaction-item {
+            background: rgba(247, 37, 133, 0.1);
+            border: 1px solid var(--chemistry-primary);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .reaction-item:hover {
+            background: rgba(247, 37, 133, 0.2);
+            transform: translateX(5px);
+        }
+
+        .reaction-title {
+            color: var(--chemistry-primary);
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .reaction-equation {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.9rem;
+            color: var(--chemistry-accent);
+            margin-bottom: 8px;
+        }
+
+        .reaction-description {
+            font-size: 0.9rem;
+            color: var(--texto-secundario);
+            line-height: 1.4;
+        }
+
+        .safety-indicator {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        .safety-success {
+            background: var(--sucesso);
+            color: black;
+        }
+
+        .safety-warning {
+            background: var(--alerta);
+            color: black;
+        }
+
+        .safety-danger {
+            background: var(--perigo);
+            color: white;
+        }
+
+        /* Status do laboratório */
+        .lab-status {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid var(--chemistry-primary);
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .status-value {
+            color: var(--chemistry-primary);
+            font-weight: 600;
+        }
+
+        /* Efeitos visuais */
+        .heating-effect {
+            box-shadow: 0 0 20px rgba(255, 69, 0, 0.6);
+            animation: heatPulse 1s ease-in-out infinite alternate;
+        }
+
+        @keyframes heatPulse {
+            0% { box-shadow: 0 0 20px rgba(255, 69, 0, 0.6); }
+            100% { box-shadow: 0 0 30px rgba(255, 69, 0, 0.9); }
+        }
+
+        .reaction-flash {
+            animation: reactionFlash 0.5s ease-out;
+        }
+
+        @keyframes reactionFlash {
+            0% { background: rgba(255, 255, 255, 0.3); }
+            100% { background: transparent; }
+        }
+
+        /* Modal de informações */
+        .reaction-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--fundo-card);
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 2px solid var(--chemistry-primary);
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: var(--chemistry-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .modal-title {
+            color: var(--chemistry-primary);
+            font-family: 'Orbitron', sans-serif;
+            margin-bottom: 15px;
+        }
+
+        .modal-equation {
+            font-family: 'Orbitron', monospace;
+            background: rgba(247, 37, 133, 0.1);
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .property-item {
+            margin: 10px 0;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+
+        .property-label {
+            color: var(--chemistry-secondary);
+            font-weight: 600;
+        }
+
+        /* Responsividade */
+        @media (max-width: 1024px) {
+            .lab-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto;
+            }
+            
+            .lab-bench {
+                height: 250px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .reaction-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .control-btn {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>LABMANIA - Reações</h1>
+        </div>
+        <nav>
+            <a href="/lab-quimica.html"><i class="fas fa-arrow-left"></i> Voltar ao Lab</a>
+            <a href="/dashboard.html"><i class="fas fa-home"></i> Início</a>
+        </nav>
+    </header>
+
+    <div class="lab-container">
+        <!-- Painel de Reagentes -->
+        <div class="reagents-panel">
+            <h2><i class="fas fa-flask"></i> Reagentes Disponíveis</h2>
+            
+            <div class="search-box">
+                <input type="text" id="searchReagent" placeholder="Buscar reagente...">
+            </div>
+            
+            <div class="category-filter">
+                <span class="category-btn active" data-category="all">Todos</span>
+                <span class="category-btn" data-category="acid">Ácidos</span>
+                <span class="category-btn" data-category="base">Bases</span>
+                <span class="category-btn" data-category="salt">Sais</span>
+                <span class="category-btn" data-category="metal">Metais</span>
+                <span class="category-btn" data-category="gas">Gases</span>
+                <span class="category-btn" data-category="organic">Orgânicos</span>
+            </div>
+            
+            <div class="element-grid" id="reagentsList">
+                <!-- Reagentes serão carregados dinamicamente -->
+            </div>
+        </div>
+
+        <!-- Bancada Principal -->
+        <div class="workbench">
+            <h2><i class="fas fa-vial"></i> Bancada de Reações</h2>
+            
+            <div class="lab-bench">
+                <!-- Bico de Bunsen -->
+                <div class="bunsen-burner" onclick="toggleBunsen()">
+                    <div class="bunsen-base"></div>
+                    <div class="bunsen-tube"></div>
+                    <div class="bunsen-flame" id="bunsenFlame"></div>
+                </div>
+                
+                <!-- APENAS UM BALÃO DE REAÇÃO -->
+                <div class="reaction-flask" onclick="selectFlask(1)">
+                    <div class="flask-neck"></div>
+                    <div class="flask-body">
+                        <div class="flask-liquid" id="flaskLiquid1"></div>
+                        <div class="flask-bubbles" id="flaskBubbles1"></div>
+                    </div>
+                </div>
+                
+                <!-- Indicadores -->
+                <div class="temperature-indicator">
+                    <i class="fas fa-thermometer-half"></i> <span id="tempDisplay">25°C</span>
+                </div>
+                <div class="ph-indicator">
+                    pH: <span id="phDisplay">7.0</span>
+                </div>
+                
+                <!-- Status do laboratório -->
+                <div class="lab-status">
+                    <div class="status-item">
+                        <span>Bunsen:</span>
+                        <span class="status-value" id="bunsenStatus">Desligado</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Flask:</span>
+                        <span class="status-value" id="flaskStatus">Vazio</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Reagentes:</span>
+                        <span class="status-value" id="reagentCount">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Controles de Reação -->
+            <div class="reaction-controls">
+                <button class="control-btn" onclick="startReaction()">
+                    <i class="fas fa-play"></i> Iniciar Reação
+                </button>
+                <button class="control-btn" onclick="clearFlask()">
+                    <i class="fas fa-broom"></i> Limpar
+                </button>
+                <button class="control-btn" onclick="showReactionInfo()">
+                    <i class="fas fa-info-circle"></i> Info
+                </button>
+            </div>
+        </div>
+
+        <!-- Painel de Reações -->
+        <div class="reactions-panel">
+            <h2><i class="fas fa-history"></i> Histórico de Reações</h2>
+            <div id="reactionHistory">
+                <p style="color: #888; text-align: center;">Nenhuma reação realizada ainda</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Informações -->
+    <div class="reaction-modal" id="reactionModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <h3 class="modal-title" id="modalTitle">Informações da Reação</h3>
+            <div class="modal-equation" id="modalEquation"></div>
+            <div id="modalDescription"></div>
+            <div id="modalProperties"></div>
+        </div>
+    </div>
+
+    <script src="/lab/reaquim.js"></script>
+</body>
+</html>

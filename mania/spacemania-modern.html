@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPACEMANIA - Exploração Espacial</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --roxo-cosmico: #4a00e0;
+            --azul-cosmico: #8e2de2;
+            --estrela: #fff700;
+            --nebulosa: #ff006e;
+            --espaco: #000428;
+            --fundo-card: #1a1a2e;
+            --destaque: #fff700;
+            --perigo: #ff006e;
+            --sucesso: #00ff41;
+            --texto-claro: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--espaco) 0%, #004e92 50%, var(--espaco) 100%);
+            font-family: 'Rajdhani', sans-serif;
+            color: var(--texto-claro);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Estrelas animadas */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--estrela);
+            border-radius: 50%;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: linear-gradient(to right, rgba(0, 4, 40, 0.9), rgba(255, 215, 0, 0.1));
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--destaque);
+            position: relative;
+        }
+
+        .logo h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, var(--destaque), var(--azul-cosmico));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .slogan {
+            color: var(--azul-cosmico);
+            font-style: italic;
+            text-shadow: 0 0 10px rgba(142, 45, 226, 0.5);
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        nav a {
+            color: var(--texto-claro);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid transparent;
+            position: relative;
+        }
+
+        nav a:hover {
+            color: var(--destaque);
+            border-color: var(--destaque);
+            background: rgba(255, 215, 0, 0.1);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, var(--destaque), var(--azul-cosmico));
+            border: none;
+            color: var(--espaco);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 25px rgba(255, 215, 0, 0.5);
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 3rem 1rem;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(142, 45, 226, 0.1));
+            border-radius: 20px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.2);
+        }
+
+        .hero-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            color: var(--destaque);
+            margin-bottom: 1rem;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.7);
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: var(--azul-cosmico);
+            margin-bottom: 2rem;
+            text-shadow: 0 0 15px rgba(142, 45, 226, 0.5);
+        }
+
+        .filters-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 1rem 3rem 1rem 1rem;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 25px;
+            background: rgba(0, 0, 0, 0.5);
+            color: var(--texto-claro);
+            font-size: 1rem;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+        }
+
+        .search-box input:focus {
+            border-color: var(--destaque);
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.4);
+            outline: none;
+        }
+
+        .search-box button {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--destaque);
+            border: none;
+            color: var(--espaco);
+            padding: 0.8rem;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+
+        .filter-select {
+            padding: 1rem;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            color: var(--texto-claro);
+            font-size: 1rem;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+        }
+
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .article-card {
+            background: var(--fundo-card);
+            border-radius: 20px;
+            padding: 0;
+            border: 2px solid rgba(255, 215, 0, 0.2);
+            transition: all 0.3s;
+            cursor: pointer;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .article-card:hover {
+            border-color: var(--destaque);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(255, 215, 0, 0.3);
+        }
+
+        .article-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--destaque), transparent);
+            transition: left 0.8s;
+        }
+
+        .article-card:hover::before {
+            left: 100%;
+        }
+
+        .article-image {
+            width: 100%;
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .article-category {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: var(--destaque);
+            color: var(--espaco);
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+
+        .article-content {
+            padding: 1.5rem;
+        }
+
+        .article-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--texto-claro);
+            line-height: 1.4;
+        }
+
+        .article-summary {
+            color: var(--azul-cosmico);
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .article-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--texto-claro);
+            opacity: 0.8;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--destaque);
+            font-size: 1.2rem;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            animation: spin 1s linear infinite;
+            filter: drop-shadow(0 0 10px var(--destaque));
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: var(--destaque);
+        }
+
+        .no-results i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 0 15px var(--destaque));
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .filters-container {
+                flex-direction: column;
+            }
+
+            .search-box {
+                min-width: 100%;
+            }
+
+            .articles-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Estrelas animadas -->
+    <div class="stars" id="stars"></div>
+
+    <header>
+        <div class="logo">
+            <h1>SPACEMANIA</h1>
+            <p class="slogan">Rumo ao infinito e além!</p>
+        </div>
+        <nav>
+            <a href="/dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="#" onclick="toggleFavorites()"><i class="fas fa-bookmark"></i> Favoritos</a>
+            <a href="/submit-space.html" class="submit-btn">
+                <i class="fas fa-plus"></i> Enviar Conteúdo
+            </a>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <div class="hero-section">
+            <h1 class="hero-title">
+                <i class="fas fa-rocket"></i> EXPLORAÇÃO ESPACIAL
+            </h1>
+            <p class="hero-subtitle">
+                Descubra os mistérios do cosmos e as conquistas da humanidade no espaço
+            </p>
+        </div>
+
+        <div class="filters-container">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Pesquisar conteúdo espacial...">
+                <button onclick="searchArticles()">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            
+            <select class="filter-select" id="categoryFilter" onchange="filterArticles()">
+                <option value="">Todas as categorias</option>
+                <option value="astronomia">🌌 Astronomia</option>
+                <option value="planetas">🪐 Planetas</option>
+                <option value="missoes">🚀 Missões Espaciais</option>
+                <option value="estrelas">⭐ Estrelas</option>
+                <option value="galaxias">🌠 Galáxias</option>
+                <option value="cosmologia">🌌 Cosmologia</option>
+                <option value="tecnologia">🛰️ Tecnologia Espacial</option>
+                <option value="exoplanetas">🌍 Exoplanetas</option>
+            </select>
+
+            <select class="filter-select" id="sortFilter" onchange="sortArticles()">
+                <option value="newest">Mais recentes</option>
+                <option value="oldest">Mais antigas</option>
+                <option value="popular">Mais populares</option>
+                <option value="mostViewed">Mais visualizadas</option>
+            </select>
+        </div>
+
+        <div class="articles-grid" id="articlesGrid">
+            <!-- Artigos serão carregados aqui -->
+        </div>
+
+        <div class="loading" id="loading">
+            <i class="fas fa-rocket fa-spin"></i>
+            <p>Carregando conteúdo espacial...</p>
+        </div>
+
+        <div class="no-results" id="noResults" style="display: none;">
+            <i class="fas fa-satellite"></i>
+            <h3>Nenhum conteúdo encontrado</h3>
+            <p>Tente ajustar os filtros de pesquisa.</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import '/firebase-config.js';
+
+        let currentArticles = [];
+        let filteredArticles = [];
+
+        // Wait for Firebase to be ready
+        window.addEventListener('load', async () => {
+            createStars();
+            await loadArticles();
+        });
+
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        async function loadArticles() {
+            try {
+                const articlesQuery = window.firebaseDB.query(
+                    window.firebaseDB.collection(window.firebaseDB.db, 'space-articles'),
+                    window.firebaseDB.where('status', '==', 'published'),
+                    window.firebaseDB.orderBy('createdAt', 'desc')
+                );
+
+                const snapshot = await window.firebaseDB.getDocs(articlesQuery);
+                currentArticles = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                filteredArticles = [...currentArticles];
+                renderArticles();
+            } catch (error) {
+                console.error('Erro ao carregar artigos:', error);
+                document.getElementById('loading').innerHTML = '<p>Erro ao carregar artigos. Tente novamente.</p>';
+            }
+        }
+
+        function renderArticles() {
+            const articlesGrid = document.getElementById('articlesGrid');
+            const loading = document.getElementById('loading');
+            const noResults = document.getElementById('noResults');
+
+            loading.style.display = 'none';
+
+            if (filteredArticles.length === 0) {
+                noResults.style.display = 'block';
+                articlesGrid.innerHTML = '';
+                return;
+            }
+
+            noResults.style.display = 'none';
+
+            articlesGrid.innerHTML = filteredArticles.map(article => `
+                <div class="article-card">
+                    <div class="article-image" style="background-image: url('${article.imageUrl || '/icon/venus.jpg'}')">
+                        <div class="article-category">${getCategoryIcon(article.category)} ${article.category}</div>
+                    </div>
+                    <div class="article-content">
+                        <h3 class="article-title">${article.title}</h3>
+                        <p class="article-summary">${article.summary}</p>
+                        <div class="article-meta">
+                            <div class="article-author">
+                                <i class="fas fa-user-astronaut"></i>
+                                <span>${article.author}</span>
+                            </div>
+                            <div class="article-stats">
+                                <span><i class="fas fa-eye"></i> ${article.views || 0}</span>
+                                <span><i class="fas fa-heart"></i> ${article.likes || 0}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getCategoryIcon(category) {
+            const icons = {
+                'astronomia': '🌌',
+                'planetas': '🪐',
+                'missoes': '🚀',
+                'estrelas': '⭐',
+                'galaxias': '🌠',
+                'cosmologia': '🌌',
+                'tecnologia': '🛰️',
+                'exoplanetas': '🌍'
+            };
+            return icons[category] || '🚀';
+        }
+
+        function searchArticles() {
+            filterAndSort();
+        }
+
+        function filterArticles() {
+            filterAndSort();
+        }
+
+        function sortArticles() {
+            filterAndSort();
+        }
+
+        function filterAndSort() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const category = document.getElementById('categoryFilter').value;
+            const sortBy = document.getElementById('sortFilter').value;
+
+            // Filter
+            filteredArticles = currentArticles.filter(article => {
+                const matchesSearch = article.title.toLowerCase().includes(searchTerm) ||
+                                    article.summary.toLowerCase().includes(searchTerm);
+                const matchesCategory = !category || article.category === category;
+                return matchesSearch && matchesCategory;
+            });
+
+            // Sort
+            switch (sortBy) {
+                case 'newest':
+                    filteredArticles.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+                    break;
+                case 'oldest':
+                    filteredArticles.sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
+                    break;
+                case 'popular':
+                    filteredArticles.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+                    break;
+                case 'mostViewed':
+                    filteredArticles.sort((a, b) => (b.views || 0) - (a.views || 0));
+                    break;
+            }
+
+            renderArticles();
+        }
+
+        // Global functions
+        window.searchArticles = searchArticles;
+        window.filterArticles = filterArticles;
+        window.sortArticles = sortArticles;
+
+        // Search on enter
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchArticles();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,957 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enviar Pesquisa - SPORTMANIA</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --laranja: #ff8c00;
+            --vermelho: #ff4500;
+            --azul: #00bfff;
+            --verde: #32cd32;
+            --fundo: #1a1a1a;
+            --fundo-card: #2a2a2a;
+            --destaque: #ff8c00;
+            --perigo: #ff3d00;
+            --sucesso: #00e676;
+            --texto-claro: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--fundo) 0%, #333333 50%, var(--fundo) 100%);
+            font-family: 'Rajdhani', sans-serif;
+            color: var(--texto-claro);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: linear-gradient(to right, rgba(26, 26, 26, 0.9), rgba(255, 140, 0, 0.1));
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--destaque);
+            box-shadow: 0 2px 20px rgba(255, 140, 0, 0.2);
+        }
+
+        .logo h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, var(--destaque), var(--vermelho));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .slogan {
+            color: var(--azul);
+            font-style: italic;
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        nav a {
+            color: var(--texto-claro);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid transparent;
+        }
+
+        nav a:hover {
+            color: var(--destaque);
+            border-color: var(--destaque);
+            background: rgba(255, 140, 0, 0.1);
+        }
+
+        .main-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .form-container {
+            background: var(--fundo-card);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 2px solid var(--destaque);
+            box-shadow: 0 0 30px rgba(255, 140, 0, 0.2);
+        }
+
+        .form-title {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .form-title h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            color: var(--destaque);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-title p {
+            color: var(--azul);
+            font-size: 1.1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--destaque);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid rgba(255, 140, 0, 0.3);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--texto-claro);
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--destaque);
+            box-shadow: 0 0 15px rgba(255, 140, 0, 0.3);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ff8c00' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+            appearance: none;
+        }
+
+        .file-input-container {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input {
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            cursor: pointer;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 1rem;
+            border: 2px dashed var(--destaque);
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(255, 140, 0, 0.1);
+        }
+
+        .file-input-label:hover {
+            background: rgba(255, 140, 0, 0.2);
+            border-color: var(--azul);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, var(--destaque), var(--vermelho));
+            color: var(--fundo);
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            margin-top: 1rem;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 140, 0, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .message.success {
+            background: rgba(0, 230, 118, 0.1);
+            border: 2px solid var(--sucesso);
+            color: var(--sucesso);
+        }
+
+        .message.error {
+            background: rgba(255, 61, 0, 0.1);
+            border: 2px solid var(--perigo);
+            color: var(--perigo);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--destaque);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .logo h1 {
+                font-size: 2rem;
+            }
+
+            .main-container {
+                padding: 0 0.5rem;
+            }
+
+            .form-container {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>SPORTMANIA</h1>
+            <p class="slogan">Enviar Pesquisa Esportiva</p>
+        </div>
+        <nav>
+            <a href="/dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="/mania/sportmania.html"><i class="fas fa-running"></i> SPORTMANIA</a>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <div class="form-container">
+            <div class="form-title">
+                <h2><i class="fas fa-plus-circle"></i> Compartilhar Ciência Esportiva</h2>
+                <p>Não é magia, é ciência! Descubra os segredos dos atletas!</p>
+            </div>
+
+            <div id="message"></div>
+
+            <form id="sportsForm">
+                <div class="form-group">
+                    <label for="title">
+                        <i class="fas fa-heading"></i> Título da Pesquisa
+                    </label>
+                    <input type="text" id="title" class="form-input" placeholder="Digite um título impactante..." required>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">
+                        <i class="fas fa-tags"></i> Categoria Esportiva
+                    </label>
+                    <select id="category" class="form-input form-select" required>
+                        <option value="">Selecione uma categoria</option>
+                        <option value="biomechanics">🏃 Biomecânica</option>
+                        <option value="nutrition">🍎 Nutrição Esportiva</option>
+                        <option value="technology">⚙️ Tecnologia Esportiva</option>
+                        <option value="performance">📈 Performance</option>
+                        <option value="recovery">💤 Recuperação</option>
+                        <option value="psychology">🧠 Psicologia Esportiva</option>
+                        <option value="equipment">🥇 Equipamentos</option>
+                        <option value="training">🏋️ Treinamento</option>
+                        <option value="medicine">⚕️ Medicina Esportiva</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="summary">
+                        <i class="fas fa-align-left"></i> Resumo da Pesquisa
+                    </label>
+                    <textarea id="summary" class="form-input form-textarea" placeholder="Resuma brevemente sua pesquisa esportiva..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="content">
+                        <i class="fas fa-file-alt"></i> Conteúdo Completo
+                    </label>
+                    <textarea id="content" class="form-input form-textarea" style="min-height: 200px;" placeholder="Desenvolva detalhadamente: metodologia, resultados, aplicações..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="image">
+                        <i class="fas fa-image"></i> Imagem Ilustrativa
+                    </label>
+                    <div class="file-input-container">
+                        <input type="file" id="image" class="file-input" accept="image/*">
+                        <label for="image" class="file-input-label">
+                            <i class="fas fa-cloud-upload-alt"></i><br>
+                            Clique para selecionar uma imagem<br>
+                            <small>JPG, PNG ou GIF (máx. 5MB)</small>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="sport">
+                        <i class="fas fa-trophy"></i> Esporte Principal (se aplicável)
+                    </label>
+                    <input type="text" id="sport" class="form-input" placeholder="Ex: Futebol, Natação, Atletismo, etc.">
+                </div>
+
+                <div class="form-group">
+                    <label for="researchType">
+                        <i class="fas fa-microscope"></i> Tipo de Pesquisa
+                    </label>
+                    <select id="researchType" class="form-input form-select">
+                        <option value="">Selecione o tipo</option>
+                        <option value="experimental">Experimental</option>
+                        <option value="observational">Observacional</option>
+                        <option value="review">Revisão Bibliográfica</option>
+                        <option value="case-study">Estudo de Caso</option>
+                        <option value="meta-analysis">Meta-análise</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="source">
+                        <i class="fas fa-link"></i> Fonte/Publicação (Opcional)
+                    </label>
+                    <input type="url" id="source" class="form-input" placeholder="https://exemplo.com/fonte-da-pesquisa">
+                </div>
+
+                <div class="form-group">
+                    <label for="tags">
+                        <i class="fas fa-hashtag"></i> Tags (separadas por vírgula)
+                    </label>
+                    <input type="text" id="tags" class="form-input" placeholder="esporte, ciência, performance, atletas">
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <i class="fas fa-running"></i> Publicar Pesquisa
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import '/firebase-config.js';
+
+        // Wait for Firebase to be ready
+        window.addEventListener('load', async () => {
+            const user = await window.requireAuth();
+            if (!user) {
+                return; // requireAuth already handles redirect
+            }
+
+            // Set up form submission
+            document.getElementById('sportsForm').addEventListener('submit', handleSubmit);
+            document.getElementById('image').addEventListener('change', handleImageSelect);
+        });
+
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = `<div class="message ${type}">${text}</div>`;
+            setTimeout(() => {
+                messageDiv.innerHTML = '';
+            }, 5000);
+        }
+
+        function handleImageSelect(event) {
+            const file = event.target.files[0];
+            const label = event.target.nextElementSibling;
+            
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                    showMessage('A imagem deve ter no máximo 5MB.', 'error');
+                    event.target.value = '';
+                    return;
+                }
+                label.innerHTML = `<i class="fas fa-check-circle"></i><br>Imagem selecionada: ${file.name}`;
+            }
+        }
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<div class="loading"></div> Publicando...';
+            submitBtn.disabled = true;
+
+            try {
+                const user = window.firebaseAuth.auth.currentUser;
+                if (!user) {
+                    throw new Error('Usuário não autenticado');
+                }
+
+                const formData = {
+                    title: document.getElementById('title').value,
+                    category: document.getElementById('category').value,
+                    summary: document.getElementById('summary').value,
+                    content: document.getElementById('content').value,
+                    sport: document.getElementById('sport').value,
+                    researchType: document.getElementById('researchType').value,
+                    source: document.getElementById('source').value,
+                    tags: document.getElementById('tags').value.split(',').map(tag => tag.trim()).filter(tag => tag),
+                    author: user.displayName || user.email,
+                    authorId: user.uid,
+                    createdAt: window.firebaseDB.serverTimestamp(),
+                    likes: 0,
+                    views: 0,
+                    status: 'published'
+                };
+
+                // Handle image upload if provided
+                const imageFile = document.getElementById('image').files[0];
+                if (imageFile) {
+                    const imageRef = window.firebaseStorage.ref(window.firebaseStorage.storage, `sports-images/${Date.now()}-${imageFile.name}`);
+                    const snapshot = await window.firebaseStorage.uploadBytes(imageRef, imageFile);
+                    formData.imageUrl = await window.firebaseStorage.getDownloadURL(snapshot.ref);
+                }
+
+                // Save to Firestore
+                await window.firebaseDB.addDoc(window.firebaseDB.collection(window.firebaseDB.db, 'sports-articles'), formData);
+
+                showMessage('Pesquisa esportiva publicada com sucesso!', 'success');
+                document.getElementById('sportsForm').reset();
+                
+                setTimeout(() => {
+                    window.location.href = '/mania/sportmania.html';
+                }, 2000);
+
+            } catch (error) {
+                console.error('Erro ao publicar pesquisa:', error);
+                showMessage('Erro ao publicar pesquisa. Tente novamente.', 'error');
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enviar Artigo - SPORTMANIA</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --laranja: #ff6600;
+            --azul: #0066ff;
+            --verde: #00cc66;
+            --vermelho: #ff3333;
+            --amarelo: #ffcc00;
+            --fundo: #0f0c29;
+            --fundo-card: #16213e;
+            --destaque: #ff6600;
+            --perigo: #ff3d00;
+            --sucesso: #00e676;
+            --texto-claro: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--fundo) 0%, #1a4d66 50%, var(--fundo) 100%);
+            font-family: 'Rajdhani', sans-serif;
+            color: var(--texto-claro);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: linear-gradient(to right, rgba(15, 12, 41, 0.9), rgba(255, 102, 0, 0.1));
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--destaque);
+            box-shadow: 0 2px 20px rgba(255, 102, 0, 0.2);
+        }
+
+        .logo h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, var(--destaque), var(--amarelo));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .slogan {
+            color: var(--azul);
+            font-style: italic;
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        nav a {
+            color: var(--texto-claro);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid transparent;
+        }
+
+        nav a:hover {
+            color: var(--destaque);
+            border-color: var(--destaque);
+            background: rgba(255, 102, 0, 0.1);
+        }
+
+        .main-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .form-container {
+            background: var(--fundo-card);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 2px solid var(--destaque);
+            box-shadow: 0 0 30px rgba(255, 102, 0, 0.2);
+        }
+
+        .form-title {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .form-title h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            color: var(--destaque);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-title p {
+            color: var(--azul);
+            font-size: 1.1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--destaque);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid rgba(255, 102, 0, 0.3);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--texto-claro);
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--destaque);
+            box-shadow: 0 0 15px rgba(255, 102, 0, 0.3);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ff6600' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+            appearance: none;
+        }
+
+        .file-input-container {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input {
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            cursor: pointer;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 1rem;
+            border: 2px dashed var(--destaque);
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(255, 102, 0, 0.1);
+        }
+
+        .file-input-label:hover {
+            background: rgba(255, 102, 0, 0.2);
+            border-color: var(--azul);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, var(--destaque), var(--amarelo));
+            color: var(--fundo);
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            margin-top: 1rem;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 102, 0, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .message.success {
+            background: rgba(0, 230, 118, 0.1);
+            border: 2px solid var(--sucesso);
+            color: var(--sucesso);
+        }
+
+        .message.error {
+            background: rgba(255, 61, 0, 0.1);
+            border: 2px solid var(--perigo);
+            color: var(--perigo);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--destaque);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .logo h1 {
+                font-size: 2rem;
+            }
+
+            .main-container {
+                padding: 0 0.5rem;
+            }
+
+            .form-container {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>SPORTMANIA</h1>
+            <p class="slogan">Enviar Artigo Esportivo</p>
+        </div>
+        <nav>
+            <a href="/dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="/mania/sportmania.html"><i class="fas fa-football-ball"></i> SPORTMANIA</a>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <div class="form-container">
+            <div class="form-title">
+                <h2><i class="fas fa-plus-circle"></i> Compartilhar Artigo Esportivo</h2>
+                <p>Inspire a comunidade com análises e notícias do mundo dos esportes!</p>
+            </div>
+
+            <div id="message"></div>
+
+            <form id="sportsForm">
+                <div class="form-group">
+                    <label for="title">
+                        <i class="fas fa-heading"></i> Título do Artigo
+                    </label>
+                    <input type="text" id="title" class="form-input" placeholder="Digite um título impactante..." required>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">
+                        <i class="fas fa-tags"></i> Modalidade Esportiva
+                    </label>
+                    <select id="category" class="form-input form-select" required>
+                        <option value="">Selecione uma modalidade</option>
+                        <option value="futebol">⚽ Futebol</option>
+                        <option value="basquete">🏀 Basquete</option>
+                        <option value="volei">🏐 Vôlei</option>
+                        <option value="tenis">🎾 Tênis</option>
+                        <option value="natacao">🏊 Natação</option>
+                        <option value="atletismo">🏃 Atletismo</option>
+                        <option value="formula1">🏎️ Fórmula 1</option>
+                        <option value="mma">🥊 MMA/Luta</option>
+                        <option value="olimpiadas">🏅 Olimpíadas</option>
+                        <option value="esportes-eletronicos">🎮 E-Sports</option>
+                        <option value="outros">🏆 Outros Esportes</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="summary">
+                        <i class="fas fa-align-left"></i> Resumo do Artigo
+                    </label>
+                    <textarea id="summary" class="form-input form-textarea" placeholder="Resuma brevemente o artigo esportivo..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="content">
+                        <i class="fas fa-file-alt"></i> Conteúdo Completo
+                    </label>
+                    <textarea id="content" class="form-input form-textarea" style="min-height: 200px;" placeholder="Desenvolva o artigo: análises, estatísticas, contexto histórico..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="image">
+                        <i class="fas fa-image"></i> Imagem do Artigo
+                    </label>
+                    <div class="file-input-container">
+                        <input type="file" id="image" class="file-input" accept="image/*">
+                        <label for="image" class="file-input-label">
+                            <i class="fas fa-cloud-upload-alt"></i><br>
+                            Clique para selecionar uma imagem<br>
+                            <small>JPG, PNG ou GIF (máx. 5MB)</small>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="athlete">
+                        <i class="fas fa-user-tie"></i> Atleta/Equipe (se aplicável)
+                    </label>
+                    <input type="text" id="athlete" class="form-input" placeholder="Nome do atleta ou equipe">
+                </div>
+
+                <div class="form-group">
+                    <label for="competition">
+                        <i class="fas fa-trophy"></i> Competição (se aplicável)
+                    </label>
+                    <input type="text" id="competition" class="form-input" placeholder="Nome da competição ou campeonato">
+                </div>
+
+                <div class="form-group">
+                    <label for="tags">
+                        <i class="fas fa-hashtag"></i> Tags (separadas por vírgula)
+                    </label>
+                    <input type="text" id="tags" class="form-input" placeholder="esporte, competição, atleta, análise">
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <i class="fas fa-football-ball"></i> Publicar Artigo
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import '/firebase-config.js';
+
+        // Wait for Firebase to be ready
+        window.addEventListener('load', async () => {
+            const user = await window.requireAuth();
+            if (!user) {
+                return; // requireAuth already handles redirect
+            }
+
+            // Set up form submission
+            document.getElementById('sportsForm').addEventListener('submit', handleSubmit);
+            document.getElementById('image').addEventListener('change', handleImageSelect);
+        });
+
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = `<div class="message ${type}">${text}</div>`;
+            setTimeout(() => {
+                messageDiv.innerHTML = '';
+            }, 5000);
+        }
+
+        function handleImageSelect(event) {
+            const file = event.target.files[0];
+            const label = event.target.nextElementSibling;
+            
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                    showMessage('A imagem deve ter no máximo 5MB.', 'error');
+                    event.target.value = '';
+                    return;
+                }
+                label.innerHTML = `<i class="fas fa-check-circle"></i><br>Imagem selecionada: ${file.name}`;
+            }
+        }
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<div class="loading"></div> Publicando...';
+            submitBtn.disabled = true;
+
+            try {
+                const user = window.firebaseAuth.auth.currentUser;
+                if (!user) {
+                    throw new Error('Usuário não autenticado');
+                }
+
+                const formData = {
+                    title: document.getElementById('title').value,
+                    category: document.getElementById('category').value,
+                    summary: document.getElementById('summary').value,
+                    content: document.getElementById('content').value,
+                    athlete: document.getElementById('athlete').value,
+                    competition: document.getElementById('competition').value,
+                    tags: document.getElementById('tags').value.split(',').map(tag => tag.trim()).filter(tag => tag),
+                    author: user.displayName || user.email,
+                    authorId: user.uid,
+                    createdAt: window.firebaseDB.serverTimestamp(),
+                    likes: 0,
+                    views: 0,
+                    status: 'published'
+                };
+
+                // Handle image upload if provided
+                const imageFile = document.getElementById('image').files[0];
+                if (imageFile) {
+                    const imageRef = window.firebaseStorage.ref(window.firebaseStorage.storage, `sports-images/${Date.now()}-${imageFile.name}`);
+                    const snapshot = await window.firebaseStorage.uploadBytes(imageRef, imageFile);
+                    formData.imageUrl = await window.firebaseStorage.getDownloadURL(snapshot.ref);
+                }
+
+                // Save to Firestore
+                await window.firebaseDB.addDoc(window.firebaseDB.collection(window.firebaseDB.db, 'sports-articles'), formData);
+
+                showMessage('Artigo esportivo publicado com sucesso!', 'success');
+                document.getElementById('sportsForm').reset();
+                
+                setTimeout(() => {
+                    window.location.href = '/mania/sportmania.html';
+                }, 2000);
+
+            } catch (error) {
+                console.error('Erro ao publicar artigo:', error);
+                showMessage('Erro ao publicar artigo. Tente novamente.', 'error');
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

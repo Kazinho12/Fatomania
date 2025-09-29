@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LabMania - Laboratório Virtual</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --roxo: #6a00ff;
+            --azul: #f72585;
+            --verde: #00ffaa;
+            --fundo: #0f0c29;
+            --fundo-card: #16213e;
+            --destaque: #ff00aa;
+            --perigo: #ff3d00;
+            --sucesso: #00e676;
+            --alerta: #ffc107;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, var(--fundo) 0%, #24243e 50%, var(--fundo) 100%);
+            font-family: 'Rajdhani', sans-serif;
+            color: white;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: linear-gradient(to right, rgba(15, 12, 41, 0.9), rgba(106, 0, 255, 0.7));
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--azul);
+        }
+
+        .logo h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            margin: 0;
+            background: linear-gradient(90deg, var(--roxo), var(--azul));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 10px rgba(106, 0, 255, 0.5);
+        }
+
+        .slogan {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--azul);
+            font-style: italic;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--azul);
+        }
+
+        nav a i {
+            margin-right: 5px;
+        }
+
+        .lab-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 20px;
+            padding: 20px 5%;
+            min-height: calc(100vh - 80px);
+        }
+
+        .reagents-panel, .reactions-panel {
+            background: var(--fundo-card);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(106, 0, 255, 0.3);
+        }
+
+        .reagents-panel h2, .reactions-panel h2, .workbench h2 {
+            margin-top: 0;
+            color: var(--azul);
+            border-bottom: 1px solid rgba(0, 247, 255, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .workbench {
+            background: var(--fundo-card);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(106, 0, 255, 0.3);
+            position: relative;
+        }
+
+        .search-box {
+            margin-bottom: 15px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--roxo);
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .search-box input::placeholder {
+            color: #aaa;
+        }
+
+        .category-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .category-btn {
+            background: rgba(106, 0, 255, 0.2);
+            border: 1px solid var(--roxo);
+            border-radius: 15px;
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.8rem;
+        }
+
+        .category-btn:hover, .category-btn.active {
+            background: rgba(106, 0, 255, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .reagent {
+            background: rgba(106, 0, 255, 0.2);
+            border: 2px solid var(--roxo);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: grab;
+            transition: all 0.3s;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .reagent i {
+            margin-right: 8px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .reagent-category {
+            font-size: 0.7rem;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 10px;
+        }
+
+        .reagent:hover {
+            background: rgba(106, 0, 255, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(106, 0, 255, 0.3);
+        }
+
+        .reagent.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+
+        .element-grid {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .element-grid::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .element-grid::-webkit-scrollbar-track {
+            background: rgba(106, 0, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .element-grid::-webkit-scrollbar-thumb {
+            background: var(--roxo);
+            border-radius: 4px;
+        }
+
+        .periodic-table {
+            display: grid;
+            grid-template-columns: repeat(18, 1fr);
+            gap: 2px;
+            margin-top: 10px;
+        }
+
+        .periodic-element {
+            background: rgba(106, 0, 255, 0.2);
+            border: 1px solid var(--roxo);
+            border-radius: 4px;
+            padding: 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.7rem;
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .periodic-element:hover {
+            background: rgba(106, 0, 255, 0.4);
+            transform: scale(1.1);
+        }
+
+        .periodic-element .symbol {
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .periodic-element .number {
+            font-size: 0.6rem;
+            opacity: 0.7;
+        }
+
+        .equipment-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .equipment-btn {
+            background: rgba(106, 0, 255, 0.2);
+            border: 1px solid var(--roxo);
+            border-radius: 6px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+            text-decoration: none;
+        }
+
+        .equipment-btn:hover, .equipment-btn.active {
+            background: rgba(106, 0, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .equipment-btn i {
+            margin-right: 5px;
+        }
+
+        .flask {
+            width: 120px;
+            height: 180px;
+            background: linear-gradient(to bottom, #f0f0f0, #e0e0e0);
+            border-radius: 10px 10px 50px 50px;
+            border: 3px solid #ccc;
+            position: relative;
+            margin: 40px 0;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .flask.highlight {
+            box-shadow: 0 0 20px var(--azul);
+            border-color: var(--azul);
+        }
+
+        .liquid {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 0;
+            transition: height 0.5s, background-color 0.5s;
+            border-radius: 0 0 45px 45px;
+        }
+
+        .bunsen-burner {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 60px;
+            background: linear-gradient(to bottom, #555, #333);
+            border-radius: 5px 5px 0 0;
+            display: none;
+            z-index: 1;
+        }
+
+        .bunsen-burner.active {
+            display: block;
+        }
+
+        .bunsen-burner::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 10px;
+            height: 10px;
+            background: var(--perigo);
+            border-radius: 50%;
+            box-shadow: 0 0 10px 5px rgba(255, 61, 0, 0.5);
+            animation: flicker 0.5s infinite alternate;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+
+        .temperature-indicator, .ph-indicator {
+            position: absolute;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            border: 1px solid var(--azul);
+        }
+
+        .temperature-indicator {
+            top: 20px;
+        }
+
+        .ph-indicator {
+            top: 70px;
+        }
+
+        .mix-btn, .clear-btn {
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mix-btn {
+            background: var(--roxo);
+            color: white;
+        }
+
+        .mix-btn i {
+            margin-right: 8px;
+        }
+
+        .mix-btn:hover:not(:disabled) {
+            background: var(--azul);
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 247, 255, 0.5);
+        }
+
+        .mix-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.5;
+        }
+
+        .clear-btn {
+            background: rgba(255, 61, 0, 0.2);
+            color: #ff9e80;
+            border: 1px solid var(--perigo);
+        }
+
+        .clear-btn:hover {
+            background: rgba(255, 61, 0, 0.4);
+            transform: scale(1.05);
+        }
+
+        .reaction-result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            opacity: 0;
+            height: 0;
+            overflow: hidden;
+            transition: all 0.5s;
+            width: 100%;
+        }
+
+        .reaction-result.visible {
+            opacity: 1;
+            height: auto;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .danger {
+            background-color: rgba(255, 61, 0, 0.2);
+            border: 2px solid var(--perigo);
+            color: #ff9e80;
+        }
+
+        .success {
+            background-color: rgba(0, 230, 118, 0.2);
+            border: 2px solid var(--sucesso);
+            color: #b9f6ca;
+        }
+
+        .neutral {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 2px solid #ccc;
+            color: #eee;
+        }
+
+        .warning {
+            background-color: rgba(255, 193, 7, 0.2);
+            border: 2px solid var(--alerta);
+            color: #ffe082;
+        }
+
+        .reactions-log {
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .reactions-log::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .reactions-log::-webkit-scrollbar-track {
+            background: rgba(106, 0, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .reactions-log::-webkit-scrollbar-thumb {
+            background: var(--roxo);
+            border-radius: 4px;
+        }
+
+        .log-entry {
+            margin-bottom: 10px;
+            padding: 12px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            border-left: 4px solid var(--roxo);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .log-entry:hover {
+            background: rgba(106, 0, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .log-entry i {
+            margin-right: 8px;
+        }
+
+        .log-entry .elements {
+            display: none;
+            margin-top: 8px;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .log-entry.expanded .elements {
+            display: block;
+        }
+
+        .welcome-message {
+            transition: opacity 0.5s ease-out;
+        }
+
+        .fade-out {
+            opacity: 0;
+            height: 0;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Animações */
+        @keyframes bubble {
+            0% { transform: translateY(0) scale(1); opacity: 0; }
+            50% { transform: translateY(-20px) scale(1.2); opacity: 1; }
+            100% { transform: translateY(-40px) scale(0.8); opacity: 0; }
+        }
+
+        .bubble {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            animation: bubble 1s ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes explode {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+
+        .explode {
+            animation: explode 0.5s ease-out forwards;
+        }
+
+        @keyframes smoke {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-100px) scale(2); opacity: 0; }
+        }
+
+        .smoke {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            animation: smoke 2s ease-out forwards;
+            pointer-events: none;
+        }
+
+        @keyframes spark {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+        }
+
+        .spark {
+            position: absolute;
+            background-color: var(--c);
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            animation: spark 0.5s ease-out forwards;
+            pointer-events: none;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .lab-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto;
+            }
+            
+            .logo h1 {
+                font-size: 1.8rem;
+            }
+            
+            nav a {
+                margin-left: 10px;
+                font-size: 0.9rem;
+            }
+            
+            .reagent {
+                font-size: 0.9rem;
+            }
+            
+            .flask {
+                width: 100px;
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>LABMANIA</h1>
+            <p class="slogan">Experimente a química como nunca antes!</p>
+        </div>
+        <nav>
+            <a href="#"><i class="fas fa-book"></i> Guia de Reações</a>
+            <a href="#"><i class="fas fa-trophy"></i> Desafios</a>
+        </nav>
+    </header>
+
+    <div class="lab-container">
+        <!-- Painel de Reagentes -->
+        <div class="reagents-panel">
+            <h2><i class="fas fa-vial"></i> Reagentes</h2>
+            
+            <div class="search-box">
+                <input type="text" id="searchReagents" placeholder="Pesquisar reagentes...">
+            </div>
+            
+            <div class="category-filter">
+                <div class="category-btn active" data-category="all">Todos</div>
+                <div class="category-btn" data-category="acid">Ácidos</div>
+                <div class="category-btn" data-category="base">Bases</div>
+                <div class="category-btn" data-category="metal">Metais</div>
+                <div class="category-btn" data-category="salt">Sais</div>
+                <div class="category-btn" data-category="organic">Orgânicos</div>
+                <div class="category-btn" data-category="table">Tabela Periódica</div>
+            </div>
+            
+            <div class="element-grid" id="reagentsGrid">
+                <!-- Reagentes serão carregados via JavaScript -->
+            </div>
+            
+            <!-- Tabela Periódica (inicialmente oculta) -->
+            <div class="periodic-table" id="periodicTable" style="display: none;">
+                <!-- Elementos serão gerados via JavaScript -->
+            </div>
+        </div>
+
+        <!-- Bancada de Trabalho -->
+        <div class="workbench">
+            <h2><i class="fas fa-flask"></i> Bancada</h2>
+            
+            <div class="equipment-selector">
+                <div class="equipment-btn active" data-equipment="flask" title="Balão de Reação">
+                    <i class="fas fa-flask"></i> Balão
+                </div>
+                <div class="equipment-btn" data-equipment="bunsen" title="Bico de Bunsen">
+                    <i class="fas fa-fire"></i> Aquecimento
+                </div>
+            </div>
+            
+            <div class="flask" id="flask">
+                <div class="liquid" id="liquid"></div>
+                <div class="bunsen-burner" id="bunsenBurner"></div>
+            </div>
+            
+            <div class="temperature-indicator" id="tempIndicator">
+                <i class="fas fa-temperature-high"></i> 25°C
+            </div>
+            
+            <div class="ph-indicator" id="phIndicator">
+                <i class="fas fa-vial"></i> pH: 7.0
+            </div>
+            
+            <button class="mix-btn" id="mixBtn" disabled>
+                <i class="fas fa-random"></i> Misturar
+            </button>
+            <button class="clear-btn" id="clearBtn">
+                <i class="fas fa-trash"></i> Limpar
+            </button>
+            
+            <div class="reaction-result" id="reactionResult"></div>
+        </div>
+
+        <!-- Painel de Reações -->
+        <div class="reactions-panel">
+            <h2><i class="fas fa-scroll"></i> Reações Recentes</h2>
+            <button class="clear-btn" id="clearLogBtn" style="margin-bottom: 10px;">
+                <i class="fas fa-trash"></i> Limpar Histórico
+            </button>
+            <div class="reactions-log" id="reactionsLog">
+                <div class="log-entry welcome-message neutral">
+                    <i class="fas fa-info-circle"></i> Bem-vindo ao LabMania! Arraste reagentes para o balão para começar.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/quimica.js"></script>
+</body>
+</html>

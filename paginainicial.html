@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FATOMANIA | Curiosidades Científicas Incríveis</title>
+    <meta name="description" content="Descubra fatos científicos surpreendentes que vão explodir sua mente! Mais de 1.000 curiosidades verificadas por especialistas.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/paginainicial.css">
+    <!-- Estilos mantidos iguais... -->
+</head>
+<body>
+    <!-- Header mantido igual... -->
+    <header>
+        <div class="logo">
+            <h1>FATOMANIA</h1>
+            <p class="slogan">Ciência que explode a mente!</p>
+        </div>
+        <nav>
+            <a href="/dashboard.html">Início</a>
+            <a href="#">Curiosidades</a>
+            <a href="#">Quizzes</a>
+            <a href="/sobre-nos.html">Sobre</a>
+            <button class="apps-menu-button" id="apps-button">
+                <svg width="24" height="24" viewBox="0 0 24 24">
+                    <path d="M6,8c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM12,20c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM6,20c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM6,14c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM12,14c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM16,6c0,1.1 0.9,2 2,2s2,-0.9 2,-2 -0.9,-2 -2,-2 -2,0.9 -2,2zM12,8c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM18,14c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2z"/>
+                </svg>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Minipágina de Aplicativos (mantida igual) -->
+    <div class="apps-container" id="apps-container">
+        <div class="apps-header">
+            <div class="apps-title">Aplicativos</div>
+        </div>
+        
+        <div class="apps-grid">
+            <a href="https://kutiva-8a875.web.app" target="_blank" class="app-item">
+                <div class="app-icon">
+                    <img src="/icon/kutiva.png" alt="Kutiva">
+                </div>
+                <div class="app-name">Kutiva</div>
+            </a>
+            
+                <a href="https://natusvincere.site/MPbase/dashboard.html" target="_blank" class="app-item">
+                <div class="app-icon">
+                    <i class="fas fa-database" style="font-size: 2rem; color: #6a00ff;"></i>
+                </div>
+                <div class="app-name">FireMP</div>
+            </a>
+            
+            <a href="https://admin.esi.com" target="_blank" class="app-item">
+                <div class="app-icon">
+                    <img src="/icon/mp.png" alt="ADMIN-ESI">
+                </div>
+                <div class="app-name">M&P</div>
+            </a>
+        </div>
+        
+        <div class="apps-footer">
+            <a href="https://esi.ct.ws/" class="more-apps">Mais aplicativos da ESI</a>
+        </div>
+    </div>
+
+    <!-- Hero Section (mantida igual) -->
+    <section class="hero">
+        <div class="hero-texto">
+            <h2>Descubra fatos que <span>desafiam</span> a lógica!</h2>
+            <p>Mais de 1.000 curiosidades científicas verificadas por especialistas. Explore o universo do conhecimento!</p>
+            <a href="/dashboard.html" class="btn-explorar">Explorar Agora</a>
+        </div>
+        <div class="hero-imagem">
+            <img src="/icon/atomo.avif" alt="Ilustração de átomo científico futurista" loading="lazy" width="450" height="450">
+        </div>
+    </section>
+
+    <!-- Cards de Curiosidades EXPANDIDOS -->
+    <h2 class="titulo-secao">Curiosidades Científicas Fascinantes</h2>
+    <div class="container-cards">
+        <!-- Card 1 - Mantido -->
+        <div class="card" onclick="flipCard(this)">
+            <span class="card-categoria">Biologia</span>
+            <div class="card-inner">
+                <div class="card-frente">
+                    <h3>Fungo Gigante</h3>
+                    <img src="/icon/cogumelo.jpg" alt="Fungo gigante" loading="lazy" width="400" height="220">
+                    <p>Clique para revelar o fato surpreendente</p>
+                </div>
+                <div class="card-verso">
+                    <h3>Fungo Gigante</h3>
+                    <p>O maior ser vivo da Terra é um fungo em Oregon, EUA, que cobre 8,9 km² e tem cerca de 2.400 anos de idade! Conhecido como "Humongous Fungus", este organismo é uma rede subterrânea interconectada que pode comunicar informações através de quilômetros de distância.</p>
+                    <button class="btn-saiba-mais">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14M12 5l7 7-7 7"></path>
+                        </svg>
+                        Saiba Mais
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Card 2 - Atualizado -->
+        <div class="card" onclick="flipCard(this)">
+            <span class="card-categoria">Astronomia</span>
+            <div class="card-inner">
+                <div class="card-frente">
+                    <h3>Vênus Retrógrado</h3>
+                    <img src="/icon/venus.jpg" alt="Planeta Vênus" loading="lazy" width="400" height="220">
+                    <p>Clique para revelar o fato surpreendente</p>
+                </div>
+                <div class="card-verso">
+                    <h3>Vênus Retrógrado</h3>
+                    <p>Um dia em Vênus é mais longo que um ano! O planeta leva 243 dias terrestres para girar em torno de si mesmo, mas apenas 225 dias para orbitar o Sol. Além disso, gira no sentido oposto à maioria dos planetas. A temperatura é de 462°C - quente o suficiente para derreter chumbo!</p>
+                    <button class="btn-saiba-mais">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14M12 5l7 7-7 7"></path>
+                        </svg>
+                        Saiba Mais
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Card 3 - Atualizado -->
+        <div class="card" onclick="flipCard(this)">
+            <span class="card-categoria">Física</span>
+            <div class="card-inner">
+                <div class="card-frente">
+                    <h3>Buraco Negro</h3>
+                    <img src="/icon/blackhole.jpg" loading="lazy" width="400" height="220">
+                    <p>Clique para revelar o fato surpreendente</p>
+                </div>
+                <div class="card-verso">
+                    <h3>Buraco Negro</h3>
+                    <p>Se você cair em um buraco negro, experimentará o "efeito espaguete" - a gravidade puxará seus pés com mais força que sua cabeça, esticando você como um espaguete. O tempo também passará mais devagar para você em relação ao resto do universo devido à dilatação temporal!</p>
+                    <button class="btn-saiba-mais">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14M12 5l7 7-7 7"></path>
+                        </svg>
+                        Saiba Mais
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- NOVOS CARDS ADICIONADOS -->
+        
+        <!-- Card 4 - NOVO -->
+        <div class="card" onclick="flipCard(this)">
+            <span class="card-categoria">Química</span>
+            <div class="card-inner">
+                <div class="card-frente">
+                    <h3>Água Supergelada</h3>
+                    <img src="/icon/aguasuper.avif" alt="Água supergelada" loading="lazy" width="400" height="220">
+                    <p>Clique para revelar o fato surpreendente</p>
+                </div>
+                <div class="card-verso">
+                    <h3>Água Supergelada</h3>
+                    <p>A água pode permanecer líquida até -40°C se não houver núcleos de cristalização! Este fenômeno, chamado de "superresfriamento", permite que a água permaneça líquida mesmo abaixo do ponto de congelamento. Um pequeno distúrbio pode causar congelamento instantâneo!</p>
+                    <button class="btn-saiba-mais">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14M12 5l7 7-7 7"></path>
+                        </svg>
+                        Saiba Mais
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 5 - NOVO -->
+        <div class="card" onclick="flipCard(this)">
+            <span class="card-categoria">Neurociência</span>
+            <div class="card-inner">
+                <div class="card-frente">
+                    <h3>Cérebro Humano</h3>
+                    <img src="/icon/cerebro.jpg" alt="Cérebro humano" loading="lazy" width="400" height="220">
+                    <p>Clique para revelar o fato surpreendente</p>
+                </div>
+                <div class="card-verso">
+                    <h3>Cérebro Humano</h3>
+                    <p>Seu cérebro tem mais conexões neurais que estrelas na Via Láctea! São aproximadamente 86 bilhões de neurônios com mais de 100 trilhões de sinapses. O cérebro consome 20% de toda a energia do corpo, mas pesa apenas 2% do peso corporal total!</p>
+                    <button class="btn-saiba-mais">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14M12 5l7 7-7 7"></path>
+                        </svg>
+                        Saiba Mais
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 6 - NOVO -->
+        <div class="card" onclick="flipCard(this)">
+            <span class="card-categoria">Genética</span>
+            <div class="card-inner">
+                <div class="card-frente">
+                    <h3>DNA Compartilhado</h3>
+                    <img src="/icon/dna.jpg" alt="DNA" loading="lazy" width="400" height="220">
+                    <p>Clique para revelar o fato surpreendente</p>
+                </div>
+                <div class="card-verso">
+                    <h3>DNA Compartilhado</h3>
+                    <p>Você compartilha 50% do seu DNA com uma banana! Isso não significa que somos meio banana, mas mostra que toda vida na Terra tem uma origem comum. Compartilhamos 99% com chimpanzés e 85% com camundongos. A evolução é realmente fascinante!</p>
+                    <button class="btn-saiba-mais">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14M12 5l7 7-7 7"></path>
+                        </svg>
+                        Saiba Mais
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 7 - NOVO -->
+        <div class="card" onclick="flipCard(this)">
+            <span class="card-categoria">Matemática</span>
+            <div class="card-inner">
+                <div class="card-frente">
+                    <h3>Infinito dos Primos</h3>
+                    <img src="/icon/primos.jpg" alt="Números primos" loading="lazy" width="400" height="220">
+                    <p>Clique para revelar o fato surpreendente</p>
+                </div>
+                <div class="card-verso">
+                    <h3>Infinito dos Primos</h3>
+                    <p>Existem infinitos números primos, mas eles se tornam cada vez mais raros! Euclides provou há 2.300 anos que nunca acabaremos de encontrar novos números primos. O maior primo conhecido tem mais de 24 milhões de dígitos e foi descoberto por computadores em 2018!</p>
+                    <button class="btn-saiba-mais">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14M12 5l7 7-7 7"></path>
+                        </svg>
+                        Saiba Mais
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 8 - NOVO -->
+        <div class="card" onclick="flipCard(this)">
+            <span class="card-categoria">Oceanografia</span>
+            <div class="card-inner">
+                <div class="card-frente">
+                    <h3>Oceano Profundo</h3>
+                    <img src="/icon/oceano.jpg" alt="Oceano profundo" loading="lazy" width="400" height="220">
+                    <p>Clique para revelar o fato surpreendente</p>
+                </div>
+                <div class="card-verso">
+                    <h3>Oceano Profundo</h3>
+                    <p>Conhecemos apenas 5% dos oceanos da Terra! As profundezas marinhas são mais inexploradas que a superfície da Lua. A Fossa das Marianas tem 11 km de profundidade - se o Monte Everest fosse colocado lá dentro, ainda restaria 2 km de água acima do pico!</p>
+                    <button class="btn-saiba-mais">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14M12 5l7 7-7 7"></path>
+                        </svg>
+                        Saiba Mais
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 9 - NOVO -->
+        <div class="card" onclick="flipCard(this)">
+            <span class="card-categoria">Tecnologia</span>
+            <div class="card-inner">
+                <div class="card-frente">
+                    <h3>Computação Quântica</h3>
+                    <img src="/icon/quantico.jpg" alt="Computação quântica" loading="lazy" width="400" height="220">
+                    <p>Clique para revelar o fato surpreendente</p>
+                </div>
+                <div class="card-verso">
+                    <h3>Computação Quântica</h3>
+                    <p>Um computador quântico pode estar em múltiplos estados simultaneamente! Graças ao "emaranhamento quântico", um qubit pode ser 0 e 1 ao mesmo tempo. O Google alegou ter alcançado "supremacia quântica" em 2019, resolvendo em 200 segundos o que levaria 10.000 anos no melhor supercomputador clássico!</p>
+                    <button class="btn-saiba-mais">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14M12 5l7 7-7 7"></path>
+                        </svg>
+                        Saiba Mais
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Seção de Funcionalidades CORRIGIDA -->
+    <section class="funcionalidades">
+        <h2 class="titulo-secao">Explore Nossas Funcionalidades</h2>
+        <div class="funcionalidades-grid">
+            <a href="/lab/labquim.html" class="funcionalidade-item">
+                <div class="funcionalidade-icon">🧪</div>
+                <h3>Laboratório de Química</h3>
+                <p>Experimentos interativos e tabela periódica 3D. Descubra as reações químicas mais fascinantes da ciência!</p>
+                <div class="funcionalidade-arrow">→</div>
+            </a>
+            
+            <a href="/mania/newsmania.html" class="funcionalidade-item">
+                <div class="funcionalidade-icon">📰</div>
+                <h3>NEWSMANIA</h3>
+                <p>Últimas descobertas científicas e notícias que estão moldando o futuro da humanidade.</p>
+                <div class="funcionalidade-arrow">→</div>
+            </a>
+            
+            <a href="/mania/quizmania.html" class="funcionalidade-item">
+                <div class="funcionalidade-icon">🧠</div>
+                <h3>Quizzes Científicos</h3>
+                <p>Teste seus conhecimentos com desafios que vão desde física quântica até biologia molecular.</p>
+                <div class="funcionalidade-arrow">→</div>
+            </a>
+            
+            <a href="calculadoras.html" class="funcionalidade-item">
+                <div class="funcionalidade-icon">🔬</div>
+                <h3>Calculadoras Científicas</h3>
+                <p>Ferramentas avançadas para cálculos de física, química, astronomia e muito mais.</p>
+                <div class="funcionalidade-arrow">→</div>
+            </a>
+            
+            <a href="biblioteca-virtual.html" class="funcionalidade-item">
+                <div class="funcionalidade-icon">📚</div>
+                <h3>Biblioteca Virtual</h3>
+                <p>Acesso a milhares de artigos científicos, pesquisas e documentários educativos.</p>
+                <div class="funcionalidade-arrow">→</div>
+            </a>
+            
+        </div>
+    </section>
+
+    <!-- Seção Final de Mais Curiosidades -->
+    <section class="mais-curiosidades">
+        <h2>Mais Curiosidades Científicas</h2>
+        <div class="curiosidades-grid">
+            <div class="curiosidade-item">
+                <span class="curiosidade-categoria biologia">Biologia</span>
+                <h3 class="curiosidade-titulo">Árvores que Se Comunicam</h3>
+                <p class="curiosidade-descricao">
+                    As árvores de uma floresta se comunicam através de uma rede subterrânea de fungos chamada "Wood Wide Web". Elas compartilham nutrientes, água e até alertas sobre pragas!
+                </p>
+                <a href="#" class="saiba-mais-btn">Explorar Mais</a>
+            </div>
+            
+            <div class="curiosidade-item">
+                <span class="curiosidade-categoria fisica">Física</span>
+                <h3 class="curiosidade-titulo">Velocidade da Luz</h3>
+                <p class="curiosidade-descricao">
+                    A luz viaja tão rápido que poderia dar 7,5 voltas ao redor da Terra em apenas 1 segundo. Mesmo assim, leva 8 minutos para chegar do Sol até nós!
+                </p>
+                <a href="#" class="saiba-mais-btn">Explorar Mais</a>
+            </div>
+            
+            <div class="curiosidade-item">
+                <span class="curiosidade-categoria astronomia">Astronomia</span>
+                <h3 class="curiosidade-titulo">Diamantes no Espaço</h3>
+                <p class="curiosidade-descricao">
+                    Existe um planeta feito principalmente de diamante! O 55 Cancri e é um super-Terra com temperatura de 2.148°C e vale mais que toda a economia mundial.
+                </p>
+                <a href="#" class="saiba-mais-btn">Explorar Mais</a>
+            </div>
+            
+            <div class="curiosidade-item">
+                <span class="curiosidade-categoria quimica">Química</span>
+                <h3 class="curiosidade-titulo">Elementos Raros</h3>
+                <p class="curiosidade-descricao">
+                    O elemento mais raro da Terra é o Astato. Existem menos de 30 gramas dele em todo o planeta! Sua meia-vida é tão curta que desaparece antes que possamos estudá-lo adequadamente.
+                </p>
+                <a href="#" class="saiba-mais-btn">Explorar Mais</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Rodapé (mantido igual se existir) -->
+    
+    <script src="/js/paginainicial.js"></script>
+</body>
+</html>

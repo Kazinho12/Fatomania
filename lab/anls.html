@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise Molecular - LABMANIA</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --chemistry-primary: #f72585;
+            --chemistry-secondary: #e91e63;
+            --chemistry-accent: #ff006e;
+            --chemistry-blue: #4fc3f7;
+            --chemistry-green: #4caf50;
+            --chemistry-yellow: #ffeb3b;
+            --chemistry-purple: #9c27b0;
+            --chemistry-orange: #ff9800;
+            --chemistry-cyan: #00bcd4;
+            --fundo: #0f0c29;
+            --fundo-card: #16213e;
+            --texto: #ffffff;
+            --texto-secundario: rgba(255, 255, 255, 0.8);
+            --borda: rgba(255, 255, 255, 0.1);
+            --sucesso: #00e676;
+            --alerta: #ffc107;
+            --perigo: #ff3d00;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: linear-gradient(135deg, var(--fundo) 0%, #24243e 50%, var(--fundo) 100%);
+            color: var(--texto);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Fundo científico animado */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(247, 37, 133, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(233, 30, 99, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 50% 20%, rgba(255, 0, 110, 0.1) 0%, transparent 50%);
+            z-index: -1;
+            animation: molecularMotion 30s ease-in-out infinite;
+        }
+
+        @keyframes molecularMotion {
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.8; }
+            25% { transform: scale(1.1) rotate(90deg); opacity: 1; }
+            50% { transform: scale(0.9) rotate(180deg); opacity: 0.9; }
+            75% { transform: scale(1.05) rotate(270deg); opacity: 0.7; }
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: linear-gradient(to right, rgba(15, 12, 41, 0.9), rgba(106, 0, 255, 0.7));
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--chemistry-primary);
+        }
+
+        .logo h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.2rem;
+            margin: 0;
+            background: linear-gradient(90deg, var(--chemistry-primary), var(--chemistry-secondary), var(--chemistry-accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 20px rgba(247, 37, 133, 0.5);
+        }
+
+        .logo h1::after {
+            content: '🔬';
+            margin-left: 10px;
+            font-size: 1.5rem;
+            animation: microscope 4s ease-in-out infinite;
+        }
+
+        @keyframes microscope {
+            0%, 100% { transform: translateY(0) scale(1); }
+            25% { transform: translateY(-3px) scale(1.1); }
+            50% { transform: translateY(0) scale(1.2); }
+            75% { transform: translateY(-2px) scale(1.1); }
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: 600;
+            transition: color 0.3s;
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        nav a:hover {
+            color: var(--chemistry-primary);
+            background: rgba(247, 37, 133, 0.1);
+        }
+
+        nav a i {
+            margin-right: 5px;
+        }
+
+        .analysis-container {
+            display: grid;
+            grid-template-columns: 300px 1fr 350px;
+            gap: 20px;
+            padding: 20px 5%;
+            min-height: calc(100vh - 120px);
+        }
+
+        .technique-selector, .results-panel {
+            background: var(--fundo-card);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(247, 37, 133, 0.3);
+        }
+
+        .analysis-workspace {
+            background: var(--fundo-card);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(247, 37, 133, 0.3);
+            position: relative;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            color: var(--chemistry-primary);
+            border-bottom: 1px solid rgba(247, 37, 133, 0.3);
+            padding-bottom: 10px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .technique-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .technique-item {
+            background: rgba(247, 37, 133, 0.1);
+            border: 2px solid var(--chemistry-primary);
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .technique-item:hover,
+        .technique-item.active {
+            background: rgba(247, 37, 133, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(247, 37, 133, 0.3);
+        }
+
+        .technique-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--chemistry-accent);
+        }
+
+        .technique-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--chemistry-primary);
+        }
+
+        .technique-description {
+            font-size: 0.9rem;
+            color: var(--texto-secundario);
+        }
+
+        .sample-input {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px dashed rgba(247, 37, 133, 0.5);
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .sample-input.has-sample {
+            border-style: solid;
+            background: rgba(247, 37, 133, 0.1);
+        }
+
+        .sample-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sample-upload input[type="file"] {
+            display: none;
+        }
+
+        .upload-btn {
+            background: var(--chemistry-primary);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+        }
+
+        .upload-btn:hover {
+            background: var(--chemistry-secondary);
+            transform: scale(1.05);
+        }
+
+        .sample-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .sample-btn {
+            background: rgba(79, 195, 247, 0.2);
+            border: 1px solid var(--chemistry-blue);
+            border-radius: 15px;
+            padding: 5px 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            color: var(--chemistry-blue);
+        }
+
+        .sample-btn:hover,
+        .sample-btn.active {
+            background: rgba(79, 195, 247, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .spectrum-display {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            position: relative;
+            min-height: 300px;
+            border: 1px solid rgba(247, 37, 133, 0.3);
+        }
+
+        .spectrum-canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+        }
+
+        .spectrum-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .control-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .analyze-btn {
+            background: var(--chemistry-primary);
+            color: white;
+        }
+
+        .analyze-btn:hover:not(:disabled) {
+            background: var(--chemistry-secondary);
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(247, 37, 133, 0.5);
+        }
+
+        .analyze-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .calibrate-btn {
+            background: var(--chemistry-blue);
+            color: white;
+        }
+
+        .calibrate-btn:hover {
+            background: #29b6f6;
+            transform: scale(1.05);
+        }
+
+        .reset-btn {
+            background: rgba(255, 61, 0, 0.2);
+            color: #ff9e80;
+            border: 1px solid var(--perigo);
+        }
+
+        .reset-btn:hover {
+            background: rgba(255, 61, 0, 0.4);
+            transform: scale(1.05);
+        }
+
+        .analysis-progress {
+            width: 100%;
+            height: 6px;
+            background: rgba(247, 37, 133, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--chemistry-primary), var(--chemistry-accent));
+            width: 0;
+            transition: width 0.3s ease;
+            border-radius: 3px;
+        }
+
+        .results-content {
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .results-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .results-content::-webkit-scrollbar-track {
+            background: rgba(247, 37, 133, 0.1);
+            border-radius: 4px;
+        }
+
+        .results-content::-webkit-scrollbar-thumb {
+            background: var(--chemistry-primary);
+            border-radius: 4px;
+        }
+
+        .result-section {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--chemistry-primary);
+        }
+
+        .result-title {
+            color: var(--chemistry-accent);
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .compound-identified {
+            background: rgba(0, 230, 118, 0.1);
+            border: 1px solid var(--sucesso);
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .compound-name {
+            font-weight: 600;
+            color: var(--sucesso);
+            font-size: 1.1rem;
+        }
+
+        .compound-formula {
+            font-family: 'Courier New', monospace;
+            color: var(--texto-secundario);
+            margin: 5px 0;
+        }
+
+        .confidence-score {
+            background: rgba(76, 175, 80, 0.2);
+            color: var(--chemistry-green);
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            display: inline-block;
+        }
+
+        .peak-list {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .peak-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .peak-item:last-child {
+            border-bottom: none;
+        }
+
+        .peak-frequency {
+            font-family: 'Courier New', monospace;
+            color: var(--chemistry-blue);
+        }
+
+        .peak-assignment {
+            color: var(--texto-secundario);
+            font-size: 0.9rem;
+        }
+
+        .molecular-structure {
+            background: rgba(247, 37, 133, 0.05);
+            border: 1px solid rgba(247, 37, 133, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .structure-placeholder {
+            width: 200px;
+            height: 150px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            color: var(--texto-secundario);
+            font-size: 0.9rem;
+        }
+
+        .export-options {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .export-btn {
+            background: rgba(0, 188, 212, 0.2);
+            border: 1px solid var(--chemistry-cyan);
+            border-radius: 15px;
+            padding: 6px 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            color: var(--chemistry-cyan);
+        }
+
+        .export-btn:hover {
+            background: rgba(0, 188, 212, 0.3);
+            transform: translateY(-1px);
+        }
+
+        /* Simulação de espectros */
+        .spectrum-line {
+            position: absolute;
+            background: var(--chemistry-primary);
+            border-radius: 1px;
+            animation: spectrumAppear 0.5s ease;
+        }
+
+        @keyframes spectrumAppear {
+            from { height: 0; opacity: 0; }
+            to { height: var(--line-height); opacity: 1; }
+        }
+
+        .spectrum-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 30px;
+            border-radius: 10px;
+        }
+
+        .spectrum-labels {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            color: var(--texto-secundario);
+            font-size: 0.8rem;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--texto-secundario);
+            text-align: center;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: rgba(247, 37, 133, 0.3);
+        }
+
+        /* Responsividade */
+        @media (max-width: 1024px) {
+            .analysis-container {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .technique-selector {
+                order: 1;
+            }
+
+            .analysis-workspace {
+                order: 2;
+            }
+
+            .results-panel {
+                order: 3;
+            }
+
+            .technique-list {
+                flex-direction: row;
+                overflow-x: auto;
+                padding-bottom: 10px;
+            }
+
+            .technique-item {
+                min-width: 150px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .analysis-container {
+                padding: 15px 3%;
+            }
+
+            .technique-selector,
+            .results-panel,
+            .analysis-workspace {
+                padding: 15px;
+            }
+
+            .spectrum-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .control-btn {
+                width: 100%;
+                max-width: 200px;
+                justify-content: center;
+            }
+
+            .sample-selector {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .export-options {
+                justify-content: center;
+            }
+
+            .export-btn {
+                flex: 1;
+                text-align: center;
+            }
+
+            .technique-list {
+                flex-direction: column;
+            }
+
+            .technique-item {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>Análise Molecular</h1>
+        </div>
+        <nav>
+            <a href="lab-quimica.html"><i class="fas fa-arrow-left"></i> Voltar</a>
+            <a href="dashboard.html"><i class="fas fa-home"></i> Início</a>
+        </nav>
+    </header>
+
+    <div class="analysis-container">
+        <!-- Seletor de Técnicas -->
+        <div class="technique-selector">
+            <div class="panel-header">
+                <i class="fas fa-microscope"></i>
+                <h2>Técnicas Analíticas</h2>
+            </div>
+            
+            <div class="technique-list">
+                <div class="technique-item active" data-technique="ir">
+                    <div class="technique-icon"><i class="fas fa-wave-square"></i></div>
+                    <div class="technique-name">Espectroscopia IR</div>
+                    <div class="technique-description">Análise de ligações moleculares por infravermelho</div>
+                </div>
+
+                <div class="technique-item" data-technique="nmr">
+                    <div class="technique-icon"><i class="fas fa-atom"></i></div>
+                    <div class="technique-name">Ressonância Magnética Nuclear</div>
+                    <div class="technique-description">Determinação estrutural por RMN ¹H e ¹³C</div>
+                </div>
+
+                <div class="technique-item" data-technique="ms">
+                    <div class="technique-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="technique-name">Espectrometria de Massa</div>
+                    <div class="technique-description">Identificação molecular por fragmentação</div>
+                </div>
+
+                <div class="technique-item" data-technique="gc">
+                    <div class="technique-icon"><i class="fas fa-vial"></i></div>
+                    <div class="technique-name">Cromatografia</div>
+                    <div class="technique-description">Separação e análise de misturas</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Área de Trabalho Central -->
+        <div class="analysis-workspace">
+            <div class="panel-header">
+                <i class="fas fa-search"></i>
+                <h2 id="techniqueTitle">Espectroscopia no Infravermelho</h2>
+            </div>
+
+            <!-- Input de Amostra -->
+            <div class="sample-input" id="sampleInput">
+                <div class="sample-upload">
+                    <i class="fas fa-upload" style="font-size: 2rem; color: rgba(247, 37, 133, 0.5);"></i>
+                    <p style="margin: 10px 0; color: var(--texto-secundario);">
+                        Carregue uma amostra ou selecione um composto de exemplo
+                    </p>
+                    <label for="fileInput" class="upload-btn">
+                        <i class="fas fa-file-upload"></i> Carregar Amostra
+                    </label>
+                    <input type="file" id="fileInput" accept=".mol,.sdf,.pdb">
+                </div>
+
+                <div class="sample-selector">
+                    <button class="sample-btn" data-sample="ethanol">Etanol</button>
+                    <button class="sample-btn" data-sample="benzene">Benzeno</button>
+                    <button class="sample-btn" data-sample="acetone">Acetona</button>
+                    <button class="sample-btn" data-sample="caffeine">Cafeína</button>
+                    <button class="sample-btn" data-sample="aspirin">Aspirina</button>
+                    <button class="sample-btn" data-sample="glucose">Glicose</button>
+                </div>
+            </div>
+
+            <!-- Display do Espectro -->
+            <div class="spectrum-display" id="spectrumDisplay">
+                <div class="empty-state">
+                    <i class="fas fa-chart-area"></i>
+                    <h3>Selecione uma amostra para análise</h3>
+                    <p>Carregue um arquivo ou escolha um composto de exemplo</p>
+                </div>
+            </div>
+
+            <!-- Controles -->
+            <div class="spectrum-controls">
+                <button class="control-btn analyze-btn" id="analyzeBtn" onclick="startAnalysis()" disabled>
+                    <i class="fas fa-play"></i> Iniciar Análise
+                </button>
+                <button class="control-btn calibrate-btn" onclick="calibrateInstrument()">
+                    <i class="fas fa-cog"></i> Calibrar
+                </button>
+                <button class="control-btn reset-btn" onclick="resetAnalysis()">
+                    <i class="fas fa-undo"></i> Resetar
+                </button>
+            </div>
+
+            <div class="analysis-progress">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+
+        <!-- Painel de Resultados -->
+        <div class="results-panel">
+            <div class="panel-header">
+                <i class="fas fa-clipboard-list"></i>
+                <h2>Resultados da Análise</h2>
+            </div>
+            
+            <div class="results-content" id="resultsContent">
+                <div class="empty-state">
+                    <i class="fas fa-flask"></i>
+                    <h3>Aguardando análise</h3>
+                    <p>Os resultados aparecerão aqui após a análise</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/lab/anls.js"></script>
+</body>
+</html>

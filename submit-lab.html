@@ -1,0 +1,504 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enviar Experimento - LABMANIA</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --roxo: #6a00ff;
+            --azul: #f72585;
+            --verde: #00ffaa;
+            --fundo: #0f0c29;
+            --fundo-card: #16213e;
+            --destaque: #ff00aa;
+            --perigo: #ff3d00;
+            --sucesso: #00e676;
+            --texto-claro: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--fundo) 0%, #2d1b3d 50%, var(--fundo) 100%);
+            font-family: 'Rajdhani', sans-serif;
+            color: var(--texto-claro);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: linear-gradient(to right, rgba(15, 12, 41, 0.9), rgba(255, 0, 170, 0.1));
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--destaque);
+            box-shadow: 0 2px 20px rgba(255, 0, 170, 0.2);
+        }
+
+        .logo h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            margin: 0;
+            background: linear-gradient(90deg, var(--destaque), var(--azul));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 10px rgba(255, 0, 170, 0.5);
+        }
+
+        .slogan {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--azul);
+            font-style: italic;
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        nav a {
+            color: var(--texto-claro);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid transparent;
+        }
+
+        nav a:hover {
+            color: var(--destaque);
+            border-color: var(--destaque);
+            background: rgba(255, 0, 170, 0.1);
+        }
+
+        .main-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .form-container {
+            background: var(--fundo-card);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 2px solid var(--destaque);
+            box-shadow: 0 0 30px rgba(255, 0, 170, 0.2);
+        }
+
+        .form-title {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .form-title h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            color: var(--destaque);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-title p {
+            color: var(--azul);
+            font-size: 1.1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--destaque);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid rgba(255, 0, 170, 0.3);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--texto-claro);
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--destaque);
+            box-shadow: 0 0 15px rgba(255, 0, 170, 0.3);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ff00aa' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+            appearance: none;
+        }
+
+        .file-input-container {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input {
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            cursor: pointer;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 1rem;
+            border: 2px dashed var(--destaque);
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(255, 0, 170, 0.1);
+        }
+
+        .file-input-label:hover {
+            background: rgba(255, 0, 170, 0.2);
+            border-color: var(--azul);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, var(--destaque), var(--azul));
+            color: var(--fundo);
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            margin-top: 1rem;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 0, 170, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .message.success {
+            background: rgba(0, 230, 118, 0.1);
+            border: 2px solid var(--sucesso);
+            color: var(--sucesso);
+        }
+
+        .message.error {
+            background: rgba(255, 61, 0, 0.1);
+            border: 2px solid var(--perigo);
+            color: var(--perigo);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--destaque);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .logo h1 {
+                font-size: 2rem;
+            }
+
+            .main-container {
+                padding: 0 0.5rem;
+            }
+
+            .form-container {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>LABMANIA</h1>
+            <p class="slogan">Enviar Novo Experimento</p>
+        </div>
+        <nav>
+            <a href="/dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="/mania/labmania-modern.html"><i class="fas fa-flask"></i> LABMANIA</a>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <div class="form-container">
+            <div class="form-title">
+                <h2><i class="fas fa-plus-circle"></i> Compartilhar Experimento</h2>
+                <p>Contribua com a educação científica compartilhando experimentos e simulações!</p>
+            </div>
+
+            <div id="message"></div>
+
+            <form id="labForm">
+                <div class="form-group">
+                    <label for="title">
+                        <i class="fas fa-heading"></i> Título do Experimento
+                    </label>
+                    <input type="text" id="title" class="form-input" placeholder="Digite um título descritivo..." required>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">
+                        <i class="fas fa-tags"></i> Área Científica
+                    </label>
+                    <select id="category" class="form-input form-select" required>
+                        <option value="">Selecione uma área</option>
+                        <option value="physics">🔬 Física</option>
+                        <option value="chemistry">⚗️ Química</option>
+                        <option value="biology">🧬 Biologia</option>
+                        <option value="astronomy">🔭 Astronomia</option>
+                        <option value="mathematics">📐 Matemática</option>
+                        <option value="engineering">⚙️ Engenharia</option>
+                        <option value="computer-science">💻 Ciência da Computação</option>
+                        <option value="environmental">🌱 Ciências Ambientais</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="difficulty">
+                        <i class="fas fa-signal"></i> Nível de Dificuldade
+                    </label>
+                    <select id="difficulty" class="form-input form-select" required>
+                        <option value="">Selecione o nível</option>
+                        <option value="beginner">🟢 Iniciante</option>
+                        <option value="intermediate">🟡 Intermediário</option>
+                        <option value="advanced">🔴 Avançado</option>
+                        <option value="expert">⚫ Especialista</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="summary">
+                        <i class="fas fa-align-left"></i> Resumo do Experimento
+                    </label>
+                    <textarea id="summary" class="form-input form-textarea" placeholder="Descreva brevemente o objetivo e o que será demonstrado..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="materials">
+                        <i class="fas fa-list"></i> Materiais Necessários
+                    </label>
+                    <textarea id="materials" class="form-input form-textarea" placeholder="Liste todos os materiais necessários para realizar o experimento..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="procedure">
+                        <i class="fas fa-file-alt"></i> Procedimento Detalhado
+                    </label>
+                    <textarea id="procedure" class="form-input form-textarea" style="min-height: 200px;" placeholder="Descreva passo a passo como realizar o experimento..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="explanation">
+                        <i class="fas fa-lightbulb"></i> Explicação Científica
+                    </label>
+                    <textarea id="explanation" class="form-input form-textarea" style="min-height: 150px;" placeholder="Explique os princípios científicos por trás do experimento..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="image">
+                        <i class="fas fa-image"></i> Imagem do Experimento
+                    </label>
+                    <div class="file-input-container">
+                        <input type="file" id="image" class="file-input" accept="image/*">
+                        <label for="image" class="file-input-label">
+                            <i class="fas fa-cloud-upload-alt"></i><br>
+                            Clique para selecionar uma imagem<br>
+                            <small>JPG, PNG ou GIF (máx. 5MB)</small>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="duration">
+                        <i class="fas fa-clock"></i> Duração Estimada (minutos)
+                    </label>
+                    <input type="number" id="duration" class="form-input" placeholder="Ex: 30" min="5" max="300">
+                </div>
+
+                <div class="form-group">
+                    <label for="safety">
+                        <i class="fas fa-exclamation-triangle"></i> Precauções de Segurança
+                    </label>
+                    <textarea id="safety" class="form-input form-textarea" placeholder="Descreva as precauções de segurança necessárias (se houver)..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="tags">
+                        <i class="fas fa-hashtag"></i> Tags (separadas por vírgula)
+                    </label>
+                    <input type="text" id="tags" class="form-input" placeholder="experimento, física, química, educação">
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <i class="fas fa-flask"></i> Publicar Experimento
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import '/firebase-config.js';
+
+        // Wait for Firebase to be ready
+        window.addEventListener('load', async () => {
+            const user = await window.requireAuth();
+            if (!user) {
+                return; // requireAuth already handles redirect
+            }
+
+            // Set up form submission
+            document.getElementById('labForm').addEventListener('submit', handleSubmit);
+            document.getElementById('image').addEventListener('change', handleImageSelect);
+        });
+
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = `<div class="message ${type}">${text}</div>`;
+            setTimeout(() => {
+                messageDiv.innerHTML = '';
+            }, 5000);
+        }
+
+        function handleImageSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) {
+                    showMessage('A imagem deve ter no máximo 5MB.', 'error');
+                    event.target.value = '';
+                    return;
+                }
+                
+                const label = document.querySelector('.file-input-label');
+                label.innerHTML = `
+                    <i class="fas fa-check"></i><br>
+                    ${file.name}<br>
+                    <small>Imagem selecionada com sucesso!</small>
+                `;
+            }
+        }
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading"></span> Publicando...';
+
+            try {
+                const formData = {
+                    title: document.getElementById('title').value,
+                    category: document.getElementById('category').value,
+                    difficulty: document.getElementById('difficulty').value,
+                    summary: document.getElementById('summary').value,
+                    materials: document.getElementById('materials').value,
+                    procedure: document.getElementById('procedure').value,
+                    explanation: document.getElementById('explanation').value,
+                    duration: parseInt(document.getElementById('duration').value) || null,
+                    safety: document.getElementById('safety').value,
+                    tags: document.getElementById('tags').value.split(',').map(tag => tag.trim()).filter(tag => tag),
+                    author: window.firebaseAuth.currentUser.displayName || window.firebaseAuth.currentUser.email,
+                    authorId: window.firebaseAuth.currentUser.uid,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                    status: 'published',
+                    likes: 0,
+                    views: 0
+                };
+
+                // Upload image if selected
+                const imageFile = document.getElementById('image').files[0];
+                if (imageFile) {
+                    const imageRef = window.firebaseStorage.ref(window.firebaseStorage.storage, `lab-images/${Date.now()}_${imageFile.name}`);
+                    const uploadResult = await window.firebaseStorage.uploadBytes(imageRef, imageFile);
+                    formData.imageUrl = await window.firebaseStorage.getDownloadURL(uploadResult.ref);
+                }
+
+                // Save to Firestore
+                await window.firebaseDB.addDoc(window.firebaseDB.collection(window.firebaseDB.db, 'lab-experiments'), formData);
+
+                showMessage('Experimento publicado com sucesso!', 'success');
+                document.getElementById('labForm').reset();
+                
+                // Reset file input label
+                document.querySelector('.file-input-label').innerHTML = `
+                    <i class="fas fa-cloud-upload-alt"></i><br>
+                    Clique para selecionar uma imagem<br>
+                    <small>JPG, PNG ou GIF (máx. 5MB)</small>
+                `;
+
+            } catch (error) {
+                console.error('Erro ao publicar experimento:', error);
+                showMessage('Erro ao publicar experimento. Tente novamente.', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-flask"></i> Publicar Experimento';
+            }
+        }
+    </script>
+</body>
+</html>

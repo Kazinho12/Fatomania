@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Síntese de Compostos - LABMANIA</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --chemistry-primary: #f72585;
+            --chemistry-secondary: #e91e63;
+            --chemistry-accent: #ff006e;
+            --chemistry-fire: #ff4500;
+            --chemistry-blue: #4fc3f7;
+            --chemistry-green: #4caf50;
+            --chemistry-yellow: #ffeb3b;
+            --chemistry-purple: #9c27b0;
+            --chemistry-orange: #ff9800;
+            --fundo: #0f0c29;
+            --fundo-card: #16213e;
+            --texto: #ffffff;
+            --texto-secundario: rgba(255, 255, 255, 0.8);
+            --borda: rgba(255, 255, 255, 0.1);
+            --sucesso: #00e676;
+            --alerta: #ffc107;
+            --perigo: #ff3d00;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: linear-gradient(135deg, var(--fundo) 0%, #24243e 50%, var(--fundo) 100%);
+            color: var(--texto);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Fundo químico animado */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(247, 37, 133, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(233, 30, 99, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 50% 20%, rgba(255, 0, 110, 0.1) 0%, transparent 50%);
+            z-index: -1;
+            animation: chemicalReaction 25s ease-in-out infinite;
+        }
+
+        @keyframes chemicalReaction {
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.8; }
+            25% { transform: scale(1.1) rotate(90deg); opacity: 1; }
+            50% { transform: scale(0.9) rotate(180deg); opacity: 0.9; }
+            75% { transform: scale(1.05) rotate(270deg); opacity: 0.7; }
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: linear-gradient(to right, rgba(15, 12, 41, 0.9), rgba(106, 0, 255, 0.7));
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--chemistry-primary);
+        }
+
+        .logo h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.2rem;
+            margin: 0;
+            background: linear-gradient(90deg, var(--chemistry-primary), var(--chemistry-secondary), var(--chemistry-accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 20px rgba(247, 37, 133, 0.5);
+        }
+
+        .logo h1::after {
+            content: '🧪';
+            margin-left: 10px;
+            font-size: 1.5rem;
+            animation: chemicalBubble 3s ease-in-out infinite;
+        }
+
+        @keyframes chemicalBubble {
+            0%, 100% { transform: translateY(0) scale(1); }
+            25% { transform: translateY(-5px) scale(1.1); }
+            50% { transform: translateY(0) scale(1.2); }
+            75% { transform: translateY(-3px) scale(1.1); }
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: 600;
+            transition: color 0.3s;
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        nav a:hover {
+            color: var(--chemistry-primary);
+            background: rgba(247, 37, 133, 0.1);
+        }
+
+        nav a i {
+            margin-right: 5px;
+        }
+
+        .lab-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 20px;
+            padding: 20px 5%;
+            min-height: calc(100vh - 120px);
+        }
+
+        .reagents-panel, .products-panel {
+            background: var(--fundo-card);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(247, 37, 133, 0.3);
+        }
+
+        .synthesis-area {
+            background: var(--fundo-card);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(247, 37, 133, 0.3);
+            position: relative;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            color: var(--chemistry-primary);
+            border-bottom: 1px solid rgba(247, 37, 133, 0.3);
+            padding-bottom: 10px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .synthesis-type-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .synthesis-type-btn {
+            padding: 8px 15px;
+            border: 2px solid var(--chemistry-primary);
+            border-radius: 20px;
+            background: rgba(247, 37, 133, 0.1);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .synthesis-type-btn:hover,
+        .synthesis-type-btn.active {
+            background: var(--chemistry-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(247, 37, 133, 0.3);
+        }
+
+        .reagent-list {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .reagent-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .reagent-list::-webkit-scrollbar-track {
+            background: rgba(247, 37, 133, 0.1);
+            border-radius: 4px;
+        }
+
+        .reagent-list::-webkit-scrollbar-thumb {
+            background: var(--chemistry-primary);
+            border-radius: 4px;
+        }
+
+        .reagent-item {
+            background: rgba(247, 37, 133, 0.1);
+            border: 2px solid var(--chemistry-primary);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            cursor: grab;
+            transition: all 0.3s;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .reagent-item:hover {
+            background: rgba(247, 37, 133, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(247, 37, 133, 0.3);
+        }
+
+        .reagent-item.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+
+        .reagent-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .reagent-name {
+            font-weight: 600;
+            color: var(--chemistry-accent);
+        }
+
+        .reagent-formula {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: var(--texto-secundario);
+        }
+
+        .reagent-purity {
+            font-size: 0.8rem;
+            background: rgba(76, 175, 80, 0.2);
+            color: var(--chemistry-green);
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 10px;
+        }
+
+        /* Área de síntese central */
+        .synthesis-workspace {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(to bottom, #2c3e50 0%, #34495e 100%);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .synthesis-station {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border: 3px dashed rgba(247, 37, 133, 0.5);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            background: rgba(247, 37, 133, 0.05);
+        }
+
+        .synthesis-station.active {
+            border-color: var(--chemistry-primary);
+            background: rgba(247, 37, 133, 0.15);
+            box-shadow: 0 0 20px rgba(247, 37, 133, 0.5);
+        }
+
+        .synthesis-station.filled {
+            border-style: solid;
+            background: rgba(247, 37, 133, 0.2);
+        }
+
+        .station-1 { top: 50px; left: 50px; }
+        .station-2 { top: 50px; right: 50px; }
+        .station-3 { bottom: 100px; left: 50%; transform: translateX(-50%); }
+
+        .reaction-chamber {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 200px;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border: 3px solid #ccc;
+            border-radius: 10px 10px 50px 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            overflow: hidden;
+        }
+
+        .reaction-liquid {
+            width: 100%;
+            height: 0;
+            background: var(--chemistry-blue);
+            border-radius: 0 0 45px 45px;
+            transition: all 0.8s ease;
+            position: relative;
+        }
+
+        .reaction-bubbles {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 160px;
+            pointer-events: none;
+        }
+
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            animation: bubbleRise 2.5s infinite ease-in-out;
+            opacity: 0;
+        }
+
+        @keyframes bubbleRise {
+            0% { bottom: 0; opacity: 1; transform: scale(0.1); }
+            50% { opacity: 1; transform: scale(1); }
+            100% { bottom: 160px; opacity: 0; transform: scale(0.1); }
+        }
+
+        .heating-element {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 30px;
+            background: linear-gradient(to bottom, #555, #333);
+            border-radius: 5px;
+            display: none;
+        }
+
+        .heating-element.active {
+            display: block;
+            box-shadow: 0 0 20px var(--chemistry-fire);
+        }
+
+        .heating-element::after {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 15px;
+            height: 15px;
+            background: var(--chemistry-fire);
+            border-radius: 50%;
+            box-shadow: 0 0 15px 8px rgba(255, 69, 0, 0.7);
+            animation: flicker 0.8s infinite alternate;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 0.8; transform: translateX(-50%) scale(0.9); }
+            100% { opacity: 1; transform: translateX(-50%) scale(1.1); }
+        }
+
+        .synthesis-controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .control-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .start-synthesis-btn {
+            background: var(--chemistry-primary);
+            color: white;
+        }
+
+        .start-synthesis-btn:hover:not(:disabled) {
+            background: var(--chemistry-secondary);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(247, 37, 133, 0.5);
+        }
+
+        .start-synthesis-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .heat-btn {
+            background: var(--chemistry-fire);
+            color: white;
+        }
+
+        .heat-btn:hover {
+            background: #ff6500;
+            transform: scale(1.05);
+        }
+
+        .heat-btn.active {
+            background: #ff8500;
+            box-shadow: 0 0 15px rgba(255, 69, 0, 0.7);
+        }
+
+        .purify-btn {
+            background: var(--chemistry-blue);
+            color: white;
+        }
+
+        .purify-btn:hover {
+            background: #29b6f6;
+            transform: scale(1.05);
+        }
+
+        .clear-btn {
+            background: rgba(255, 61, 0, 0.2);
+            color: #ff9e80;
+            border: 1px solid var(--perigo);
+        }
+
+        .clear-btn:hover {
+            background: rgba(255, 61, 0, 0.4);
+            transform: scale(1.05);
+        }
+
+        .synthesis-result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            opacity: 0;
+            height: 0;
+            overflow: hidden;
+            transition: all 0.5s;
+            width: 100%;
+        }
+
+        .synthesis-result.visible {
+            opacity: 1;
+            height: auto;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .result-success {
+            background: rgba(0, 230, 118, 0.2);
+            border: 2px solid var(--sucesso);
+            color: #b9f6ca;
+        }
+
+        .result-warning {
+            background: rgba(255, 193, 7, 0.2);
+            border: 2px solid var(--alerta);
+            color: #ffe082;
+        }
+
+        .result-error {
+            background: rgba(255, 61, 0, 0.2);
+            border: 2px solid var(--perigo);
+            color: #ff9e80;
+        }
+
+        .product-item {
+            background: rgba(76, 175, 80, 0.1);
+            border: 2px solid var(--chemistry-green);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+
+        .product-item:hover {
+            background: rgba(76, 175, 80, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: var(--chemistry-green);
+            font-size: 1.1rem;
+        }
+
+        .product-formula {
+            font-family: 'Courier New', monospace;
+            color: var(--texto-secundario);
+            margin: 5px 0;
+        }
+
+        .product-yield {
+            background: rgba(0, 230, 118, 0.2);
+            color: var(--sucesso);
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .synthesis-progress {
+            width: 100%;
+            height: 8px;
+            background: rgba(247, 37, 133, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--chemistry-primary), var(--chemistry-accent));
+            width: 0;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .temperature-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .temperature-slider {
+            flex: 1;
+            height: 6px;
+            background: rgba(255, 69, 0, 0.3);
+            border-radius: 3px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .temperature-display {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            min-width: 80px;
+            text-align: center;
+            border: 1px solid var(--chemistry-fire);
+            color: var(--chemistry-fire);
+        }
+
+        /* Responsividade */
+        @media (max-width: 1024px) {
+            .lab-container {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .products-panel {
+                order: -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .synthesis-workspace {
+                height: 300px;
+            }
+
+            .station-1, .station-2, .station-3 {
+                width: 80px;
+                height: 80px;
+            }
+
+            .reaction-chamber {
+                width: 100px;
+                height: 150px;
+            }
+
+            .synthesis-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .control-btn {
+                width: 100%;
+                max-width: 200px;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .lab-container {
+                padding: 15px 3%;
+            }
+
+            .reagents-panel,
+            .products-panel,
+            .synthesis-area {
+                padding: 15px;
+            }
+
+            .synthesis-type-selector {
+                flex-direction: column;
+            }
+
+            .synthesis-type-btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>Síntese de Compostos</h1>
+        </div>
+        <nav>
+            <a href="lab-quimica.html"><i class="fas fa-arrow-left"></i> Voltar</a>
+            <a href="dashboard.html"><i class="fas fa-home"></i> Início</a>
+        </nav>
+    </header>
+
+    <div class="lab-container">
+        <!-- Painel de Reagentes -->
+        <div class="reagents-panel">
+            <div class="panel-header">
+                <i class="fas fa-vials"></i>
+                <h2>Reagentes Disponíveis</h2>
+            </div>
+            
+            <div class="synthesis-type-selector">
+                <button class="synthesis-type-btn active" data-type="organic">Síntese Orgânica</button>
+                <button class="synthesis-type-btn" data-type="inorganic">Compostos Inorgânicos</button>
+                <button class="synthesis-type-btn" data-type="purification">Técnicas de Purificação</button>
+                <button class="synthesis-type-btn" data-type="analysis">Análise de Produtos</button>
+            </div>
+
+            <div class="reagent-list" id="reagentList">
+                <!-- Reagentes serão carregados aqui -->
+            </div>
+        </div>
+
+        <!-- Área de Síntese Central -->
+        <div class="synthesis-area">
+            <div class="panel-header">
+                <i class="fas fa-flask"></i>
+                <h2>Estação de Síntese</h2>
+            </div>
+
+            <div class="synthesis-workspace">
+                <!-- Estações de reagentes -->
+                <div class="synthesis-station station-1" ondrop="dropReagent(event, 1)" ondragover="allowDrop(event)">
+                    <i class="fas fa-plus-circle" style="font-size: 2rem; color: rgba(247, 37, 133, 0.5);"></i>
+                    <span style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.7);">Reagente 1</span>
+                </div>
+
+                <div class="synthesis-station station-2" ondrop="dropReagent(event, 2)" ondragover="allowDrop(event)">
+                    <i class="fas fa-plus-circle" style="font-size: 2rem; color: rgba(247, 37, 133, 0.5);"></i>
+                    <span style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.7);">Reagente 2</span>
+                </div>
+
+                <div class="synthesis-station station-3" ondrop="dropReagent(event, 3)" ondragover="allowDrop(event)">
+                    <i class="fas fa-plus-circle" style="font-size: 2rem; color: rgba(247, 37, 133, 0.5);"></i>
+                    <span style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.7);">Catalisador</span>
+                </div>
+
+                <!-- Câmara de reação -->
+                <div class="reaction-chamber">
+                    <div class="reaction-bubbles" id="reactionBubbles"></div>
+                    <div class="reaction-liquid" id="reactionLiquid"></div>
+                </div>
+
+                <div class="heating-element" id="heatingElement"></div>
+            </div>
+
+            <div class="temperature-control">
+                <i class="fas fa-thermometer-half" style="color: var(--chemistry-fire);"></i>
+                <input type="range" class="temperature-slider" id="temperatureSlider" min="20" max="300" value="25">
+                <div class="temperature-display" id="temperatureDisplay">25°C</div>
+            </div>
+
+            <div class="synthesis-progress">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+
+            <div class="synthesis-controls">
+                <button class="control-btn start-synthesis-btn" id="startSynthesis" onclick="startSynthesis()" disabled>
+                    <i class="fas fa-play"></i> Iniciar Síntese
+                </button>
+                <button class="control-btn heat-btn" id="heatBtn" onclick="toggleHeating()">
+                    <i class="fas fa-fire"></i> Aquecimento
+                </button>
+                <button class="control-btn purify-btn" onclick="purifyProduct()">
+                    <i class="fas fa-filter"></i> Purificar
+                </button>
+                <button class="control-btn clear-btn" onclick="clearSynthesis()">
+                    <i class="fas fa-trash"></i> Limpar
+                </button>
+            </div>
+
+            <div class="synthesis-result" id="synthesisResult">
+                <h3 id="resultTitle">Resultado da Síntese</h3>
+                <div id="resultContent"></div>
+            </div>
+        </div>
+
+        <!-- Painel de Produtos -->
+        <div class="products-panel">
+            <div class="panel-header">
+                <i class="fas fa-award"></i>
+                <h2>Produtos Sintetizados</h2>
+            </div>
+            
+            <div class="reagent-list" id="productsList">
+                <p style="color: #aaa; text-align: center; margin-top: 50px;">
+                    <i class="fas fa-info-circle"></i><br>
+                    Nenhum produto sintetizado ainda.<br>
+                    Combine reagentes e inicie uma síntese!
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="/lab/sin.js"></script>
+</body>
+</html>

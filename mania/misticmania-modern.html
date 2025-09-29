@@ -1,0 +1,640 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MISTICMANIA - Mistérios e Fenômenos Inexplicáveis</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mystic-purple: #8e44ad;
+            --mystic-dark: #2c3e50;
+            --mystic-gold: #f39c12;
+            --mystic-red: #e74c3c;
+            --fundo: #1a1a2e;
+            --fundo-card: #16213e;
+            --destaque: #8e44ad;
+            --perigo: #e74c3c;
+            --sucesso: #27ae60;
+            --texto-claro: #ecf0f1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--fundo) 0%, #0f3460 50%, var(--fundo) 100%);
+            font-family: 'Rajdhani', sans-serif;
+            color: var(--texto-claro);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Partículas místicas */
+        .mystic-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--mystic-gold);
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { opacity: 0.3; transform: translateY(100vh) scale(0.5); }
+            50% { opacity: 1; transform: translateY(50vh) scale(1); }
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: linear-gradient(to right, rgba(26, 26, 46, 0.9), rgba(142, 68, 173, 0.1));
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--destaque);
+            box-shadow: 0 2px 20px rgba(142, 68, 173, 0.2);
+            position: relative;
+        }
+
+        .logo h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, var(--destaque), var(--mystic-gold));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 20px rgba(142, 68, 173, 0.5);
+            position: relative;
+        }
+
+        .logo h1::after {
+            content: '🔮';
+            position: absolute;
+            right: -40px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 5px var(--mystic-gold)); }
+            to { filter: drop-shadow(0 0 20px var(--mystic-gold)); }
+        }
+
+        .slogan {
+            color: var(--mystic-gold);
+            font-style: italic;
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        nav a {
+            color: var(--texto-claro);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid transparent;
+        }
+
+        nav a:hover {
+            color: var(--destaque);
+            border-color: var(--destaque);
+            background: rgba(142, 68, 173, 0.1);
+            box-shadow: 0 0 15px rgba(142, 68, 173, 0.3);
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, var(--destaque), var(--mystic-gold));
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(142, 68, 173, 0.3);
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 3rem 1rem;
+            background: linear-gradient(135deg, rgba(142, 68, 173, 0.1), rgba(243, 156, 18, 0.1));
+            border-radius: 20px;
+            border: 2px solid rgba(142, 68, 173, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(142, 68, 173, 0.1) 0%, transparent 70%);
+            animation: mysticalRotate 20s linear infinite;
+        }
+
+        @keyframes mysticalRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hero-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            color: var(--destaque);
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: var(--mystic-gold);
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .filters-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 1rem 3rem 1rem 1rem;
+            border: 2px solid rgba(142, 68, 173, 0.3);
+            border-radius: 25px;
+            background: rgba(0, 0, 0, 0.5);
+            color: var(--texto-claro);
+            font-size: 1rem;
+            box-shadow: 0 0 15px rgba(142, 68, 173, 0.2);
+        }
+
+        .search-box input:focus {
+            border-color: var(--destaque);
+            box-shadow: 0 0 25px rgba(142, 68, 173, 0.4);
+            outline: none;
+        }
+
+        .search-box button {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--destaque);
+            border: none;
+            color: white;
+            padding: 0.8rem;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(142, 68, 173, 0.5);
+        }
+
+        .filter-select {
+            padding: 1rem;
+            border: 2px solid rgba(142, 68, 173, 0.3);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            color: var(--texto-claro);
+            font-size: 1rem;
+            box-shadow: 0 0 10px rgba(142, 68, 173, 0.2);
+        }
+
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .article-card {
+            background: var(--fundo-card);
+            border-radius: 20px;
+            padding: 0;
+            border: 2px solid rgba(142, 68, 173, 0.2);
+            transition: all 0.3s;
+            cursor: pointer;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .article-card:hover {
+            border-color: var(--destaque);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(142, 68, 173, 0.3);
+        }
+
+        .article-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--mystic-gold), transparent);
+            transition: left 0.8s;
+        }
+
+        .article-card:hover::before {
+            left: 100%;
+        }
+
+        .article-image {
+            width: 100%;
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .article-category {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: var(--destaque);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            box-shadow: 0 0 15px rgba(142, 68, 173, 0.5);
+        }
+
+        .mystery-level {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--mystic-gold);
+            color: var(--fundo);
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            box-shadow: 0 0 15px rgba(243, 156, 18, 0.5);
+        }
+
+        .article-content {
+            padding: 1.5rem;
+        }
+
+        .article-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--texto-claro);
+            line-height: 1.4;
+        }
+
+        .article-summary {
+            color: var(--mystic-gold);
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .article-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--texto-claro);
+            opacity: 0.8;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--destaque);
+            font-size: 1.2rem;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            animation: spin 1s linear infinite;
+            filter: drop-shadow(0 0 10px var(--destaque));
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: var(--destaque);
+        }
+
+        .no-results i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 0 15px var(--destaque));
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .filters-container {
+                flex-direction: column;
+            }
+
+            .search-box {
+                min-width: 100%;
+            }
+
+            .articles-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Partículas místicas -->
+    <div class="mystic-particles" id="mysticParticles"></div>
+
+    <header>
+        <div class="logo">
+            <h1>MISTICMANIA</h1>
+            <p class="slogan">Desvendando os mistérios do inexplicável!</p>
+        </div>
+        <nav>
+            <a href="/dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="#" onclick="toggleFavorites()"><i class="fas fa-bookmark"></i> Favoritos</a>
+            <a href="/submit-mystic.html" class="submit-btn">
+                <i class="fas fa-plus"></i> Enviar Conteúdo
+            </a>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <div class="hero-section">
+            <h1 class="hero-title">
+                <i class="fas fa-eye"></i> UNIVERSO DOS MISTÉRIOS
+            </h1>
+            <p class="hero-subtitle">
+                Explore fenômenos inexplicáveis e mistérios que desafiam a ciência
+            </p>
+        </div>
+
+        <div class="filters-container">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Pesquisar mistérios e fenômenos...">
+                <button onclick="searchArticles()">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            
+            <select class="filter-select" id="categoryFilter" onchange="filterArticles()">
+                <option value="">Todas as categorias</option>
+                <option value="paranormal">👻 Paranormal</option>
+                <option value="ovni">🛸 OVNIs</option>
+                <option value="lendas">🐉 Lendas Urbanas</option>
+                <option value="conspiracoes">🕵️ Conspirações</option>
+                <option value="historicos">🏛️ Mistérios Históricos</option>
+                <option value="cientificos">🧪 Fenômenos Científicos</option>
+                <option value="lugares">🗺️ Lugares Misteriosos</option>
+                <option value="profecias">📜 Profecias</option>
+            </select>
+
+            <select class="filter-select" id="sortFilter" onchange="sortArticles()">
+                <option value="newest">Mais recentes</option>
+                <option value="oldest">Mais antigas</option>
+                <option value="popular">Mais populares</option>
+                <option value="mostViewed">Mais visualizadas</option>
+            </select>
+        </div>
+
+        <div class="articles-grid" id="articlesGrid">
+            <!-- Artigos serão carregados aqui -->
+        </div>
+
+        <div class="loading" id="loading">
+            <i class="fas fa-magic fa-spin"></i>
+            <p>Carregando mistérios...</p>
+        </div>
+
+        <div class="no-results" id="noResults" style="display: none;">
+            <i class="fas fa-search"></i>
+            <h3>Nenhum mistério encontrado</h3>
+            <p>Tente ajustar os filtros de pesquisa.</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import '/firebase-config.js';
+
+        let currentArticles = [];
+        let filteredArticles = [];
+
+        // Wait for Firebase to be ready
+        window.addEventListener('load', async () => {
+            createMysticParticles();
+            await loadArticles();
+        });
+
+        function createMysticParticles() {
+            const particlesContainer = document.getElementById('mysticParticles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 8 + 's';
+                particle.style.animationDuration = (8 + Math.random() * 4) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        async function loadArticles() {
+            try {
+                const articlesQuery = window.firebaseDB.query(
+                    window.firebaseDB.collection(window.firebaseDB.db, 'mystic-articles'),
+                    window.firebaseDB.where('status', '==', 'published'),
+                    window.firebaseDB.orderBy('createdAt', 'desc')
+                );
+
+                const snapshot = await window.firebaseDB.getDocs(articlesQuery);
+                currentArticles = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                filteredArticles = [...currentArticles];
+                renderArticles();
+            } catch (error) {
+                console.error('Erro ao carregar artigos:', error);
+                document.getElementById('loading').innerHTML = '<p>Erro ao carregar artigos. Tente novamente.</p>';
+            }
+        }
+
+        function renderArticles() {
+            const articlesGrid = document.getElementById('articlesGrid');
+            const loading = document.getElementById('loading');
+            const noResults = document.getElementById('noResults');
+
+            loading.style.display = 'none';
+
+            if (filteredArticles.length === 0) {
+                noResults.style.display = 'block';
+                articlesGrid.innerHTML = '';
+                return;
+            }
+
+            noResults.style.display = 'none';
+
+            articlesGrid.innerHTML = filteredArticles.map(article => `
+                <div class="article-card" onclick="openArticle('${article.id}')">
+                    <div class="article-image" style="background-image: url('${article.imageUrl || 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800'}')">
+                        <div class="article-category">${getCategoryIcon(article.category)} ${article.category}</div>
+                        <div class="mystery-level">${getMysteryLevel(article.mysteryLevel)}</div>
+                    </div>
+                    <div class="article-content">
+                        <h3 class="article-title">${article.title}</h3>
+                        <p class="article-summary">${article.summary}</p>
+                        <div class="article-meta">
+                            <span><i class="fas fa-user"></i> ${article.author}</span>
+                            <span><i class="fas fa-heart"></i> ${article.likes || 0}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getCategoryIcon(category) {
+            const icons = {
+                'paranormal': '👻',
+                'ovni': '🛸',
+                'lendas': '🐉',
+                'conspiracoes': '🕵️',
+                'historicos': '🏛️',
+                'cientificos': '🧪',
+                'lugares': '🗺️',
+                'profecias': '📜'
+            };
+            return icons[category] || '🔮';
+        }
+
+        function getMysteryLevel(level) {
+            const levels = {
+                'baixo': '⭐ Baixo',
+                'medio': '⭐⭐ Médio',
+                'alto': '⭐⭐⭐ Alto',
+                'extremo': '🔥 Extremo'
+            };
+            return levels[level] || '⭐ Baixo';
+        }
+
+        function openArticle(articleId) {
+            // Redirecionar para página detalhada do artigo
+            window.location.href = `/article.html?id=${articleId}&type=mystic`;
+        }
+
+        // Global functions
+        window.searchArticles = function() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            filteredArticles = currentArticles.filter(article =>
+                article.title.toLowerCase().includes(searchTerm) ||
+                article.summary.toLowerCase().includes(searchTerm) ||
+                article.content.toLowerCase().includes(searchTerm)
+            );
+            renderArticles();
+        };
+
+        window.filterArticles = function() {
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            filteredArticles = categoryFilter
+                ? currentArticles.filter(article => article.category === categoryFilter)
+                : [...currentArticles];
+            renderArticles();
+        };
+
+        window.sortArticles = function() {
+            const sortBy = document.getElementById('sortFilter').value;
+            switch(sortBy) {
+                case 'oldest':
+                    filteredArticles.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+                    break;
+                case 'popular':
+                    filteredArticles.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+                    break;
+                case 'mostViewed':
+                    filteredArticles.sort((a, b) => (b.views || 0) - (a.views || 0));
+                    break;
+                default:
+                    filteredArticles.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            }
+            renderArticles();
+        };
+
+        window.toggleFavorites = function() {
+            console.log('Toggle favorites');
+        };
+    </script>
+</body>
+</html>

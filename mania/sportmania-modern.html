@@ -1,0 +1,501 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPORTMANIA - Ciência Esportiva</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sport-red: #e63946;
+            --sport-blue: #457b9d;
+            --sport-orange: #f77f00;
+            --sport-yellow: #f9c74f;
+            --fundo: #1d3557;
+            --fundo-card: #2e4057;
+            --destaque: #e63946;
+            --perigo: #dc3545;
+            --sucesso: #28a745;
+            --texto-claro: #f1faee;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--fundo) 0%, #264653 50%, var(--fundo) 100%);
+            font-family: 'Rajdhani', sans-serif;
+            color: var(--texto-claro);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: linear-gradient(to right, rgba(29, 53, 87, 0.9), rgba(230, 57, 70, 0.1));
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--destaque);
+            box-shadow: 0 2px 20px rgba(230, 57, 70, 0.2);
+        }
+
+        .logo h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, var(--destaque), var(--sport-orange));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 20px rgba(230, 57, 70, 0.5);
+        }
+
+        .slogan {
+            color: var(--sport-blue);
+            font-style: italic;
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        nav a {
+            color: var(--texto-claro);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid transparent;
+        }
+
+        nav a:hover {
+            color: var(--destaque);
+            border-color: var(--destaque);
+            background: rgba(230, 57, 70, 0.1);
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, var(--destaque), var(--sport-orange));
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(230, 57, 70, 0.3);
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 3rem 1rem;
+            background: linear-gradient(135deg, rgba(230, 57, 70, 0.1), rgba(69, 123, 157, 0.1));
+            border-radius: 20px;
+            border: 2px solid rgba(230, 57, 70, 0.3);
+        }
+
+        .hero-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            color: var(--destaque);
+            margin-bottom: 1rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: var(--sport-blue);
+            margin-bottom: 2rem;
+        }
+
+        .filters-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 1rem 3rem 1rem 1rem;
+            border: 2px solid rgba(230, 57, 70, 0.3);
+            border-radius: 25px;
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--texto-claro);
+            font-size: 1rem;
+        }
+
+        .search-box button {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--destaque);
+            border: none;
+            color: white;
+            padding: 0.8rem;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .filter-select {
+            padding: 1rem;
+            border: 2px solid rgba(230, 57, 70, 0.3);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--texto-claro);
+            font-size: 1rem;
+        }
+
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .article-card {
+            background: var(--fundo-card);
+            border-radius: 20px;
+            padding: 0;
+            border: 2px solid rgba(230, 57, 70, 0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .article-card:hover {
+            border-color: var(--destaque);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(230, 57, 70, 0.2);
+        }
+
+        .article-image {
+            width: 100%;
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .article-category {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: var(--destaque);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .article-content {
+            padding: 1.5rem;
+        }
+
+        .article-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--texto-claro);
+            line-height: 1.4;
+        }
+
+        .article-summary {
+            color: var(--sport-blue);
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .article-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--texto-claro);
+            opacity: 0.8;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--destaque);
+            font-size: 1.2rem;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: var(--destaque);
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .filters-container {
+                flex-direction: column;
+            }
+
+            .search-box {
+                min-width: 100%;
+            }
+
+            .articles-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>SPORTMANIA</h1>
+            <p class="slogan">Ciência que transforma atletas!</p>
+        </div>
+        <nav>
+            <a href="/dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="#" onclick="toggleFavorites()"><i class="fas fa-bookmark"></i> Favoritos</a>
+            <a href="/submit-sports.html" class="submit-btn">
+                <i class="fas fa-plus"></i> Enviar Conteúdo
+            </a>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <div class="hero-section">
+            <h1 class="hero-title">
+                <i class="fas fa-dumbbell"></i> CIÊNCIA ESPORTIVA
+            </h1>
+            <p class="hero-subtitle">
+                Descubra os segredos científicos por trás da performance atlética
+            </p>
+        </div>
+
+        <div class="filters-container">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Pesquisar ciência esportiva...">
+                <button onclick="searchArticles()">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            
+            <select class="filter-select" id="categoryFilter" onchange="filterArticles()">
+                <option value="">Todas as categorias</option>
+                <option value="biomechanics">🏃 Biomecânica</option>
+                <option value="nutrition">🥗 Nutrição Esportiva</option>
+                <option value="psychology">🧠 Psicologia Esportiva</option>
+                <option value="technology">📱 Tecnologia Esportiva</option>
+                <option value="recovery">🛌 Recuperação</option>
+                <option value="performance">⚡ Performance</option>
+                <option value="training">💪 Treinamento</option>
+                <option value="equipment">🥇 Equipamentos</option>
+            </select>
+
+            <select class="filter-select" id="sortFilter" onchange="sortArticles()">
+                <option value="newest">Mais recentes</option>
+                <option value="oldest">Mais antigas</option>
+                <option value="popular">Mais populares</option>
+                <option value="mostViewed">Mais visualizadas</option>
+            </select>
+        </div>
+
+        <div class="articles-grid" id="articlesGrid">
+            <!-- Artigos serão carregados aqui -->
+        </div>
+
+        <div class="loading" id="loading">
+            <i class="fas fa-running fa-bounce"></i>
+            <p>Carregando ciência esportiva...</p>
+        </div>
+
+        <div class="no-results" id="noResults" style="display: none;">
+            <i class="fas fa-search"></i>
+            <h3>Nenhum conteúdo encontrado</h3>
+            <p>Tente ajustar os filtros de pesquisa.</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import '/firebase-config.js';
+
+        let currentArticles = [];
+        let filteredArticles = [];
+
+        // Wait for Firebase to be ready
+        window.addEventListener('load', async () => {
+            await loadArticles();
+        });
+
+        async function loadArticles() {
+            try {
+                const articlesQuery = window.firebaseDB.query(
+                    window.firebaseDB.collection(window.firebaseDB.db, 'sports-articles'),
+                    window.firebaseDB.where('status', '==', 'published'),
+                    window.firebaseDB.orderBy('createdAt', 'desc')
+                );
+
+                const snapshot = await window.firebaseDB.getDocs(articlesQuery);
+                currentArticles = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                filteredArticles = [...currentArticles];
+                renderArticles();
+            } catch (error) {
+                console.error('Erro ao carregar artigos:', error);
+                document.getElementById('loading').innerHTML = '<p>Erro ao carregar artigos. Tente novamente.</p>';
+            }
+        }
+
+        function renderArticles() {
+            const articlesGrid = document.getElementById('articlesGrid');
+            const loading = document.getElementById('loading');
+            const noResults = document.getElementById('noResults');
+
+            loading.style.display = 'none';
+
+            if (filteredArticles.length === 0) {
+                noResults.style.display = 'block';
+                articlesGrid.innerHTML = '';
+                return;
+            }
+
+            noResults.style.display = 'none';
+
+            articlesGrid.innerHTML = filteredArticles.map(article => `
+                <div class="article-card" onclick="openArticle('${article.id}')">
+                    <div class="article-image" style="background-image: url('${article.imageUrl || 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800'}')">
+                        <div class="article-category">${getCategoryIcon(article.category)} ${article.category}</div>
+                    </div>
+                    <div class="article-content">
+                        <h3 class="article-title">${article.title}</h3>
+                        <p class="article-summary">${article.summary}</p>
+                        <div class="article-meta">
+                            <span><i class="fas fa-user"></i> ${article.author}</span>
+                            <span><i class="fas fa-heart"></i> ${article.likes || 0}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getCategoryIcon(category) {
+            const icons = {
+                'biomechanics': '🏃',
+                'nutrition': '🥗',
+                'psychology': '🧠',
+                'technology': '📱',
+                'recovery': '🛌',
+                'performance': '⚡',
+                'training': '💪',
+                'equipment': '🥇'
+            };
+            return icons[category] || '🏃';
+        }
+
+        function openArticle(articleId) {
+            // Redirecionar para página detalhada do artigo
+            window.location.href = `/article.html?id=${articleId}&type=sports`;
+        }
+
+        // Global functions
+        window.searchArticles = function() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            filteredArticles = currentArticles.filter(article =>
+                article.title.toLowerCase().includes(searchTerm) ||
+                article.summary.toLowerCase().includes(searchTerm) ||
+                article.content.toLowerCase().includes(searchTerm)
+            );
+            renderArticles();
+        };
+
+        window.filterArticles = function() {
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            filteredArticles = categoryFilter
+                ? currentArticles.filter(article => article.category === categoryFilter)
+                : [...currentArticles];
+            renderArticles();
+        };
+
+        window.sortArticles = function() {
+            const sortBy = document.getElementById('sortFilter').value;
+            switch(sortBy) {
+                case 'oldest':
+                    filteredArticles.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+                    break;
+                case 'popular':
+                    filteredArticles.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+                    break;
+                case 'mostViewed':
+                    filteredArticles.sort((a, b) => (b.views || 0) - (a.views || 0));
+                    break;
+                default:
+                    filteredArticles.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            }
+            renderArticles();
+        };
+
+        window.toggleFavorites = function() {
+            console.log('Toggle favorites');
+        };
+    </script>
+</body>
+</html>

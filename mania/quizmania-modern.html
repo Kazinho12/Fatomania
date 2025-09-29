@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizMANIA - Desafios Científicos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --vermelho: #ff0000;
+            --branco: #ffffff;
+            --amarelo: #ffff00;
+            --fundo: #1a1a1a;
+            --fundo-card: #2a2a2a;
+            --destaque: #ff0000;
+            --perigo: #ff4444;
+            --sucesso: #00ff00;
+            --alerta: #ffaa00;
+            --preto: #000000;
+            --cinza: #666666;
+            --roxo: #6a00ff;
+            --azul: #00f7ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--fundo) 0%, #2d1b3d 50%, var(--fundo) 100%);
+            color: var(--branco);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        header {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            border-bottom: 2px solid var(--vermelho);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            background: linear-gradient(to right, var(--vermelho), var(--amarelo));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .slogan {
+            color: var(--amarelo);
+            font-weight: 600;
+        }
+
+        nav {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        nav a {
+            color: var(--branco);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            border: 1px solid transparent;
+        }
+
+        nav a:hover {
+            color: var(--amarelo);
+            border-color: var(--amarelo);
+            background: rgba(255, 255, 0, 0.1);
+        }
+
+        .submit-quiz-btn {
+            background: linear-gradient(45deg, var(--vermelho), var(--amarelo));
+            border: none;
+            color: var(--branco);
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .submit-quiz-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .tabs-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            background: var(--fundo-card);
+            color: var(--branco);
+            border: 2px solid var(--vermelho);
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .tab.active {
+            background: var(--vermelho);
+            color: var(--branco);
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+        }
+
+        .tab:hover:not(.active) {
+            background: rgba(255, 0, 0, 0.1);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Quiz Browsing */
+        .filters-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 1rem 3rem 1rem 1rem;
+            border: 2px solid var(--vermelho);
+            border-radius: 25px;
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--branco);
+            font-size: 1rem;
+        }
+
+        .search-box button {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--vermelho);
+            border: none;
+            color: var(--branco);
+            padding: 0.8rem;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .filter-select {
+            padding: 1rem;
+            border: 2px solid var(--vermelho);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--branco);
+            font-size: 1rem;
+        }
+
+        .quizzes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .quiz-card {
+            background: var(--fundo-card);
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 2px solid rgba(255, 0, 0, 0.3);
+            transition: all 0.3s;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .quiz-card:hover {
+            border-color: var(--vermelho);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 0, 0, 0.2);
+        }
+
+        .quiz-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--amarelo);
+            line-height: 1.4;
+        }
+
+        .quiz-description {
+            color: var(--branco);
+            margin-bottom: 1rem;
+            opacity: 0.9;
+        }
+
+        .quiz-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .quiz-difficulty {
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .difficulty-easy { background: var(--sucesso); color: var(--preto); }
+        .difficulty-medium { background: var(--alerta); color: var(--preto); }
+        .difficulty-hard { background: var(--vermelho); color: var(--branco); }
+
+        .quiz-category {
+            background: rgba(255, 255, 0, 0.2);
+            color: var(--amarelo);
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+
+        .play-btn {
+            width: 100%;
+            background: linear-gradient(45deg, var(--vermelho), var(--amarelo));
+            border: none;
+            color: var(--branco);
+            padding: 1rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+
+        .play-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
+        }
+
+        /* Quiz Playing */
+        .quiz-player {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--fundo-card);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 2px solid var(--vermelho);
+        }
+
+        .quiz-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .quiz-progress {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .quiz-progress-bar {
+            height: 100%;
+            background: linear-gradient(45deg, var(--vermelho), var(--amarelo));
+            transition: width 0.3s;
+        }
+
+        .question-container {
+            margin-bottom: 2rem;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--amarelo);
+            text-align: center;
+        }
+
+        .options-container {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .option {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid transparent;
+            padding: 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .option:hover {
+            border-color: var(--vermelho);
+            background: rgba(255, 0, 0, 0.1);
+        }
+
+        .option.selected {
+            border-color: var(--amarelo);
+            background: rgba(255, 255, 0, 0.1);
+        }
+
+        .option.correct {
+            border-color: var(--sucesso);
+            background: rgba(0, 255, 0, 0.1);
+        }
+
+        .option.incorrect {
+            border-color: var(--vermelho);
+            background: rgba(255, 0, 0, 0.1);
+        }
+
+        .quiz-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .quiz-btn {
+            background: var(--vermelho);
+            border: none;
+            color: var(--branco);
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quiz-btn:hover:not(:disabled) {
+            background: var(--amarelo);
+            color: var(--preto);
+        }
+
+        .quiz-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Rankings */
+        .rankings-container {
+            background: var(--fundo-card);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 2px solid var(--vermelho);
+        }
+
+        .rankings-title {
+            text-align: center;
+            font-size: 2rem;
+            color: var(--amarelo);
+            margin-bottom: 2rem;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border-left: 4px solid var(--vermelho);
+        }
+
+        .ranking-position {
+            font-size: 1.5rem;
+            font-weight: bold;
+            width: 50px;
+            text-align: center;
+        }
+
+        .ranking-position.first { color: #ffd700; }
+        .ranking-position.second { color: #c0c0c0; }
+        .ranking-position.third { color: #cd7f32; }
+
+        .ranking-user {
+            flex: 1;
+            margin-left: 1rem;
+        }
+
+        .ranking-score {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--amarelo);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--amarelo);
+            font-size: 1.2rem;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: var(--amarelo);
+        }
+
+        .no-results i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Results Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--fundo-card);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            border: 2px solid var(--vermelho);
+        }
+
+        .results-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            color: var(--amarelo);
+            margin-bottom: 1rem;
+        }
+
+        .score-display {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--vermelho);
+            margin: 1rem 0;
+        }
+
+        .results-details {
+            margin: 1rem 0;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .tabs-container {
+                flex-direction: column;
+            }
+
+            .filters-container {
+                flex-direction: column;
+            }
+
+            .search-box {
+                min-width: 100%;
+            }
+
+            .quizzes-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quiz-controls {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>QUIZMANIA</h1>
+            <p class="slogan">Quem sabe mais?</p>
+        </div>
+        <nav>
+            <a href="/dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="#" onclick="showTab('browse')"><i class="fas fa-list"></i> Quizzes</a>
+            <a href="#" onclick="showTab('rankings')"><i class="fas fa-trophy"></i> Rankings</a>
+            <a href="/submit-quiz.html" class="submit-quiz-btn">
+                <i class="fas fa-plus"></i> Criar Quiz
+            </a>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <div class="tabs-container">
+            <div class="tab active" onclick="showTab('browse')">
+                <i class="fas fa-list"></i> Explorar Quizzes
+            </div>
+            <div class="tab" onclick="showTab('rankings')">
+                <i class="fas fa-trophy"></i> Rankings
+            </div>
+        </div>
+
+        <!-- Browse Quizzes Tab -->
+        <div class="tab-content active" id="browseTab">
+            <div class="filters-container">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Pesquisar quizzes...">
+                    <button onclick="searchQuizzes()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                
+                <select class="filter-select" id="categoryFilter" onchange="filterQuizzes()">
+                    <option value="">Todas as categorias</option>
+                    <option value="ciencia">🔬 Ciência</option>
+                    <option value="matematica">🔢 Matemática</option>
+                    <option value="fisica">⚛️ Física</option>
+                    <option value="quimica">🧪 Química</option>
+                    <option value="biologia">🧬 Biologia</option>
+                    <option value="astronomia">🌌 Astronomia</option>
+                    <option value="tecnologia">💻 Tecnologia</option>
+                    <option value="medicina">⚕️ Medicina</option>
+                </select>
+
+                <select class="filter-select" id="difficultyFilter" onchange="filterQuizzes()">
+                    <option value="">Todas as dificuldades</option>
+                    <option value="easy">Fácil</option>
+                    <option value="medium">Médio</option>
+                    <option value="hard">Difícil</option>
+                </select>
+            </div>
+
+            <div class="quizzes-grid" id="quizzesGrid">
+                <!-- Quizzes serão carregados aqui -->
+            </div>
+
+            <div class="loading" id="browseLoading">
+                <i class="fas fa-brain fa-spin"></i>
+                <p>Carregando quizzes...</p>
+            </div>
+
+            <div class="no-results" id="browseNoResults" style="display: none;">
+                <i class="fas fa-search"></i>
+                <h3>Nenhum quiz encontrado</h3>
+                <p>Tente ajustar os filtros de pesquisa.</p>
+            </div>
+        </div>
+
+        <!-- Rankings Tab -->
+        <div class="tab-content" id="rankingsTab">
+            <div class="rankings-container">
+                <h2 class="rankings-title">
+                    <i class="fas fa-trophy"></i> Ranking Geral
+                </h2>
+                <div id="rankingsContent">
+                    <!-- Rankings serão carregados aqui -->
+                </div>
+                <div class="loading" id="rankingsLoading">
+                    <i class="fas fa-trophy fa-spin"></i>
+                    <p>Carregando rankings...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Player -->
+        <div class="tab-content" id="quizPlayerTab">
+            <div class="quiz-player">
+                <div class="quiz-header">
+                    <h2 id="quizTitle"></h2>
+                    <div class="quiz-progress">
+                        <div class="quiz-progress-bar" id="progressBar"></div>
+                    </div>
+                    <p id="questionCounter"></p>
+                </div>
+
+                <div class="question-container">
+                    <div class="question-text" id="questionText"></div>
+                    <div class="options-container" id="optionsContainer"></div>
+                </div>
+
+                <div class="quiz-controls">
+                    <button class="quiz-btn" onclick="previousQuestion()" id="prevBtn">
+                        <i class="fas fa-arrow-left"></i> Anterior
+                    </button>
+                    <div>
+                        <span id="timeRemaining"></span>
+                    </div>
+                    <button class="quiz-btn" onclick="nextQuestion()" id="nextBtn">
+                        Próxima <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div class="modal" id="resultsModal">
+        <div class="modal-content">
+            <h2 class="results-title">
+                <i class="fas fa-medal"></i> Resultado Final
+            </h2>
+            <div class="score-display" id="finalScore"></div>
+            <div class="results-details" id="resultsDetails"></div>
+            <button class="quiz-btn" onclick="closeResults()" style="margin-top: 1rem;">
+                <i class="fas fa-home"></i> Voltar aos Quizzes
+            </button>
+        </div>
+    </div>
+
+    <script type="module">
+        import '/firebase-config.js';
+
+        let currentQuizzes = [];
+        let filteredQuizzes = [];
+        let currentQuiz = null;
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let quizStartTime = null;
+        let questionTimer = null;
+
+        // Wait for Firebase to be ready
+        window.addEventListener('load', async () => {
+            await loadQuizzes();
+            await loadRankings();
+        });
+
+        async function loadQuizzes() {
+            try {
+                const quizzesQuery = window.firebaseDB.query(
+                    window.firebaseDB.collection(window.firebaseDB.db, 'quizzes'),
+                    window.firebaseDB.where('status', '==', 'published'),
+                    window.firebaseDB.orderBy('createdAt', 'desc')
+                );
+
+                const snapshot = await window.firebaseDB.getDocs(quizzesQuery);
+                currentQuizzes = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                filteredQuizzes = [...currentQuizzes];
+                renderQuizzes();
+            } catch (error) {
+                console.error('Erro ao carregar quizzes:', error);
+                document.getElementById('browseLoading').innerHTML = '<p>Erro ao carregar quizzes. Tente novamente.</p>';
+            }
+        }
+
+        async function loadRankings() {
+            try {
+                const scoresQuery = window.firebaseDB.query(
+                    window.firebaseDB.collection(window.firebaseDB.db, 'quiz-scores'),
+                    window.firebaseDB.orderBy('totalScore', 'desc'),
+                    window.firebaseDB.limit(10)
+                );
+
+                const snapshot = await window.firebaseDB.getDocs(scoresQuery);
+                const rankings = snapshot.docs.map(doc => doc.data());
+
+                renderRankings(rankings);
+            } catch (error) {
+                console.error('Erro ao carregar rankings:', error);
+                document.getElementById('rankingsLoading').innerHTML = '<p>Erro ao carregar rankings. Tente novamente.</p>';
+            }
+        }
+
+        function renderQuizzes() {
+            const quizzesGrid = document.getElementById('quizzesGrid');
+            const loading = document.getElementById('browseLoading');
+            const noResults = document.getElementById('browseNoResults');
+
+            loading.style.display = 'none';
+
+            if (filteredQuizzes.length === 0) {
+                noResults.style.display = 'block';
+                quizzesGrid.innerHTML = '';
+                return;
+            }
+
+            noResults.style.display = 'none';
+
+            quizzesGrid.innerHTML = filteredQuizzes.map(quiz => `
+                <div class="quiz-card" onclick="startQuiz('${quiz.id}')">
+                    <h3 class="quiz-title">${quiz.title}</h3>
+                    <p class="quiz-description">${quiz.description}</p>
+                    <div class="quiz-stats">
+                        <span><i class="fas fa-question-circle"></i> ${quiz.questions?.length || 0} perguntas</span>
+                        <span><i class="fas fa-clock"></i> ${quiz.timeLimit || 'Sem limite'}</span>
+                        <span><i class="fas fa-user"></i> ${quiz.author}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <span class="quiz-difficulty difficulty-${quiz.difficulty}">
+                            ${getDifficultyText(quiz.difficulty)}
+                        </span>
+                        <span class="quiz-category">${getCategoryIcon(quiz.category)} ${quiz.category}</span>
+                    </div>
+                    <button class="play-btn">
+                        <i class="fas fa-play"></i> Jogar Agora
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function renderRankings(rankings) {
+            const rankingsContent = document.getElementById('rankingsContent');
+            const loading = document.getElementById('rankingsLoading');
+
+            loading.style.display = 'none';
+
+            if (rankings.length === 0) {
+                rankingsContent.innerHTML = '<p>Nenhum ranking disponível ainda.</p>';
+                return;
+            }
+
+            rankingsContent.innerHTML = rankings.map((score, index) => `
+                <div class="ranking-item">
+                    <div class="ranking-position ${getPositionClass(index + 1)}">
+                        ${index + 1}°
+                    </div>
+                    <div class="ranking-user">
+                        <div style="font-weight: bold; font-size: 1.1rem;">${score.userName}</div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;">
+                            ${score.quizzesCompleted || 0} quizzes completados
+                        </div>
+                    </div>
+                    <div class="ranking-score">
+                        ${score.totalScore} pts
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getDifficultyText(difficulty) {
+            const texts = {
+                'easy': 'Fácil',
+                'medium': 'Médio',
+                'hard': 'Difícil'
+            };
+            return texts[difficulty] || difficulty;
+        }
+
+        function getCategoryIcon(category) {
+            const icons = {
+                'ciencia': '🔬',
+                'matematica': '🔢',
+                'fisica': '⚛️',
+                'quimica': '🧪',
+                'biologia': '🧬',
+                'astronomia': '🌌',
+                'tecnologia': '💻',
+                'medicina': '⚕️'
+            };
+            return icons[category] || '🧠';
+        }
+
+        function getPositionClass(position) {
+            if (position === 1) return 'first';
+            if (position === 2) return 'second';
+            if (position === 3) return 'third';
+            return '';
+        }
+
+        async function startQuiz(quizId) {
+            const quiz = currentQuizzes.find(q => q.id === quizId);
+            if (!quiz) return;
+
+            currentQuiz = quiz;
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            quizStartTime = Date.now();
+
+            // Update quiz plays count
+            try {
+                const quizRef = window.firebaseDB.doc(window.firebaseDB.db, 'quizzes', quizId);
+                await window.firebaseDB.updateDoc(quizRef, {
+                    plays: window.firebaseDB.increment(1)
+                });
+            } catch (error) {
+                console.error('Erro ao atualizar plays:', error);
+            }
+
+            showTab('quizPlayer');
+            displayQuestion();
+        }
+
+        function displayQuestion() {
+            if (!currentQuiz || currentQuestionIndex >= currentQuiz.questions.length) {
+                finishQuiz();
+                return;
+            }
+
+            const question = currentQuiz.questions[currentQuestionIndex];
+            
+            document.getElementById('quizTitle').textContent = currentQuiz.title;
+            document.getElementById('questionCounter').textContent = 
+                `Pergunta ${currentQuestionIndex + 1} de ${currentQuiz.questions.length}`;
+            document.getElementById('questionText').textContent = question.text;
+            
+            // Update progress bar
+            const progress = ((currentQuestionIndex + 1) / currentQuiz.questions.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+
+            // Display options
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = question.options.map((option, index) => `
+                <div class="option" onclick="selectOption(${index})">
+                    ${option}
+                </div>
+            `).join('');
+
+            // Update navigation buttons
+            document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+            document.getElementById('nextBtn').textContent = 
+                currentQuestionIndex === currentQuiz.questions.length - 1 ? 'Finalizar' : 'Próxima';
+        }
+
+        function selectOption(optionIndex) {
+            // Clear previous selections
+            document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+            
+            // Mark selected option
+            document.querySelectorAll('.option')[optionIndex].classList.add('selected');
+            
+            // Store answer
+            userAnswers[currentQuestionIndex] = optionIndex;
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < currentQuiz.questions.length - 1) {
+                currentQuestionIndex++;
+                displayQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                displayQuestion();
+            }
+        }
+
+        async function finishQuiz() {
+            if (!currentQuiz) return;
+
+            // Calculate score
+            let correct = 0;
+            currentQuiz.questions.forEach((question, index) => {
+                if (userAnswers[index] === question.correctAnswer) {
+                    correct++;
+                }
+            });
+
+            const score = Math.round((correct / currentQuiz.questions.length) * 100);
+            const timeSpent = Math.round((Date.now() - quizStartTime) / 1000);
+
+            // Display results
+            document.getElementById('finalScore').textContent = score + '%';
+            document.getElementById('resultsDetails').innerHTML = `
+                <p><strong>Questões corretas:</strong> ${correct} de ${currentQuiz.questions.length}</p>
+                <p><strong>Tempo gasto:</strong> ${Math.floor(timeSpent / 60)}:${(timeSpent % 60).toString().padStart(2, '0')}</p>
+                <p><strong>Performance:</strong> ${getPerformanceText(score)}</p>
+            `;
+
+            document.getElementById('resultsModal').classList.add('active');
+
+            // Save score to Firebase
+            try {
+                const user = window.firebaseAuth.auth.currentUser;
+                if (user) {
+                    await saveQuizResult(user, score, correct, timeSpent);
+                }
+            } catch (error) {
+                console.error('Erro ao salvar resultado:', error);
+            }
+        }
+
+        async function saveQuizResult(user, score, correct, timeSpent) {
+            const resultData = {
+                userId: user.uid,
+                userName: user.displayName || user.email,
+                quizId: currentQuiz.id,
+                quizTitle: currentQuiz.title,
+                score: score,
+                correctAnswers: correct,
+                totalQuestions: currentQuiz.questions.length,
+                timeSpent: timeSpent,
+                completedAt: window.firebaseDB.serverTimestamp()
+            };
+
+            // Save individual result
+            await window.firebaseDB.addDoc(
+                window.firebaseDB.collection(window.firebaseDB.db, 'quiz-results'), 
+                resultData
+            );
+
+            // Update user's total score
+            const userScoreRef = window.firebaseDB.doc(window.firebaseDB.db, 'quiz-scores', user.uid);
+            const userScoreDoc = await window.firebaseDB.getDoc(userScoreRef);
+
+            if (userScoreDoc.exists()) {
+                const currentData = userScoreDoc.data();
+                await window.firebaseDB.updateDoc(userScoreRef, {
+                    totalScore: currentData.totalScore + score,
+                    quizzesCompleted: window.firebaseDB.increment(1),
+                    lastQuizAt: window.firebaseDB.serverTimestamp()
+                });
+            } else {
+                await window.firebaseDB.setDoc(userScoreRef, {
+                    userId: user.uid,
+                    userName: user.displayName || user.email,
+                    totalScore: score,
+                    quizzesCompleted: 1,
+                    createdAt: window.firebaseDB.serverTimestamp(),
+                    lastQuizAt: window.firebaseDB.serverTimestamp()
+                });
+            }
+        }
+
+        function getPerformanceText(score) {
+            if (score >= 90) return '🏆 Excelente!';
+            if (score >= 70) return '🎯 Muito Bom!';
+            if (score >= 50) return '👍 Bom!';
+            return '📚 Continue estudando!';
+        }
+
+        function closeResults() {
+            document.getElementById('resultsModal').classList.remove('active');
+            showTab('browse');
+            currentQuiz = null;
+        }
+
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            if (tabName === 'browse') {
+                document.getElementById('browseTab').classList.add('active');
+                document.querySelector('.tab:first-child').classList.add('active');
+            } else if (tabName === 'rankings') {
+                document.getElementById('rankingsTab').classList.add('active');
+                document.querySelector('.tab:nth-child(2)').classList.add('active');
+            } else if (tabName === 'quizPlayer') {
+                document.getElementById('quizPlayerTab').classList.add('active');
+            }
+        }
+
+        function searchQuizzes() {
+            filterQuizzes();
+        }
+
+        function filterQuizzes() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const category = document.getElementById('categoryFilter').value;
+            const difficulty = document.getElementById('difficultyFilter').value;
+
+            filteredQuizzes = currentQuizzes.filter(quiz => {
+                const matchesSearch = quiz.title.toLowerCase().includes(searchTerm) ||
+                                    quiz.description.toLowerCase().includes(searchTerm);
+                const matchesCategory = !category || quiz.category === category;
+                const matchesDifficulty = !difficulty || quiz.difficulty === difficulty;
+                
+                return matchesSearch && matchesCategory && matchesDifficulty;
+            });
+
+            renderQuizzes();
+        }
+
+        // Global functions
+        window.showTab = showTab;
+        window.startQuiz = startQuiz;
+        window.selectOption = selectOption;
+        window.nextQuestion = nextQuestion;
+        window.previousQuestion = previousQuestion;
+        window.searchQuizzes = searchQuizzes;
+        window.filterQuizzes = filterQuizzes;
+        window.closeResults = closeResults;
+
+        // Search on enter
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchQuizzes();
+            }
+        });
+    </script>
+</body>
+</html>

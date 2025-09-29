@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NewsMANIA - Notícias Científicas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --roxo: #6a00ff;
+            --azul: #00f7ff;
+            --verde: #00ffaa;
+            --fundo: #0f0c29;
+            --fundo-card: #16213e;
+            --destaque: #ffbe0b;
+            --perigo: #ff3d00;
+            --sucesso: #00e676;
+            --alerta: #ffc107;
+            --texto-claro: #ffffff;
+            --texto-escuro: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--fundo) 0%, #24243e 50%, var(--fundo) 100%);
+            font-family: 'Rajdhani', sans-serif;
+            color: var(--texto-claro);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: linear-gradient(to right, rgba(15, 12, 41, 0.9), rgba(255, 190, 11, 0.1));
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--destaque);
+            box-shadow: 0 2px 20px rgba(255, 190, 11, 0.2);
+        }
+
+        .logo h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            margin: 0;
+            background: linear-gradient(90deg, var(--destaque), #ff8c00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 10px rgba(255, 190, 11, 0.5);
+        }
+
+        .slogan {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--azul);
+            font-style: italic;
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        nav a {
+            color: var(--texto-claro);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid transparent;
+            cursor: pointer;
+        }
+
+        nav a:hover, nav a.active {
+            color: var(--destaque);
+            border-color: var(--destaque);
+            background: rgba(255, 190, 11, 0.1);
+        }
+
+        .submit-news-btn {
+            background: linear-gradient(45deg, var(--verde), var(--azul));
+            border: none;
+            color: var(--fundo);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .submit-news-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 170, 0.3);
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-title h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            color: var(--destaque);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-title p {
+            color: var(--azul);
+            font-size: 1.2rem;
+        }
+
+        .filters-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 1rem 3rem 1rem 1rem;
+            border: 2px solid rgba(255, 190, 11, 0.3);
+            border-radius: 25px;
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--texto-claro);
+            font-size: 1rem;
+        }
+
+        .search-box button {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--destaque);
+            border: none;
+            color: var(--fundo);
+            padding: 0.8rem;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .category-filter {
+            padding: 1rem;
+            border: 2px solid rgba(255, 190, 11, 0.3);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--texto-claro);
+            font-size: 1rem;
+        }
+
+        .sort-filter {
+            padding: 1rem;
+            border: 2px solid rgba(255, 190, 11, 0.3);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--texto-claro);
+            font-size: 1rem;
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .news-card {
+            background: var(--fundo-card);
+            border-radius: 20px;
+            padding: 0;
+            border: 2px solid rgba(255, 190, 11, 0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .news-card:hover {
+            border-color: var(--destaque);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 190, 11, 0.2);
+        }
+
+        .news-image {
+            width: 100%;
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .news-category {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: var(--destaque);
+            color: var(--fundo);
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .news-content {
+            padding: 1.5rem;
+        }
+
+        .news-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--texto-claro);
+            line-height: 1.4;
+        }
+
+        .news-summary {
+            color: var(--azul);
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .news-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--texto-claro);
+            opacity: 0.8;
+        }
+
+        .news-author {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .news-stats {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .news-stats span {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--azul);
+            font-size: 1.2rem;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: var(--azul);
+        }
+
+        .no-results i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .load-more {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .load-more-btn {
+            background: linear-gradient(45deg, var(--destaque), #ff8c00);
+            border: none;
+            color: var(--fundo);
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+
+        .load-more-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 190, 11, 0.3);
+        }
+
+        .load-more-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--fundo-card);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            border: 2px solid var(--destaque);
+            box-shadow: 0 0 40px rgba(255, 190, 11, 0.3);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--perigo);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            z-index: 1001;
+        }
+
+        .modal-image {
+            width: 100%;
+            height: 300px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            color: var(--destaque);
+            margin-bottom: 1rem;
+        }
+
+        .modal-meta {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .modal-content-text {
+            line-height: 1.8;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .modal-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .tag {
+            background: rgba(255, 190, 11, 0.2);
+            color: var(--destaque);
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .filters-container {
+                flex-direction: column;
+            }
+
+            .search-box {
+                min-width: 100%;
+            }
+
+            .news-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                margin: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>NEWSMANIA</h1>
+            <p class="slogan">Descobertas que mudam o mundo!</p>
+        </div>
+        <nav>
+            <a href="/dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="#" onclick="toggleFavorites()"><i class="fas fa-bookmark"></i> Favoritos</a>
+            <a href="/submit-news.html" class="submit-news-btn">
+                <i class="fas fa-plus"></i> Enviar Notícia
+            </a>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <div class="page-title">
+            <h2><i class="fas fa-newspaper"></i> Últimas Descobertas Científicas</h2>
+            <p>Fique por dentro das notícias que estão moldando o futuro da ciência</p>
+        </div>
+
+        <div class="filters-container">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Pesquisar notícias...">
+                <button onclick="searchNews()">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            
+            <select class="category-filter" id="categoryFilter" onchange="filterNews()">
+                <option value="">Todas as categorias</option>
+                <option value="ciencia">🔬 Ciência</option>
+                <option value="tecnologia">💻 Tecnologia</option>
+                <option value="medicina">⚕️ Medicina</option>
+                <option value="astronomia">🌌 Astronomia</option>
+                <option value="fisica">⚛️ Física</option>
+                <option value="biologia">🧬 Biologia</option>
+                <option value="quimica">🧪 Química</option>
+                <option value="ambiente">🌱 Meio Ambiente</option>
+                <option value="descoberta">💡 Descobertas</option>
+            </select>
+
+            <select class="sort-filter" id="sortFilter" onchange="sortNews()">
+                <option value="newest">Mais recentes</option>
+                <option value="oldest">Mais antigas</option>
+                <option value="popular">Mais populares</option>
+                <option value="mostViewed">Mais visualizadas</option>
+            </select>
+        </div>
+
+        <div class="news-grid" id="newsGrid">
+            <!-- Notícias serão carregadas aqui -->
+        </div>
+
+        <div class="loading" id="loading">
+            <i class="fas fa-atom fa-spin"></i>
+            <p>Carregando notícias científicas...</p>
+        </div>
+
+        <div class="no-results" id="noResults" style="display: none;">
+            <i class="fas fa-search"></i>
+            <h3>Nenhuma notícia encontrada</h3>
+            <p>Tente ajustar os filtros de pesquisa.</p>
+        </div>
+
+        <div class="load-more">
+            <button class="load-more-btn" id="loadMoreBtn" onclick="loadMoreNews()" style="display: none;">
+                <i class="fas fa-plus"></i> Carregar mais notícias
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal para notícia completa -->
+    <div class="modal" id="newsModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-image" id="modalImage"></div>
+            <div class="modal-body">
+                <h2 class="modal-title" id="modalTitle"></h2>
+                <div class="modal-meta">
+                    <span><i class="fas fa-user"></i> <span id="modalAuthor"></span></span>
+                    <span><i class="fas fa-calendar"></i> <span id="modalDate"></span></span>
+                    <span><i class="fas fa-eye"></i> <span id="modalViews"></span> visualizações</span>
+                    <span><i class="fas fa-heart"></i> <span id="modalLikes"></span> curtidas</span>
+                </div>
+                <div class="modal-content-text" id="modalContent"></div>
+                <div class="modal-tags" id="modalTags"></div>
+                <div id="modalSource" style="margin-top: 1rem;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import '/firebase-config.js';
+
+        let currentNews = [];
+        let filteredNews = [];
+        let currentPage = 0;
+        const pageSize = 6;
+
+        // Wait for Firebase to be ready
+        window.addEventListener('load', async () => {
+            await loadNews();
+        });
+
+        async function loadNews() {
+            try {
+                const newsQuery = window.firebaseDB.query(
+                    window.firebaseDB.collection(window.firebaseDB.db, 'news'),
+                    window.firebaseDB.where('status', '==', 'published'),
+                    window.firebaseDB.orderBy('createdAt', 'desc')
+                );
+
+                const snapshot = await window.firebaseDB.getDocs(newsQuery);
+                currentNews = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                filteredNews = [...currentNews];
+                renderNews();
+            } catch (error) {
+                console.error('Erro ao carregar notícias:', error);
+                document.getElementById('loading').innerHTML = '<p>Erro ao carregar notícias. Tente novamente.</p>';
+            }
+        }
+
+        function renderNews() {
+            const newsGrid = document.getElementById('newsGrid');
+            const loading = document.getElementById('loading');
+            const noResults = document.getElementById('noResults');
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+
+            loading.style.display = 'none';
+
+            if (filteredNews.length === 0) {
+                noResults.style.display = 'block';
+                newsGrid.innerHTML = '';
+                loadMoreBtn.style.display = 'none';
+                return;
+            }
+
+            noResults.style.display = 'none';
+
+            const startIndex = currentPage * pageSize;
+            const endIndex = startIndex + pageSize;
+            const newsToShow = filteredNews.slice(0, endIndex);
+
+            newsGrid.innerHTML = newsToShow.map(news => `
+                <div class="news-card" onclick="openModal('${news.id}')">
+                    <div class="news-image" style="background-image: url('${news.imageUrl || '/icon/fatomania.png'}')">
+                        <div class="news-category">${getCategoryIcon(news.category)} ${news.category}</div>
+                    </div>
+                    <div class="news-content">
+                        <h3 class="news-title">${news.title}</h3>
+                        <p class="news-summary">${news.summary}</p>
+                        <div class="news-meta">
+                            <div class="news-author">
+                                <i class="fas fa-user"></i>
+                                <span>${news.author}</span>
+                            </div>
+                            <div class="news-stats">
+                                <span><i class="fas fa-eye"></i> ${news.views || 0}</span>
+                                <span><i class="fas fa-heart"></i> ${news.likes || 0}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Show/hide load more button
+            if (endIndex < filteredNews.length) {
+                loadMoreBtn.style.display = 'block';
+            } else {
+                loadMoreBtn.style.display = 'none';
+            }
+        }
+
+        function getCategoryIcon(category) {
+            const icons = {
+                'ciencia': '🔬',
+                'tecnologia': '💻',
+                'medicina': '⚕️',
+                'astronomia': '🌌',
+                'fisica': '⚛️',
+                'biologia': '🧬',
+                'quimica': '🧪',
+                'ambiente': '🌱',
+                'descoberta': '💡'
+            };
+            return icons[category] || '📰';
+        }
+
+        async function openModal(newsId) {
+            const news = currentNews.find(n => n.id === newsId);
+            if (!news) return;
+
+            // Increment view count
+            try {
+                const newsRef = window.firebaseDB.doc(window.firebaseDB.db, 'news', newsId);
+                await window.firebaseDB.updateDoc(newsRef, {
+                    views: window.firebaseDB.increment(1)
+                });
+                news.views = (news.views || 0) + 1;
+            } catch (error) {
+                console.error('Erro ao atualizar visualizações:', error);
+            }
+
+            // Populate modal
+            document.getElementById('modalImage').style.backgroundImage = `url('${news.imageUrl || '/icon/fatomania.png'}')`;
+            document.getElementById('modalTitle').textContent = news.title;
+            document.getElementById('modalAuthor').textContent = news.author;
+            document.getElementById('modalDate').textContent = formatDate(news.createdAt);
+            document.getElementById('modalViews').textContent = news.views || 0;
+            document.getElementById('modalLikes').textContent = news.likes || 0;
+            document.getElementById('modalContent').innerHTML = news.content.replace(/\n/g, '<br>');
+            
+            // Tags
+            const tagsContainer = document.getElementById('modalTags');
+            if (news.tags && news.tags.length > 0) {
+                tagsContainer.innerHTML = news.tags.map(tag => `<span class="tag">#${tag}</span>`).join('');
+            } else {
+                tagsContainer.innerHTML = '';
+            }
+
+            // Source
+            const sourceContainer = document.getElementById('modalSource');
+            if (news.source) {
+                sourceContainer.innerHTML = `<p><strong>Fonte:</strong> <a href="${news.source}" target="_blank" style="color: var(--azul);">${news.source}</a></p>`;
+            } else {
+                sourceContainer.innerHTML = '';
+            }
+
+            document.getElementById('newsModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('newsModal').classList.remove('active');
+        }
+
+        function formatDate(timestamp) {
+            if (!timestamp) return 'Data não disponível';
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            return date.toLocaleDateString('pt-BR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        function searchNews() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            filterAndSort();
+        }
+
+        function filterNews() {
+            filterAndSort();
+        }
+
+        function sortNews() {
+            filterAndSort();
+        }
+
+        function filterAndSort() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const category = document.getElementById('categoryFilter').value;
+            const sortBy = document.getElementById('sortFilter').value;
+
+            // Filter
+            filteredNews = currentNews.filter(news => {
+                const matchesSearch = news.title.toLowerCase().includes(searchTerm) ||
+                                    news.summary.toLowerCase().includes(searchTerm) ||
+                                    news.content.toLowerCase().includes(searchTerm);
+                const matchesCategory = !category || news.category === category;
+                return matchesSearch && matchesCategory;
+            });
+
+            // Sort
+            switch (sortBy) {
+                case 'newest':
+                    filteredNews.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+                    break;
+                case 'oldest':
+                    filteredNews.sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
+                    break;
+                case 'popular':
+                    filteredNews.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+                    break;
+                case 'mostViewed':
+                    filteredNews.sort((a, b) => (b.views || 0) - (a.views || 0));
+                    break;
+            }
+
+            currentPage = 0;
+            renderNews();
+        }
+
+        function loadMoreNews() {
+            currentPage++;
+            renderNews();
+        }
+
+        // Global functions
+        window.openModal = openModal;
+        window.closeModal = closeModal;
+        window.searchNews = searchNews;
+        window.filterNews = filterNews;
+        window.sortNews = sortNews;
+        window.loadMoreNews = loadMoreNews;
+
+        // Search on enter
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchNews();
+            }
+        });
+
+        // Close modal on click outside
+        document.getElementById('newsModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

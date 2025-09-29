@@ -1,0 +1,222 @@
+<?php
+// Verifica se o formulário foi enviado
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Coleta os dados do formulário
+    $nome = htmlspecialchars($_POST['nome']);
+    $email = htmlspecialchars($_POST['email']);
+    $mensagem = htmlspecialchars($_POST['mensagem']);
+
+    // Verifica se todos os campos foram preenchidos
+    if (!empty($nome) && !empty($email) && !empty($mensagem)) {
+        // Verifica se o e-mail tem um formato válido
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            // Defina o destinatário do e-mail (onde as mensagens serão enviadas)
+            $destinatario = "fatomania.mz@gmail.com"; // Alterar para o e-mail real
+
+            // Assunto do e-mail
+            $assunto = "Nova mensagem de contato - FATOMANIA";
+
+            // Corpo do e-mail
+            $corpo = "Você recebeu uma nova mensagem do seu site:\n\n";
+            $corpo .= "Nome: " . $nome . "\n";
+            $corpo .= "E-mail: " . $email . "\n";
+            $corpo .= "Mensagem: \n" . $mensagem;
+
+            // Cabeçalhos do e-mail
+            $cabecalhos = "From: " . $email . "\r\n" .
+                          "Reply-To: " . $email . "\r\n" .
+                          "X-Mailer: PHP/" . phpversion();
+
+            // Envia o e-mail
+            if (mail($destinatario, $assunto, $corpo, $cabecalhos)) {
+                $mensagem_sucesso = "Mensagem enviada com sucesso!";
+            } else {
+                $mensagem_erro = "Houve um erro ao enviar a mensagem. Tente novamente mais tarde.";
+            }
+        } else {
+            $mensagem_erro = "Por favor, insira um e-mail válido.";
+        }
+    } else {
+        $mensagem_erro = "Todos os campos são obrigatórios!";
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sobre Nós | FATOMANIA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="estilo.css">
+    <style>
+        body {
+            background: #0f0c29;
+            color: white;
+            font-family: 'Rajdhani', sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        header, footer {
+            background: linear-gradient(to right, #0f0c29, #6a00ff);
+            padding: 20px 5%;
+            text-align: center;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            color: #00f7ff;
+        }
+
+        section {
+            max-width: 900px;
+            margin: 60px auto;
+            padding: 0 5%;
+        }
+
+        section h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: #00ffaa;
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        section p {
+            font-size: 1.2rem;
+            color: #ddd;
+        }
+
+        form {
+            margin-top: 40px;
+            background: #16213e;
+            padding: 30px;
+            border-radius: 10px;
+            border: 1px solid rgba(0,247,255,0.2);
+        }
+
+        form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #00f7ff;
+        }
+
+        form input, form textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        form button {
+            background: #00ffaa;
+            color: black;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        form button:hover {
+            background: #00e6a3;
+        }
+
+        footer p {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .mensagem-erro {
+            color: #ff4c4c;
+            font-size: 1.2rem;
+            margin-top: 20px;
+        }
+
+        .mensagem-sucesso {
+            color: #4caf50;
+            font-size: 1.2rem;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Sobre o FATOMANIA</h1>
+    <p>Explorando o universo do conhecimento com ciência e curiosidade!</p>
+</header>
+
+<section>
+    <h2>Nossa Missão</h2>
+    <p>
+        O FATOMANIA foi criado com o objetivo de tornar o conhecimento científico acessível e interessante para todos. Buscamos
+        apresentar o fascinante mundo da ciência de maneira simples, divertida e envolvente, sem perder a precisão. Nosso conteúdo
+        abrange uma variedade de áreas como física, biologia, astronomia, química, tecnologia e muito mais, sempre verificado por
+        especialistas. Queremos que as pessoas compreendam que a ciência não é apenas um campo de estudo restrito a poucos, mas
+        algo que pode ser vivenciado e apreciado por todos, em seu dia a dia.
+    </p>
+
+    <h2>O que oferecemos</h2>
+    <p>
+        Em FATOMANIA, você encontra uma plataforma rica em conteúdo educativo e interativo. Oferecemos:
+    </p>
+    <ul>
+        <li>🔍 Fatos Científicos: Navegue por categorias de conhecimento como física, biologia, química, entre outras.</li>
+        <li>🧠 Quizzes: Teste seus conhecimentos com nossos desafios divertidos e educativos.</li>
+        <li>🎲 Curiosidades Aleatórias: Descubra novas informações a qualquer momento sobre temas diversos.</li>
+        <li>🧬 Inspiração: Encontre novidades sobre os avanços científicos e o que está acontecendo de mais surpreendente no mundo da ciência!</li>
+    </ul>
+
+    <h2>Por que o FATOMANIA?</h2>
+    <p>
+        O FATOMANIA é mais que um simples repositório de fatos e curiosidades. Nossa missão é criar uma comunidade que valoriza o
+        aprendizado contínuo e o compartilhamento de conhecimento. Seja você um entusiasta da ciência ou alguém que apenas quer
+        aprender mais, nosso objetivo é fornecer informações que sejam tanto educativas quanto inspiradoras. Acreditamos que o
+        conhecimento deve ser uma experiência compartilhada, acessível a todos, e que nunca é tarde para aprender algo novo.
+    </p>
+
+    <h2>Fale Conosco</h2>
+    <p>
+        Tem alguma dúvida ou sugestão? Ficaremos felizes em ouvir de você! Preencha o formulário abaixo e nossa equipe entrará em
+        contato assim que possível. Estamos sempre abertos a ouvir nossas comunidades e melhorar ainda mais a nossa plataforma.
+    </p>
+
+    <!-- Exibe mensagem de erro ou sucesso -->
+    <?php if (isset($mensagem_erro)): ?>
+        <div class="mensagem-erro"><?= $mensagem_erro ?></div>
+    <?php endif; ?>
+    
+    <?php if (isset($mensagem_sucesso)): ?>
+        <div class="mensagem-sucesso"><?= $mensagem_sucesso ?></div>
+    <?php endif; ?>
+
+    <form action="" method="POST">
+        <label for="nome">Seu Nome</label>
+        <input type="text" id="nome" name="nome" required>
+
+        <label for="email">Seu E-mail</label>
+        <input type="email" id="email" name="email" required>
+
+        <label for="mensagem">Sua Mensagem</label>
+        <textarea id="mensagem" name="mensagem" rows="6" required></textarea>
+
+        <button type="submit">Enviar Mensagem</button>
+    </form>
+</section>
+
+<footer>
+    <p>© 2025 FATOMANIA - Ciência para todos. | contato@fatomania.com</p>
+</footer>
+
+</body>
+</html>
