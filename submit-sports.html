@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -412,7 +411,7 @@
         function handleImageSelect(event) {
             const file = event.target.files[0];
             const label = event.target.nextElementSibling;
-            
+
             if (file) {
                 if (file.size > 5 * 1024 * 1024) { // 5MB limit
                     showMessage('A imagem deve ter no máximo 5MB.', 'error');
@@ -425,7 +424,7 @@
 
         async function handleSubmit(event) {
             event.preventDefault();
-            
+
             const submitBtn = document.getElementById('submitBtn');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<div class="loading"></div> Publicando...';
@@ -459,7 +458,7 @@
                 if (imageFile) {
                     const imageRef = window.firebaseStorage.ref(window.firebaseStorage.storage, `sports-images/${Date.now()}-${imageFile.name}`);
                     const snapshot = await window.firebaseStorage.uploadBytes(imageRef, imageFile);
-                    formData.imageUrl = await window.firebaseStorage.getDownloadURL(snapshot.ref);
+                    formData.imageUrl = await window.firebaseStorage.getDownloadURL(imageRef);
                 }
 
                 // Save to Firestore
@@ -467,7 +466,7 @@
 
                 showMessage('Pesquisa esportiva publicada com sucesso!', 'success');
                 document.getElementById('sportsForm').reset();
-                
+
                 setTimeout(() => {
                     window.location.href = '/mania/sportmania.html';
                 }, 2000);
@@ -885,7 +884,7 @@
         function handleImageSelect(event) {
             const file = event.target.files[0];
             const label = event.target.nextElementSibling;
-            
+
             if (file) {
                 if (file.size > 5 * 1024 * 1024) { // 5MB limit
                     showMessage('A imagem deve ter no máximo 5MB.', 'error');
@@ -898,7 +897,7 @@
 
         async function handleSubmit(event) {
             event.preventDefault();
-            
+
             const submitBtn = document.getElementById('submitBtn');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<div class="loading"></div> Publicando...';
@@ -931,7 +930,7 @@
                 if (imageFile) {
                     const imageRef = window.firebaseStorage.ref(window.firebaseStorage.storage, `sports-images/${Date.now()}-${imageFile.name}`);
                     const snapshot = await window.firebaseStorage.uploadBytes(imageRef, imageFile);
-                    formData.imageUrl = await window.firebaseStorage.getDownloadURL(snapshot.ref);
+                    formData.imageUrl = await window.firebaseStorage.getDownloadURL(imageRef);
                 }
 
                 // Save to Firestore
@@ -939,7 +938,7 @@
 
                 showMessage('Artigo esportivo publicado com sucesso!', 'success');
                 document.getElementById('sportsForm').reset();
-                
+
                 setTimeout(() => {
                     window.location.href = '/mania/sportmania.html';
                 }, 2000);

@@ -475,7 +475,7 @@
                 if (imageFile) {
                     const imageRef = window.firebaseStorage.ref(window.firebaseStorage.storage, `lab-images/${Date.now()}_${imageFile.name}`);
                     const uploadResult = await window.firebaseStorage.uploadBytes(imageRef, imageFile);
-                    formData.imageUrl = await window.firebaseStorage.getDownloadURL(uploadResult.ref);
+                    formData.imageUrl = await window.firebaseStorage.getDownloadURL(imageRef);
                 }
 
                 // Save to Firestore
