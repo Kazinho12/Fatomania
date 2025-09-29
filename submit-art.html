@@ -294,6 +294,12 @@
             </div>
 
             <div id="message"></div>
+            
+            <!-- Progress Bar -->
+            <div id="progressContainer" style="display: none; margin: 20px 0; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;">
+                <div id="progressBar" style="height: 4px; background: linear-gradient(90deg, #ff69b4, #ffd700); width: 0%; transition: width 0.3s ease;"></div>
+                <div id="progressText" style="text-align: center; padding: 10px; color: #fff; font-size: 0.9rem;">Iniciando...</div>
+            </div>
 
             <form id="artForm">
                 <div class="form-group">
@@ -418,6 +424,11 @@
             
             const submitBtn = document.getElementById('submitBtn');
             const originalText = submitBtn.innerHTML;
+            
+            // Show progress bar
+            showProgressBar();
+            updateProgress(10, 'Validando dados...');
+            
             submitBtn.innerHTML = '<div class="loading"></div> Publicando...';
             submitBtn.disabled = true;
 
@@ -426,7 +437,11 @@
                 if (!user) {
                     throw new Error('Usuário não autenticado');
                 }
+                
+                updateProgress(20, 'Verificando autenticação...');
 
+                updateProgress(30, 'Preparando dados...');
+                
                 const formData = {
                     title: document.getElementById('title').value,
                     category: document.getElementById('category').value,
@@ -442,18 +457,24 @@
                     views: 0,
                     status: 'published'
                 };
+                
+                updateProgress(50, 'Processando conteúdo...');
 
                 // Handle image upload if provided
                 const imageFile = document.getElementById('image').files[0];
                 if (imageFile) {
+                    updateProgress(70, 'Enviando imagem...');
                     const imageRef = window.firebaseStorage.ref(window.firebaseStorage.storage, `art-images/${Date.now()}-${imageFile.name}`);
                     const snapshot = await window.firebaseStorage.uploadBytes(imageRef, imageFile);
                     formData.imageUrl = await window.firebaseStorage.getDownloadURL(snapshot.ref);
                 }
+                
+                updateProgress(85, 'Salvando artigo...');
 
                 // Save to Firestore
                 await window.firebaseDB.addDoc(window.firebaseDB.collection(window.firebaseDB.db, 'art-articles'), formData);
-
+                
+                updateProgress(100, 'Arte publicada!');
                 showMessage('Arte publicada com sucesso!', 'success');
                 document.getElementById('artForm').reset();
                 
@@ -465,9 +486,26 @@
                 console.error('Erro ao publicar arte:', error);
                 showMessage('Erro ao publicar arte. Tente novamente.', 'error');
             } finally {
+                hideProgressBar();
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
             }
+        }
+        
+        // Progress bar functions
+        function showProgressBar() {
+            document.getElementById('progressContainer').style.display = 'block';
+        }
+        
+        function hideProgressBar() {
+            setTimeout(() => {
+                document.getElementById('progressContainer').style.display = 'none';
+            }, 2000);
+        }
+        
+        function updateProgress(percentage, text) {
+            document.getElementById('progressBar').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = text;
         }
     </script>
 </body>

@@ -513,6 +513,237 @@
             font-size: 1.1rem;
         }
 
+        /* Justifications Styles */
+        .justifications-container {
+            text-align: left;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+        }
+
+        .question-result {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid transparent;
+        }
+
+        .question-result.correct {
+            background: rgba(0,255,0,0.1);
+            border-left-color: #00ff00;
+        }
+
+        .question-result.incorrect {
+            background: rgba(255,0,0,0.1);
+            border-left-color: #ff0000;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .question-number {
+            font-weight: bold;
+            color: var(--amarelo);
+        }
+
+        .result-icon {
+            font-size: 1.2rem;
+        }
+
+        .question-text {
+            margin-bottom: 10px;
+            font-style: italic;
+            color: #cccccc;
+        }
+
+        .answers-comparison {
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .user-answer, .correct-answer {
+            margin-bottom: 5px;
+        }
+
+        .justification {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255,255,0,0.1);
+            border-radius: 5px;
+            border-left: 3px solid var(--amarelo);
+        }
+
+        .justification p {
+            margin: 5px 0 0 0;
+            color: #ffffff;
+            line-height: 1.4;
+        }
+
+        /* Certificate Styles */
+        .certificate {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            color: #333;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+            border: 8px solid #ffd700;
+            position: relative;
+        }
+
+        .certificate::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            bottom: 15px;
+            border: 2px solid #ffd700;
+            border-radius: 8px;
+            pointer-events: none;
+        }
+
+        .certificate-header {
+            margin-bottom: 25px;
+        }
+
+        .certificate-seal {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #333;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 15px;
+            box-shadow: 0 5px 15px rgba(255,215,0,0.4);
+        }
+
+        .certificate h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.2rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .certificate-subtitle {
+            color: #7f8c8d;
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .certificate-body {
+            margin: 25px 0;
+        }
+
+        .certificate-text {
+            font-size: 1.1rem;
+            color: #5d6d7e;
+            margin: 8px 0;
+        }
+
+        .certificate-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 15px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .certificate-quiz-title {
+            font-size: 1.3rem;
+            color: #8e44ad;
+            font-weight: bold;
+            margin: 15px 0;
+            font-style: italic;
+        }
+
+        .certificate-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(52,73,94,0.1);
+            border-radius: 8px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        .detail-item i {
+            color: #ffd700;
+            font-size: 1.1rem;
+        }
+
+        .certificate-date {
+            font-size: 1rem;
+            color: #7f8c8d;
+            margin: 20px 0 15px;
+        }
+
+        .certificate-signature {
+            margin-top: 30px;
+        }
+
+        .signature-line {
+            width: 200px;
+            height: 2px;
+            background: #333;
+            margin: 0 auto 10px;
+        }
+
+        .signature-text {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            font-weight: 600;
+        }
+
+        .certificate-download {
+            margin-top: 20px;
+        }
+
+        .download-btn {
+            background: linear-gradient(45deg, #3498db, #2ecc71);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52,152,219,0.4);
+        }
+
         @media (max-width: 768px) {
             header {
                 flex-direction: column;
@@ -669,6 +900,10 @@
             </h2>
             <div class="score-display" id="finalScore"></div>
             <div class="results-details" id="resultsDetails"></div>
+            
+            <!-- Certificate Container -->
+            <div id="certificateContainer" style="display: none; margin-top: 20px;"></div>
+            
             <button class="quiz-btn" onclick="closeResults()" style="margin-top: 1rem;">
                 <i class="fas fa-home"></i> Voltar aos Quizzes
             </button>
@@ -923,13 +1158,20 @@
             const score = Math.round((correct / currentQuiz.questions.length) * 100);
             const timeSpent = Math.round((Date.now() - quizStartTime) / 1000);
 
-            // Display results
+            // Display results with justifications
             document.getElementById('finalScore').textContent = score + '%';
-            document.getElementById('resultsDetails').innerHTML = `
-                <p><strong>Questões corretas:</strong> ${correct} de ${currentQuiz.questions.length}</p>
-                <p><strong>Tempo gasto:</strong> ${Math.floor(timeSpent / 60)}:${(timeSpent % 60).toString().padStart(2, '0')}</p>
-                <p><strong>Performance:</strong> ${getPerformanceText(score)}</p>
-            `;
+            
+            // Generate detailed results with justifications
+            const detailedResults = generateDetailedResults(correct, timeSpent, score);
+            document.getElementById('resultsDetails').innerHTML = detailedResults;
+            
+            // Generate certificate if good performance
+            if (score >= 70) {
+                document.getElementById('certificateContainer').innerHTML = generateCertificate(score, correct, timeSpent);
+                document.getElementById('certificateContainer').style.display = 'block';
+            } else {
+                document.getElementById('certificateContainer').style.display = 'none';
+            }
 
             document.getElementById('resultsModal').classList.add('active');
 
@@ -991,6 +1233,126 @@
             if (score >= 70) return '🎯 Muito Bom!';
             if (score >= 50) return '👍 Bom!';
             return '📚 Continue estudando!';
+        }
+        
+        function generateDetailedResults(correct, timeSpent, score) {
+            const user = window.firebaseAuth.auth.currentUser;
+            const userName = user ? (user.displayName || user.email) : 'Usuário';
+            
+            let html = `
+                <div class="results-summary">
+                    <p><strong>Questões corretas:</strong> ${correct} de ${currentQuiz.questions.length}</p>
+                    <p><strong>Tempo gasto:</strong> ${Math.floor(timeSpent / 60)}:${(timeSpent % 60).toString().padStart(2, '0')}</p>
+                    <p><strong>Performance:</strong> ${getPerformanceText(score)}</p>
+                </div>
+                
+                <div class="justifications-container">
+                    <h3 style="color: #ffff00; margin: 20px 0 10px 0;"><i class="fas fa-lightbulb"></i> Justificativas das Respostas</h3>
+            `;
+            
+            currentQuiz.questions.forEach((question, index) => {
+                const isCorrect = userAnswers[index] === question.correctAnswer;
+                const userAnswerText = question.options[userAnswers[index]] || 'Não respondida';
+                const correctAnswerText = question.options[question.correctAnswer];
+                
+                html += `
+                    <div class="question-result ${isCorrect ? 'correct' : 'incorrect'}">
+                        <div class="question-header">
+                            <span class="question-number">Questão ${index + 1}</span>
+                            <span class="result-icon">${isCorrect ? '✅' : '❌'}</span>
+                        </div>
+                        <div class="question-text">${question.text}</div>
+                        <div class="answers-comparison">
+                            <div class="user-answer">
+                                <strong>Sua resposta:</strong> ${userAnswerText}
+                            </div>
+                            <div class="correct-answer">
+                                <strong>Resposta correta:</strong> ${correctAnswerText}
+                            </div>
+                        </div>
+                        ${question.justification ? `
+                            <div class="justification">
+                                <strong><i class="fas fa-info-circle"></i> Explicação:</strong>
+                                <p>${question.justification}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            return html;
+        }
+        
+        function generateCertificate(score, correct, timeSpent) {
+            const user = window.firebaseAuth.auth.currentUser;
+            const userName = user ? (user.displayName || 'Usuário') : 'Usuário';
+            const currentDate = new Date().toLocaleDateString('pt-BR');
+            const performance = getPerformanceText(score);
+            
+            return `
+                <div class="certificate">
+                    <div class="certificate-header">
+                        <div class="certificate-seal">
+                            <i class="fas fa-medal"></i>
+                        </div>
+                        <h2>CERTIFICADO DE CONCLUSÃO</h2>
+                        <div class="certificate-subtitle">QUIZMANIA - DESAFIOS CIENTÍFICOS</div>
+                    </div>
+                    
+                    <div class="certificate-body">
+                        <p class="certificate-text">Certificamos que</p>
+                        <div class="certificate-name">${userName}</div>
+                        <p class="certificate-text">completou com sucesso o quiz</p>
+                        <div class="certificate-quiz-title">"${currentQuiz.title}"</div>
+                        
+                        <div class="certificate-details">
+                            <div class="detail-item">
+                                <i class="fas fa-star"></i>
+                                <span>Pontuação: ${score}%</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Acertos: ${correct}/${currentQuiz.questions.length}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-clock"></i>
+                                <span>Tempo: ${Math.floor(timeSpent / 60)}:${(timeSpent % 60).toString().padStart(2, '0')}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-trophy"></i>
+                                <span>${performance}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="certificate-date">
+                            Concluído em ${currentDate}
+                        </div>
+                        
+                        <div class="certificate-signature">
+                            <div class="signature-line"></div>
+                            <div class="signature-text">FATOMANIA - Explorando o Futuro da Ciência</div>
+                        </div>
+                    </div>
+                    
+                    <div class="certificate-download">
+                        <button class="download-btn" onclick="downloadCertificate()">
+                            <i class="fas fa-download"></i> Baixar Certificado
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function downloadCertificate() {
+            const certificate = document.querySelector('.certificate');
+            
+            // Simulação de download - em implementação real usaria html2canvas ou similar
+            const link = document.createElement('a');
+            link.download = `certificado-${currentQuiz.title.replace(/[^a-zA-Z0-9]/g, '-')}.png`;
+            
+            // Por enquanto, apenas uma mensagem
+            alert('🎉 Parabéns! O certificado seria baixado em uma implementação completa.');
         }
 
         function closeResults() {

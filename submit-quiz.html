@@ -398,6 +398,12 @@
             </div>
 
             <div id="message"></div>
+            
+            <!-- Progress Bar -->
+            <div id="progressContainer" style="display: none; margin: 20px 0; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;">
+                <div id="progressBar" style="height: 4px; background: linear-gradient(90deg, #00ff00, #00ffaa); width: 0%; transition: width 0.3s ease;"></div>
+                <div id="progressText" style="text-align: center; padding: 10px; color: #fff; font-size: 0.9rem;">Iniciando...</div>
+            </div>
 
             <form id="quizForm">
                 <div class="form-section">
@@ -586,6 +592,13 @@
                         <i class="fas fa-info-circle"></i> Selecione a opção correta marcando o círculo correspondente
                     </small>
                 </div>
+                
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-lightbulb"></i> Justificativa da Resposta Correta
+                    </label>
+                    <textarea class="form-input form-textarea justification-text" placeholder="Explique por que essa é a resposta correta. Esta justificativa aparecerá no final do quiz." rows="3"></textarea>
+                </div>
             `;
             
             questionsContainer.appendChild(questionDiv);
@@ -620,6 +633,11 @@
             
             const submitBtn = document.getElementById('submitBtn');
             const originalText = submitBtn.innerHTML;
+            
+            // Show progress bar
+            showProgressBar();
+            updateProgress(10, 'Validando dados...');
+            
             submitBtn.innerHTML = '<div class="loading"></div> Publicando...';
             submitBtn.disabled = true;
 
@@ -628,6 +646,8 @@
                 if (!user) {
                     throw new Error('Usuário não autenticado');
                 }
+                
+                updateProgress(20, 'Verificando autenticação...');
 
                 // Collect basic quiz data
                 const quizData = {
@@ -656,28 +676,50 @@
                         throw new Error(`Pergunta ${i + 1} está incompleta. Preencha todos os campos e selecione a resposta correta.`);
                     }
                     
+                    // Get justification
+                    const justificationInput = questionDiv.querySelector('.justification-text');
+                    const justification = justificationInput ? justificationInput.value : '';
+                    
                     quizData.questions.push({
                         text: questionText,
                         options: optionTexts,
-                        correctAnswer: parseInt(correctAnswerInput.value)
+                        correctAnswer: parseInt(correctAnswerInput.value),
+                        justification: justification
                     });
                 }
 
                 if (quizData.questions.length === 0) {
                     throw new Error('Adicione pelo menos uma pergunta ao quiz.');
                 }
+                
+                updateProgress(40, 'Preparando quiz...');
 
                 // Handle image upload if provided
                 const imageFile = document.getElementById('image').files[0];
                 if (imageFile) {
+                    updateProgress(60, 'Enviando imagem...');
                     const imageRef = window.firebaseStorage.ref(window.firebaseStorage.storage, `quiz-images/${Date.now()}-${imageFile.name}`);
                     const snapshot = await window.firebaseStorage.uploadBytes(imageRef, imageFile);
                     quizData.imageUrl = await window.firebaseStorage.getDownloadURL(snapshot.ref);
                 }
+                
+                updateProgress(80, 'Salvando quiz...');
 
                 // Save to Firestore
-                await window.firebaseDB.addDoc(window.firebaseDB.collection(window.firebaseDB.db, 'quizzes'), quizData);
-
+                try {
+                    await window.firebaseDB.addDoc(window.firebaseDB.collection(window.firebaseDB.db, 'quizzes'), quizData);
+                } catch (firestoreError) {
+                    console.error('Firestore error details:', firestoreError);
+                    // Try to initialize the collection if it doesn't exist
+                    if (firestoreError.code === 'failed-precondition') {
+                        console.log('Tentando inicializar coleção...');
+                        await window.firebaseDB.addDoc(window.firebaseDB.collection(window.firebaseDB.db, 'quizzes'), quizData);
+                    } else {
+                        throw firestoreError;
+                    }
+                }
+                
+                updateProgress(100, 'Quiz publicado!');
                 showMessage('Quiz criado e publicado com sucesso!', 'success');
                 
                 setTimeout(() => {
@@ -688,9 +730,26 @@
                 console.error('Erro ao criar quiz:', error);
                 showMessage(error.message || 'Erro ao criar quiz. Tente novamente.', 'error');
             } finally {
+                hideProgressBar();
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
             }
+        }
+
+        // Progress bar functions
+        function showProgressBar() {
+            document.getElementById('progressContainer').style.display = 'block';
+        }
+        
+        function hideProgressBar() {
+            setTimeout(() => {
+                document.getElementById('progressContainer').style.display = 'none';
+            }, 2000);
+        }
+        
+        function updateProgress(percentage, text) {
+            document.getElementById('progressBar').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = text;
         }
 
         // Global functions
