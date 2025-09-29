@@ -657,7 +657,7 @@
             noResults.style.display = 'none';
 
             articlesGrid.innerHTML = filteredArticles.map(article => `
-                <div class="article-card" onclick="openModal('${article.id}')">
+                <div class="article-card" onclick="openArticle('${article.id}')">
                     <div class="article-image" style="background-image: url('${article.imageUrl || '/icon/atomo.avif'}')">
                         <div class="article-category">${getCategoryIcon(article.category)} ${article.category}</div>
                     </div>
@@ -681,49 +681,6 @@
 
         function getCategoryIcon(category) {
             return categories[category]?.icon || '🔬';
-        }
-
-        async function openArticle(articleId) {
-            const article = currentArticles.find(a => a.id === articleId);
-            if (!article) return;
-
-            // Increment view count
-            try {
-                const articleRef = window.firebaseDB.doc(window.firebaseDB.db, 'science-articles', articleId);
-                await window.firebaseDB.updateDoc(articleRef, {
-                    views: window.firebaseDB.increment(1)
-                });
-                article.views = (article.views || 0) + 1;
-            } catch (error) {
-                console.error('Erro ao atualizar visualizações:', error);
-            }
-
-            // Populate modal
-            document.getElementById('modalImage').style.backgroundImage = `url('${article.imageUrl || '/icon/atomo.avif'}')`;
-            document.getElementById('modalTitle').textContent = article.title;
-            document.getElementById('modalAuthor').textContent = article.author;
-            document.getElementById('modalDate').textContent = formatDate(article.createdAt);
-            document.getElementById('modalViews').textContent = article.views || 0;
-            document.getElementById('modalLikes').textContent = article.likes || 0;
-            document.getElementById('modalContent').innerHTML = article.content.replace(/\n/g, '<br>');
-
-            // Tags
-            const tagsContainer = document.getElementById('modalTags');
-            if (article.tags && article.tags.length > 0) {
-                tagsContainer.innerHTML = article.tags.map(tag => `<span class="tag">#${tag}</span>`).join('');
-            } else {
-                tagsContainer.innerHTML = '';
-            }
-
-            // Source
-            const sourceContainer = document.getElementById('modalSource');
-            if (article.source) {
-                sourceContainer.innerHTML = `<p><strong>Fonte:</strong> <a href="${article.source}" target="_blank" style="color: var(--destaque);">${article.source}</a></p>`;
-            } else {
-                sourceContainer.innerHTML = '';
-            }
-
-            document.getElementById('articleModal').classList.add('active');
         }
 
         function closeModal() {
@@ -791,10 +748,64 @@
         }
 
         // Global functions
-        window.openArticle = openArticle;
-        window.closeModal = closeModal;
-        window.searchArticles = searchArticles;
-        window.filterByCategory = filterByCategory;
+        window.openArticle = function(articleId) {
+            const article = currentArticles.find(a => a.id === articleId);
+            if (!article) {
+                console.error('Article not found:', articleId);
+                return;
+            }
+
+            // Increment view count
+            const articleRef = window.firebaseDB.doc(window.firebaseDB.db, 'science-articles', articleId);
+            window.firebaseDB.updateDoc(articleRef, {
+                views: window.firebaseDB.increment(1)
+            }).catch(error => {
+                console.error('Erro ao atualizar visualizações:', error);
+            });
+
+            // Populate modal
+            document.getElementById('modalImage').style.backgroundImage = `url('${article.imageUrl || '/icon/atomo.avif'}')`;
+            document.getElementById('modalTitle').textContent = article.title;
+            document.getElementById('modalAuthor').textContent = article.author;
+            document.getElementById('modalDate').textContent = formatDate(article.createdAt);
+            document.getElementById('modalViews').textContent = (article.views || 0) + 1; // Display updated view count
+            document.getElementById('modalLikes').textContent = article.likes || 0;
+            document.getElementById('modalContent').innerHTML = article.content.replace(/\n/g, '<br>');
+
+            // Tags
+            const tagsContainer = document.getElementById('modalTags');
+            if (article.tags && article.tags.length > 0) {
+                tagsContainer.innerHTML = article.tags.map(tag => `<span class="tag">#${tag}</span>`).join('');
+            } else {
+                tagsContainer.innerHTML = '';
+            }
+
+            // Source
+            const sourceContainer = document.getElementById('modalSource');
+            if (article.source) {
+                sourceContainer.innerHTML = `<p><strong>Fonte:</strong> <a href="${article.source}" target="_blank" style="color: var(--destaque);">${article.source}</a></p>`;
+            } else {
+                sourceContainer.innerHTML = '';
+            }
+
+            document.getElementById('articleModal').classList.add('active');
+        };
+
+        window.toggleFavorites = function() {
+            console.log('Toggle favorites');
+        };
+
+        window.searchArticles = function() {
+            filterAndSort(); // Use the existing filterAndSort logic
+        };
+
+        window.filterArticles = function() {
+            filterAndSort(); // Use the existing filterAndSort logic
+        };
+
+        window.sortArticles = function() {
+            filterAndSort(); // Use the existing filterAndSort logic
+        };
 
         // Search on enter
         document.getElementById('searchInput').addEventListener('keypress', function(e) {

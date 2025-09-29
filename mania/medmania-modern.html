@@ -275,6 +275,100 @@
             color: var(--destaque);
         }
 
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+        }
+
+        .modal.active {
+            display: block;
+        }
+
+        .modal-content {
+            background: var(--fundo-card);
+            margin: 5% auto;
+            padding: 0;
+            border: 2px solid var(--destaque);
+            border-radius: 20px;
+            width: 80%;
+            max-width: 700px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            background: linear-gradient(to right, var(--fundo), var(--fundo-card));
+            padding: 1.5rem;
+            border-top-left-radius: 18px;
+            border-top-right-radius: 18px;
+            border-bottom: 2px solid var(--destaque);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--texto-claro);
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .close-btn {
+            background: transparent;
+            border: none;
+            color: var(--texto-claro);
+            font-size: 2.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 0 0.5rem;
+        }
+
+        .close-btn:hover {
+            color: var(--perigo);
+            transform: scale(1.1);
+        }
+
+        .modal-body {
+            padding: 2rem;
+            color: var(--texto-claro);
+            font-size: 1.1rem;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .modal-body img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .modal-body p {
+            margin-bottom: 1rem;
+        }
+
+        .modal-body .article-meta {
+            opacity: 0.9;
+            font-size: 0.95rem;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-body .article-meta i {
+            margin-right: 0.5rem;
+            color: var(--destaque);
+        }
+
         @media (max-width: 768px) {
             header {
                 flex-direction: column;
@@ -295,6 +389,15 @@
 
             .articles-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 2.5% auto;
+            }
+
+            .modal-body {
+                padding: 1.5rem;
             }
         }
     </style>
@@ -331,7 +434,7 @@
                     <i class="fas fa-search"></i>
                 </button>
             </div>
-            
+
             <select class="filter-select" id="categoryFilter" onchange="filterArticles()">
                 <option value="">Todas as categorias</option>
                 <option value="cardiologia">❤️ Cardiologia</option>
@@ -417,7 +520,7 @@
             noResults.style.display = 'none';
 
             articlesGrid.innerHTML = filteredArticles.map(article => `
-                <div class="article-card">
+                <div class="article-card" onclick="openArticle('${article.id}')">
                     <div class="article-image" style="background-image: url('${article.imageUrl || '/icon/fatomania.png'}')">
                         <div class="article-category">${getCategoryIcon(article.category)} ${article.category}</div>
                     </div>
@@ -497,7 +600,63 @@
             renderArticles();
         }
 
-        // Global functions
+        window.openArticle = function(articleId) {
+            console.log('Opening article:', articleId);
+            // Implementar modal de abertura de artigo
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">Carregando artigo...</h2>
+                        <button class="close-btn" onclick="this.parentElement.parentElement.remove()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Carregando conteúdo do artigo ${articleId}...</p>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            // Fetch article details from Firebase
+            window.firebaseDB.getDoc(window.firebaseDB.doc(window.firebaseDB.db, 'med-articles', articleId))
+                .then(docSnap => {
+                    if (docSnap.exists()) {
+                        const article = docSnap.data();
+                        const modalBody = modal.querySelector('.modal-body');
+                        const modalTitle = modal.querySelector('.modal-title');
+
+                        modalTitle.textContent = article.title;
+                        modalBody.innerHTML = `
+                            ${article.imageUrl ? `<img src="${article.imageUrl}" alt="${article.title}">` : ''}
+                            <p>${article.content}</p>
+                            <div class="article-meta">
+                                <div class="article-author">
+                                    <i class="fas fa-user-md"></i>
+                                    <span>${article.author}</span>
+                                </div>
+                                <div class="article-stats">
+                                    <span><i class="fas fa-eye"></i> ${article.views || 0}</span>
+                                    <span><i class="fas fa-heart"></i> ${article.likes || 0}</span>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        console.error('No such document!');
+                        modal.querySelector('.modal-body').innerHTML = '<p>Erro ao carregar artigo. Artigo não encontrado.</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error getting article:', error);
+                    modal.querySelector('.modal-body').innerHTML = '<p>Erro ao carregar artigo. Tente novamente mais tarde.</p>';
+                });
+        };
+
+
+        window.toggleFavorites = function() {
+            console.log('Toggle favorites');
+        };
+
         window.searchArticles = searchArticles;
         window.filterArticles = filterArticles;
         window.sortArticles = sortArticles;
