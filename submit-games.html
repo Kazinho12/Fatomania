@@ -291,6 +291,12 @@
             </div>
 
             <div id="message"></div>
+            
+            <!-- Progress Bar -->
+            <div id="progressContainer" style="display: none; margin: 20px 0; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;">
+                <div id="progressBar" style="height: 4px; background: linear-gradient(90deg, #ff0000, #ffd700); width: 0%; transition: width 0.3s ease;"></div>
+                <div id="progressText" style="text-align: center; padding: 10px; color: #fff; font-size: 0.9rem;">Iniciando...</div>
+            </div>
 
             <form id="gamesForm">
                 <div class="form-group">
@@ -344,6 +350,12 @@
                             Clique para selecionar uma imagem<br>
                             <small>JPG, PNG ou GIF (máx. 5MB)</small>
                         </label>
+                    </div>
+                    <div id="imagePreview" style="display: none; margin-top: 10px; border: 2px solid var(--destaque); border-radius: 10px; overflow: hidden; max-width: 300px;">
+                        <img id="previewImg" style="width: 100%; height: auto; display: block;">
+                        <div style="padding: 10px; background: rgba(0,0,0,0.7); color: var(--texto-claro); text-align: center;">
+                            <span id="fileName"></span>
+                        </div>
                     </div>
                 </div>
 
@@ -409,14 +421,30 @@
         function handleImageSelect(event) {
             const file = event.target.files[0];
             const label = event.target.nextElementSibling;
+            const preview = document.getElementById('imagePreview');
+            const previewImg = document.getElementById('previewImg');
+            const fileName = document.getElementById('fileName');
             
             if (file) {
                 if (file.size > 5 * 1024 * 1024) { // 5MB limit
                     showMessage('A imagem deve ter no máximo 5MB.', 'error');
                     event.target.value = '';
+                    preview.style.display = 'none';
                     return;
                 }
+                
                 label.innerHTML = `<i class="fas fa-check-circle"></i><br>Imagem selecionada: ${file.name}`;
+                
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    fileName.textContent = file.name;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = 'none';
             }
         }
 
@@ -425,6 +453,11 @@
             
             const submitBtn = document.getElementById('submitBtn');
             const originalText = submitBtn.innerHTML;
+            
+            // Show progress bar
+            showProgressBar();
+            updateProgress(10, 'Validando dados...');
+            
             submitBtn.innerHTML = '<div class="loading"></div> Publicando...';
             submitBtn.disabled = true;
 
@@ -433,6 +466,9 @@
                 if (!user) {
                     throw new Error('Usuário não autenticado');
                 }
+                
+                updateProgress(20, 'Verificando autenticação...');
+                updateProgress(30, 'Preparando dados...');
 
                 const formData = {
                     title: document.getElementById('title').value,
@@ -450,16 +486,23 @@
                     status: 'published'
                 };
 
+                updateProgress(50, 'Processando conteúdo...');
+
                 // Handle image upload if provided
                 const imageFile = document.getElementById('image').files[0];
                 if (imageFile) {
+                    updateProgress(70, 'Enviando imagem...');
                     const imageRef = window.firebaseStorage.ref(window.firebaseStorage.storage, `games-images/${Date.now()}-${imageFile.name}`);
                     const snapshot = await window.firebaseStorage.uploadBytes(imageRef, imageFile);
                     formData.imageUrl = await window.firebaseStorage.getDownloadURL(snapshot.ref);
                 }
+                
+                updateProgress(85, 'Salvando artigo...');
 
                 // Save to Firestore
                 await window.firebaseDB.addDoc(window.firebaseDB.collection(window.firebaseDB.db, 'games-articles'), formData);
+                
+                updateProgress(100, 'Artigo publicado!');
 
                 showMessage('Artigo gaming publicado com sucesso!', 'success');
                 document.getElementById('gamesForm').reset();
@@ -472,9 +515,26 @@
                 console.error('Erro ao publicar artigo:', error);
                 showMessage('Erro ao publicar artigo. Tente novamente.', 'error');
             } finally {
+                hideProgressBar();
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
             }
+        }
+        
+        // Progress bar functions
+        function showProgressBar() {
+            document.getElementById('progressContainer').style.display = 'block';
+        }
+        
+        function hideProgressBar() {
+            setTimeout(() => {
+                document.getElementById('progressContainer').style.display = 'none';
+            }, 2000);
+        }
+        
+        function updateProgress(percentage, text) {
+            document.getElementById('progressBar').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = text;
         }
     </script>
 </body>
