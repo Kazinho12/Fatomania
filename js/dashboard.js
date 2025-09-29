@@ -1,52 +1,7 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {
-    getAuth,
-    onAuthStateChanged,
-    signOut,
-    browserSessionPersistence,
-    browserLocalPersistence,
-    setPersistence
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import {
-    getFirestore,
-    collection,
-    getDocs,
-    doc,
-    getDoc,
-    setDoc,
-    updateDoc,
-    addDoc,
-    query,
-    where,
-    orderBy,
-    limit,
-    serverTimestamp,
-    arrayUnion,
-    arrayRemove
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import {
-    getStorage,
-    ref,
-    uploadBytes,
-    getDownloadURL
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
-
-// Configuração do Firebase
-const firebaseConfig = {
-    apiKey: "AIzaSyD8Mx4XldG5eXsVat2FyqqlEt4EnUvrQ80",
-    authDomain: "fatomania-de805.firebaseapp.com",
-    projectId: "fatomania-de805",
-    storageBucket: "fatomania-de805.appspot.com",
-    messagingSenderId: "274835802694",
-    appId: "1:274835802694:web:f97de5be2cdcf5043c9847",
-    measurementId: "G-B610GPX286"
-};
-
-// Inicialização do Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
+// Usar Firebase config compartilhado
+const { auth, signOut, onAuthStateChanged, updateProfile, sendPasswordResetEmail } = window.firebaseAuth;
+const { db, collection, getDocs, doc, getDoc, setDoc, updateDoc, addDoc, query, where, orderBy, limit, serverTimestamp, arrayUnion, arrayRemove } = window.firebaseDB;
+const { storage, ref, uploadBytes, getDownloadURL, deleteObject } = window.firebaseStorage;
 
 // Variáveis globais
 let currentUser = null;
@@ -64,7 +19,7 @@ const sectionsData = [
         stats: ["120 Quizzes", "5.2k Jogadores"],
         image: "https://images.unsplash.com/photo-1501504905252-473c47e087f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1074&q=80",
         color: "#ff6b6b",
-        url: "/mania/quizmania.html"
+        url: "/mania/quizmania-modern.html"
     },
     {
         id: "sciencemania",
@@ -75,7 +30,7 @@ const sectionsData = [
         stats: ["45 Artigos", "Atualizado Hoje"],
         image: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
         color: "#4ecdc4",
-        url: "/mania/sciencemania.html"
+        url: "/mania/sciencemania-modern.html"
     },
     {
         id: "newsmania",
@@ -86,7 +41,7 @@ const sectionsData = [
         stats: ["78 Países", "12 Categorias"],
         image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
         color: "#ffbe0b",
-        url: "/mania/newsmania.html"
+        url: "/mania/newsmania-modern.html"
     },
     {
         id: "misticmania",
@@ -97,7 +52,7 @@ const sectionsData = [
         stats: ["89 Mistérios", "Fenômenos Inexplicados"],
         image: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
         color: "#9d4edd",
-        url: "/mania/misticmania.html"
+        url: "/mania/misticmania-modern.html"
     },
     {
         id: "labmania",
@@ -108,7 +63,7 @@ const sectionsData = [
         stats: ["32 Experimentos", "3 Níveis"],
         image: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
         color: "#f72585",
-        url: "/mania/labmania.html"
+        url: "/mania/labmania-modern.html"
     },
     {
         id: "techmania",
@@ -119,7 +74,7 @@ const sectionsData = [
         stats: ["45 Inovações", "Atualizações Semanais"],
         image: "https://images.unsplash.com/photo-1518770660439-4636190af475?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
         color: "#4895ef",
-        url: "/mania/techmania.html"
+        url: "/mania/techmania-modern.html"
     },
     {
         id: "spacemania",
@@ -130,7 +85,7 @@ const sectionsData = [
         stats: ["120 Exoplanetas", "15 Missões"],
         image: "https://images.unsplash.com/photo-1454789548928-9efd52dc4031?ixlib=rb-4.0.3&auto=format&fit=crop&w=1180&q=80",
         color: "#7209b7",
-        url: "/mania/spacemania.html"
+        url: "/mania/spacemania-modern.html"
     },
     {
         id: "ecomania",
@@ -141,7 +96,7 @@ const sectionsData = [
         stats: ["30 Soluções", "15 Projetos"],
         image: "https://images.unsplash.com/photo-14666611653911-95081537e5b7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
         color: "#2a9d8f",
-        url: "/mania/ecomania.html"
+        url: "/mania/ecomania-modern.html"
     },
     {
         id: "sportmania",
@@ -152,7 +107,7 @@ const sectionsData = [
         stats: ["25 Esportes", "Análises"],
         image: "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1169&q=80",
         color: "#e63946",
-        url: "/mania/sportmania.html"
+        url: "/mania/sportmania-modern.html"
     },
     {
         id: "medmania",
@@ -163,7 +118,7 @@ const sectionsData = [
         stats: ["18 Especialidades", "Novos Tratamentos"],
         image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
         color: "#f8edeb",
-        url: "/mania/medmania.html"
+        url: "/mania/medmania-modern.html"
     },
     {
         id: "gamesmania",
@@ -174,7 +129,7 @@ const sectionsData = [
         stats: ["IA em Jogos", "Realidade Virtual"],
         image: "https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
         color: "#ff9f1c",
-        url: "/mania/gamesmania.html"
+        url: "/mania/gamesmania-modern.html"
     },
     {
         id: "artmania",
@@ -185,7 +140,7 @@ const sectionsData = [
         stats: ["200 Obras", "15k Artistas"],
         image: "https://images.unsplash.com/photo-1541961017774-22349e4a1262?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
         color: "#00b4d8",
-        url: "/mania/artmania.html"
+        url: "/mania/artmania-modern.html"
     },
     {
         id: "historymania",
@@ -196,7 +151,7 @@ const sectionsData = [
         stats: ["35 Períodos", "Civilizações"],
         image: "https://images.unsplash.com/photo-1505664194779-8beaceb93744?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
         color: "#6a4c93",
-        url: "/mania/historymania.html"
+        url: "/mania/historymania-modern.html"
     }
 ];
 
@@ -275,8 +230,8 @@ async function waitForAuth(timeout = 10000) {
 
 // Verifica autenticação e conectividade
 async function checkAuthState() {
-    // Verifica conectividade com Firebase
-    checkFirebaseConnection();
+    // Verifica conectividade com Firebase - função removida pois não está definida
+    console.log('🔥 Verificando autenticação...');
 
     const user = await waitForAuth();
     if (user) {
