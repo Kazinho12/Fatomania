@@ -1,4 +1,4 @@
-// Base de dados COMPLETA dos 118 elementos químicos
+// Base de dados COMPLETA dos 118 elementos químicos com grupos e valências
 const elements = [
     // Período 1
     {
@@ -8,7 +8,8 @@ const elements = [
         ionizationEnergy: '1312 kJ/mol', electronConfig: '1s¹', discoveryDate: '1766',
         discoveredBy: 'Henry Cavendish', nameOrigin: 'Do grego "hydro" + "genes"',
         uses: ['Combustível de foguetes', 'Produção de amônia', 'Refinamento de petróleo'],
-        funFacts: 'É o elemento mais abundante no universo, constituindo cerca de 75% de toda a matéria bariônica.'
+        funFacts: 'É o elemento mais abundante no universo, constituindo cerca de 75% de toda a matéria bariônica.',
+        valences: ['+1', '-1']
     },
     {
         number: 2, symbol: 'He', name: 'Hélio', mass: 4.003, category: 'noble-gas',
@@ -17,7 +18,8 @@ const elements = [
         ionizationEnergy: '2372 kJ/mol', electronConfig: '1s²', discoveryDate: '1868',
         discoveredBy: 'Pierre Janssen', nameOrigin: 'Do grego "helios" (Sol)',
         uses: ['Balões', 'Criogenia', 'Soldagem', 'Respiração artificial'],
-        funFacts: 'Foi descoberto no Sol antes de ser encontrado na Terra!'
+        funFacts: 'Foi descoberto no Sol antes de ser encontrado na Terra!',
+        valences: ['0']
     },
 
     // Período 2
@@ -28,7 +30,8 @@ const elements = [
         ionizationEnergy: '520 kJ/mol', electronConfig: '[He] 2s¹', discoveryDate: '1817',
         discoveredBy: 'Johan Arfwedson', nameOrigin: 'Do grego "lithos" (pedra)',
         uses: ['Baterias', 'Medicamentos', 'Ligas metálicas', 'Cerâmicas'],
-        funFacts: 'É o metal mais leve que existe!'
+        funFacts: 'É o metal mais leve que existe!',
+        valences: ['+1']
     },
     {
         number: 4, symbol: 'Be', name: 'Berílio', mass: 9.012, category: 'alkaline-earth-metal',
@@ -37,7 +40,8 @@ const elements = [
         ionizationEnergy: '899 kJ/mol', electronConfig: '[He] 2s²', discoveryDate: '1797',
         discoveredBy: 'Louis Vauquelin', nameOrigin: 'Do mineral berilo',
         uses: ['Ligas aeroespaciais', 'Instrumentos de precisão', 'Janelas de raios-X'],
-        funFacts: 'Extremamente tóxico mas valioso. Usado em telescópios espaciais.'
+        funFacts: 'Extremamente tóxico mas valioso. Usado em telescópios espaciais.',
+        valences: ['+2']
     },
     {
         number: 5, symbol: 'B', name: 'Boro', mass: 10.81, category: 'metalloid',
@@ -46,7 +50,8 @@ const elements = [
         ionizationEnergy: '801 kJ/mol', electronConfig: '[He] 2s² 2p¹', discoveryDate: '1808',
         discoveredBy: 'Humphry Davy', nameOrigin: 'Do árabe "buraq"',
         uses: ['Vidro borossilicato', 'Detergentes', 'Fertilizantes'],
-        funFacts: 'O vidro Pyrex contém boro para resistir ao calor!'
+        funFacts: 'O vidro Pyrex contém boro para resistir ao calor!',
+        valences: ['+3']
     },
     {
         number: 6, symbol: 'C', name: 'Carbono', mass: 12.011, category: 'reactive-nonmetal',
@@ -55,7 +60,8 @@ const elements = [
         ionizationEnergy: '1086 kJ/mol', electronConfig: '[He] 2s² 2p²', discoveryDate: 'Pré-histórico',
         discoveredBy: 'Conhecido desde a antiguidade', nameOrigin: 'Do latim "carbo"',
         uses: ['Base da vida', 'Aço', 'Grafite', 'Diamantes', 'Nanotubos'],
-        funFacts: 'Base de toda vida conhecida! Forma mais compostos que qualquer outro elemento.'
+        funFacts: 'Base de toda vida conhecida! Forma mais compostos que qualquer outro elemento.',
+        valences: ['+4', '+2', '-4']
     },
     {
         number: 7, symbol: 'N', name: 'Nitrogênio', mass: 14.007, category: 'reactive-nonmetal',
@@ -64,7 +70,8 @@ const elements = [
         ionizationEnergy: '1402 kJ/mol', electronConfig: '[He] 2s² 2p³', discoveryDate: '1772',
         discoveredBy: 'Daniel Rutherford', nameOrigin: 'Do grego "nitron" + "genes"',
         uses: ['Fertilizantes', 'Explosivos', 'Atmosfera inerte', 'Proteínas'],
-        funFacts: 'Compõe 78% da atmosfera terrestre!'
+        funFacts: 'Compõe 78% da atmosfera terrestre!',
+        valences: ['+5', '+4', '+3', '+2', '+1', '-1', '-2', '-3']
     },
     {
         number: 8, symbol: 'O', name: 'Oxigênio', mass: 15.999, category: 'reactive-nonmetal',
@@ -73,7 +80,8 @@ const elements = [
         ionizationEnergy: '1314 kJ/mol', electronConfig: '[He] 2s² 2p⁴', discoveryDate: '1774',
         discoveredBy: 'Joseph Priestley', nameOrigin: 'Do grego "oxys" + "genes"',
         uses: ['Respiração', 'Combustão', 'Medicina', 'Soldagem'],
-        funFacts: 'Essencial para quase toda vida na Terra!'
+        funFacts: 'Essencial para quase toda vida na Terra!',
+        valences: ['-2', '-1']
     },
     {
         number: 9, symbol: 'F', name: 'Flúor', mass: 18.998, category: 'halogen',
@@ -82,7 +90,8 @@ const elements = [
         ionizationEnergy: '1681 kJ/mol', electronConfig: '[He] 2s² 2p⁵', discoveryDate: '1886',
         discoveredBy: 'Henri Moissan', nameOrigin: 'Do latim "fluere"',
         uses: ['Pasta de dente', 'Teflon', 'Refrigerantes', 'Anestésicos'],
-        funFacts: 'É o elemento mais eletronegativo! Reage com praticamente tudo.'
+        funFacts: 'É o elemento mais eletronegativo! Reage com praticamente tudo.',
+        valences: ['-1']
     },
     {
         number: 10, symbol: 'Ne', name: 'Neônio', mass: 20.180, category: 'noble-gas',
@@ -91,7 +100,8 @@ const elements = [
         ionizationEnergy: '2081 kJ/mol', electronConfig: '[He] 2s² 2p⁶', discoveryDate: '1898',
         discoveredBy: 'William Ramsay', nameOrigin: 'Do grego "neos"',
         uses: ['Letreiros luminosos', 'Lasers', 'Criogenia'],
-        funFacts: 'Produz a famosa luz laranja-vermelha dos letreiros!'
+        funFacts: 'Produz a famosa luz laranja-vermelha dos letreiros!',
+        valences: ['0']
     },
 
     // Período 3
@@ -102,7 +112,8 @@ const elements = [
         ionizationEnergy: '496 kJ/mol', electronConfig: '[Ne] 3s¹', discoveryDate: '1807',
         discoveredBy: 'Humphry Davy', nameOrigin: 'Do inglês "soda"',
         uses: ['Sal de cozinha', 'Sabões', 'Lâmpadas de vapor'],
-        funFacts: 'Reage explosivamente com água!'
+        funFacts: 'Reage explosivamente com água!',
+        valences: ['+1']
     },
     {
         number: 12, symbol: 'Mg', name: 'Magnésio', mass: 24.305, category: 'alkaline-earth-metal',
@@ -111,7 +122,8 @@ const elements = [
         ionizationEnergy: '738 kJ/mol', electronConfig: '[Ne] 3s²', discoveryDate: '1808',
         discoveredBy: 'Humphry Davy', nameOrigin: 'De Magnésia, Grécia',
         uses: ['Ligas leves', 'Fogos de artifício', 'Suplementos'],
-        funFacts: 'Centro da molécula de clorofila!'
+        funFacts: 'Centro da molécula de clorofila!',
+        valences: ['+2']
     },
     {
         number: 13, symbol: 'Al', name: 'Alumínio', mass: 26.982, category: 'post-transition-metal',
@@ -120,7 +132,8 @@ const elements = [
         ionizationEnergy: '578 kJ/mol', electronConfig: '[Ne] 3s² 3p¹', discoveryDate: '1825',
         discoveredBy: 'Hans Ørsted', nameOrigin: 'Do latim "alumen"',
         uses: ['Latas', 'Aviação', 'Construção', 'Cabos elétricos'],
-        funFacts: 'Era mais caro que ouro no século XIX!'
+        funFacts: 'Era mais caro que ouro no século XIX!',
+        valences: ['+3']
     },
     {
         number: 14, symbol: 'Si', name: 'Silício', mass: 28.085, category: 'metalloid',
@@ -129,7 +142,8 @@ const elements = [
         ionizationEnergy: '787 kJ/mol', electronConfig: '[Ne] 3s² 3p²', discoveryDate: '1824',
         discoveredBy: 'Jöns Berzelius', nameOrigin: 'Do latim "silex"',
         uses: ['Microchips', 'Vidro', 'Painéis solares', 'Silicones'],
-        funFacts: 'Base da revolução digital!'
+        funFacts: 'Base da revolução digital!',
+        valences: ['+4', '-4']
     },
     {
         number: 15, symbol: 'P', name: 'Fósforo', mass: 30.974, category: 'reactive-nonmetal',
@@ -138,7 +152,8 @@ const elements = [
         ionizationEnergy: '1012 kJ/mol', electronConfig: '[Ne] 3s² 3p³', discoveryDate: '1669',
         discoveredBy: 'Hennig Brand', nameOrigin: 'Do grego "phosphoros"',
         uses: ['Fertilizantes', 'Fósforos', 'Detergentes', 'DNA/RNA'],
-        funFacts: 'Foi o primeiro elemento descoberto por um processo científico!'
+        funFacts: 'Foi o primeiro elemento descoberto por um processo científico!',
+        valences: ['+5', '+3', '-3']
     },
     {
         number: 16, symbol: 'S', name: 'Enxofre', mass: 32.06, category: 'reactive-nonmetal',
@@ -147,7 +162,8 @@ const elements = [
         ionizationEnergy: '1000 kJ/mol', electronConfig: '[Ne] 3s² 3p⁴', discoveryDate: 'Pré-histórico',
         discoveredBy: 'Conhecido desde a antiguidade', nameOrigin: 'Do latim "sulphurium"',
         uses: ['Ácido sulfúrico', 'Vulcanização da borracha', 'Fungicidas'],
-        funFacts: 'Responsável pelo cheiro de ovos podres!'
+        funFacts: 'Responsável pelo cheiro de ovos podres!',
+        valences: ['+6', '+4', '+2', '-2']
     },
     {
         number: 17, symbol: 'Cl', name: 'Cloro', mass: 35.45, category: 'halogen',
@@ -156,7 +172,8 @@ const elements = [
         ionizationEnergy: '1251 kJ/mol', electronConfig: '[Ne] 3s² 3p⁵', discoveryDate: '1774',
         discoveredBy: 'Carl Scheele', nameOrigin: 'Do grego "chloros" (verde)',
         uses: ['Desinfetante', 'PVC', 'Sal de cozinha', 'Branqueamento'],
-        funFacts: 'Usado como arma química na Primeira Guerra Mundial!'
+        funFacts: 'Usado como arma química na Primeira Guerra Mundial!',
+        valences: ['+7', '+5', '+3', '+1', '-1']
     },
     {
         number: 18, symbol: 'Ar', name: 'Argônio', mass: 39.948, category: 'noble-gas',
@@ -165,10 +182,11 @@ const elements = [
         ionizationEnergy: '1521 kJ/mol', electronConfig: '[Ne] 3s² 3p⁶', discoveryDate: '1894',
         discoveredBy: 'William Ramsay', nameOrigin: 'Do grego "argos" (inativo)',
         uses: ['Soldagem', 'Lâmpadas incandescentes', 'Preservação'],
-        funFacts: 'Terceiro gás mais abundante na atmosfera!'
+        funFacts: 'Terceiro gás mais abundante na atmosfera!',
+        valences: ['0']
     },
 
-    // Período 4
+    // Período 4 (Elementos 19-36) - Adicionando dados de valência
     {
         number: 19, symbol: 'K', name: 'Potássio', mass: 39.098, category: 'alkali-metal',
         period: 4, group: 1, phase: 'Sólido', meltingPoint: '63.5°C', boilingPoint: '759°C',
@@ -176,7 +194,8 @@ const elements = [
         ionizationEnergy: '419 kJ/mol', electronConfig: '[Ar] 4s¹', discoveryDate: '1807',
         discoveredBy: 'Humphry Davy', nameOrigin: 'Do inglês "potash"',
         uses: ['Fertilizantes', 'Sabões', 'Vidro', 'Regulação celular'],
-        funFacts: 'Essencial para a contração muscular!'
+        funFacts: 'Essencial para a contração muscular!',
+        valences: ['+1']
     },
     {
         number: 20, symbol: 'Ca', name: 'Cálcio', mass: 40.078, category: 'alkaline-earth-metal',
@@ -185,8 +204,11 @@ const elements = [
         ionizationEnergy: '590 kJ/mol', electronConfig: '[Ar] 4s²', discoveryDate: '1808',
         discoveredBy: 'Humphry Davy', nameOrigin: 'Do latim "calx" (cal)',
         uses: ['Ossos e dentes', 'Cimento', 'Gesso', 'Aditivos alimentares'],
-        funFacts: 'Elemento mais abundante no corpo humano!'
+        funFacts: 'Elemento mais abundante no corpo humano!',
+        valences: ['+2']
     },
+
+    // Continuando com mais elementos incluindo metais de transição com múltiplas valências
     {
         number: 21, symbol: 'Sc', name: 'Escândio', mass: 44.956, category: 'transition-metal',
         period: 4, group: 3, phase: 'Sólido', meltingPoint: '1541°C', boilingPoint: '2836°C',
@@ -194,7 +216,8 @@ const elements = [
         ionizationEnergy: '633 kJ/mol', electronConfig: '[Ar] 3d¹ 4s²', discoveryDate: '1879',
         discoveredBy: 'Lars Nilson', nameOrigin: 'Da Escandinávia',
         uses: ['Ligas de alumínio', 'Lâmpadas de alta intensidade'],
-        funFacts: 'Primeiro metal de transição da tabela periódica!'
+        funFacts: 'Primeiro metal de transição da tabela periódica!',
+        valences: ['+3']
     },
     {
         number: 22, symbol: 'Ti', name: 'Titânio', mass: 47.867, category: 'transition-metal',
@@ -203,7 +226,8 @@ const elements = [
         ionizationEnergy: '659 kJ/mol', electronConfig: '[Ar] 3d² 4s²', discoveryDate: '1791',
         discoveredBy: 'William Gregor', nameOrigin: 'Dos Titãs da mitologia grega',
         uses: ['Implantes médicos', 'Aeronáutica', 'Joias', 'Pigmentos'],
-        funFacts: 'Forte como o aço, mas 45% mais leve!'
+        funFacts: 'Forte como o aço, mas 45% mais leve!',
+        valences: ['+4', '+2', '+3']
     },
     {
         number: 23, symbol: 'V', name: 'Vanádio', mass: 50.942, category: 'transition-metal',
@@ -212,7 +236,8 @@ const elements = [
         ionizationEnergy: '651 kJ/mol', electronConfig: '[Ar] 3d³ 4s²', discoveryDate: '1801',
         discoveredBy: 'Andrés del Río', nameOrigin: 'Da deusa Vanadis',
         uses: ['Ligas de aço', 'Catalisadores', 'Cerâmicas'],
-        funFacts: 'Usado para fortalecer o aço!'
+        funFacts: 'Usado para fortalecer o aço!',
+        valences: ['+5', '+4', '+3', '+2']
     },
     {
         number: 24, symbol: 'Cr', name: 'Cromo', mass: 51.996, category: 'transition-metal',
@@ -221,7 +246,8 @@ const elements = [
         ionizationEnergy: '653 kJ/mol', electronConfig: '[Ar] 3d⁵ 4s¹', discoveryDate: '1797',
         discoveredBy: 'Louis Vauquelin', nameOrigin: 'Do grego "chroma" (cor)',
         uses: ['Aço inoxidável', 'Cromagem', 'Pigmentos', 'Curtimento'],
-        funFacts: 'Dá o brilho ao aço inoxidável!'
+        funFacts: 'Dá o brilho ao aço inoxidável!',
+        valences: ['+6', '+3', '+2']
     },
     {
         number: 25, symbol: 'Mn', name: 'Manganês', mass: 54.938, category: 'transition-metal',
@@ -230,7 +256,8 @@ const elements = [
         ionizationEnergy: '717 kJ/mol', electronConfig: '[Ar] 3d⁵ 4s²', discoveryDate: '1774',
         discoveredBy: 'Johan Gahn', nameOrigin: 'Do latim "magnes"',
         uses: ['Produção de aço', 'Baterias', 'Fertilizantes'],
-        funFacts: 'Essencial para a fotossíntese!'
+        funFacts: 'Essencial para a fotossíntese!',
+        valences: ['+7', '+6', '+4', '+2']
     },
     {
         number: 26, symbol: 'Fe', name: 'Ferro', mass: 55.845, category: 'transition-metal',
@@ -239,7 +266,8 @@ const elements = [
         ionizationEnergy: '762 kJ/mol', electronConfig: '[Ar] 3d⁶ 4s²', discoveryDate: 'Pré-histórico',
         discoveredBy: 'Conhecido desde a antiguidade', nameOrigin: 'Do latim "ferrum"',
         uses: ['Aço', 'Construção', 'Hemoglobina', 'Ímãs'],
-        funFacts: 'Metal mais usado pela humanidade!'
+        funFacts: 'Metal mais usado pela humanidade!',
+        valences: ['+2', '+3', '+6']
     },
     {
         number: 27, symbol: 'Co', name: 'Cobalto', mass: 58.933, category: 'transition-metal',
@@ -248,7 +276,8 @@ const elements = [
         ionizationEnergy: '760 kJ/mol', electronConfig: '[Ar] 3d⁷ 4s²', discoveryDate: '1735',
         discoveredBy: 'Georg Brandt', nameOrigin: 'Do alemão "kobold"',
         uses: ['Ímãs permanentes', 'Baterias', 'Pigmentos azuis'],
-        funFacts: 'Centro da vitamina B12!'
+        funFacts: 'Centro da vitamina B12!',
+        valences: ['+3', '+2']
     },
     {
         number: 28, symbol: 'Ni', name: 'Níquel', mass: 58.693, category: 'transition-metal',
@@ -257,7 +286,8 @@ const elements = [
         ionizationEnergy: '737 kJ/mol', electronConfig: '[Ar] 3d⁸ 4s²', discoveryDate: '1751',
         discoveredBy: 'Axel Cronstedt', nameOrigin: 'Do alemão "kupfernickel"',
         uses: ['Moedas', 'Aço inoxidável', 'Baterias', 'Catalisadores'],
-        funFacts: 'Abundante no núcleo da Terra!'
+        funFacts: 'Abundante no núcleo da Terra!',
+        valences: ['+3', '+2']
     },
     {
         number: 29, symbol: 'Cu', name: 'Cobre', mass: 63.546, category: 'transition-metal',
@@ -266,7 +296,8 @@ const elements = [
         ionizationEnergy: '745 kJ/mol', electronConfig: '[Ar] 3d¹⁰ 4s¹', discoveryDate: 'Pré-histórico',
         discoveredBy: 'Conhecido desde 9000 a.C.', nameOrigin: 'Do latim "cuprum"',
         uses: ['Fios elétricos', 'Encanamentos', 'Moedas', 'Ligas'],
-        funFacts: 'Primeiro metal trabalhado pelo homem!'
+        funFacts: 'Primeiro metal trabalhado pelo homem!',
+        valences: ['+1', '+2']
     },
     {
         number: 30, symbol: 'Zn', name: 'Zinco', mass: 65.38, category: 'transition-metal',
@@ -275,7 +306,8 @@ const elements = [
         ionizationEnergy: '906 kJ/mol', electronConfig: '[Ar] 3d¹⁰ 4s²', discoveryDate: '1746',
         discoveredBy: 'Andreas Marggraf', nameOrigin: 'Do alemão "zink"',
         uses: ['Galvanização', 'Ligas', 'Suplementos', 'Pilhas'],
-        funFacts: 'Essencial para o sistema imunológico!'
+        funFacts: 'Essencial para o sistema imunológico!',
+        valences: ['+2']
     },
     {
         number: 31, symbol: 'Ga', name: 'Gálio', mass: 69.723, category: 'post-transition-metal',
@@ -284,7 +316,8 @@ const elements = [
         ionizationEnergy: '579 kJ/mol', electronConfig: '[Ar] 3d¹⁰ 4s² 4p¹', discoveryDate: '1875',
         discoveredBy: 'Paul Lecoq', nameOrigin: 'Do latim "Gallia" (França)',
         uses: ['Semicondutores', 'LEDs', 'Painéis solares'],
-        funFacts: 'Derrete na sua mão (ponto de fusão 29°C)!'
+        funFacts: 'Derrete na sua mão (ponto de fusão 29°C)!',
+        valences: ['+3']
     },
     {
         number: 32, symbol: 'Ge', name: 'Germânio', mass: 72.630, category: 'metalloid',
@@ -293,7 +326,8 @@ const elements = [
         ionizationEnergy: '762 kJ/mol', electronConfig: '[Ar] 3d¹⁰ 4s² 4p²', discoveryDate: '1886',
         discoveredBy: 'Clemens Winkler', nameOrigin: 'Do latim "Germania"',
         uses: ['Fibras ópticas', 'Transistores', 'Células solares'],
-        funFacts: 'Sua descoberta confirmou a tabela de Mendeleev!'
+        funFacts: 'Sua descoberta confirmou a tabela de Mendeleev!',
+        valences: ['+4', '+2']
     },
     {
         number: 33, symbol: 'As', name: 'Arsênio', mass: 74.922, category: 'metalloid',
@@ -302,7 +336,8 @@ const elements = [
         ionizationEnergy: '947 kJ/mol', electronConfig: '[Ar] 3d¹⁰ 4s² 4p³', discoveryDate: '1250',
         discoveredBy: 'Albertus Magnus', nameOrigin: 'Do grego "arsenikon"',
         uses: ['Semicondutores', 'Pesticidas', 'Medicamentos'],
-        funFacts: 'Famoso veneno, mas também usado em medicina!'
+        funFacts: 'Famoso veneno, mas também usado em medicina!',
+        valences: ['+5', '+3', '-3']
     },
     {
         number: 34, symbol: 'Se', name: 'Selênio', mass: 78.971, category: 'reactive-nonmetal',
@@ -311,7 +346,8 @@ const elements = [
         ionizationEnergy: '941 kJ/mol', electronConfig: '[Ar] 3d¹⁰ 4s² 4p⁴', discoveryDate: '1817',
         discoveredBy: 'Jöns Berzelius', nameOrigin: 'Do grego "selene" (lua)',
         uses: ['Fotocélulas', 'Suplementos', 'Shampoos anticaspa'],
-        funFacts: 'Essencial em pequenas quantidades, tóxico em excesso!'
+        funFacts: 'Essencial em pequenas quantidades, tóxico em excesso!',
+        valences: ['+6', '+4', '+2', '-2']
     },
     {
         number: 35, symbol: 'Br', name: 'Bromo', mass: 79.904, category: 'halogen',
@@ -320,7 +356,8 @@ const elements = [
         ionizationEnergy: '1140 kJ/mol', electronConfig: '[Ar] 3d¹⁰ 4s² 4p⁵', discoveryDate: '1826',
         discoveredBy: 'Antoine Balard', nameOrigin: 'Do grego "bromos" (fedor)',
         uses: ['Retardantes de chama', 'Pesticidas', 'Medicamentos'],
-        funFacts: 'Único elemento líquido não-metálico!'
+        funFacts: 'Único elemento líquido não-metálico!',
+        valences: ['+7', '+5', '+1', '-1']
     },
     {
         number: 36, symbol: 'Kr', name: 'Criptônio', mass: 83.798, category: 'noble-gas',
@@ -329,7 +366,8 @@ const elements = [
         ionizationEnergy: '1351 kJ/mol', electronConfig: '[Ar] 3d¹⁰ 4s² 4p⁶', discoveryDate: '1898',
         discoveredBy: 'William Ramsay', nameOrigin: 'Do grego "kryptos" (oculto)',
         uses: ['Lâmpadas de alta eficiência', 'Lasers', 'Isolamento térmico'],
-        funFacts: 'Nome inspirou o planeta natal do Super-Homem!'
+        funFacts: 'Nome inspirou o planeta de origem do Super-Homem!',
+        valences: ['0', '+2']
     },
 
     // Período 5
@@ -340,7 +378,8 @@ const elements = [
         ionizationEnergy: '403 kJ/mol', electronConfig: '[Kr] 5s¹', discoveryDate: '1861',
         discoveredBy: 'Robert Bunsen', nameOrigin: 'Do latim "rubidus" (vermelho)',
         uses: ['Relógios atômicos', 'Células fotoelétricas'],
-        funFacts: 'Usado para definir o segundo!'
+        funFacts: 'Usado para definir o segundo!',
+        valences: ['+1']
     },
     {
         number: 38, symbol: 'Sr', name: 'Estrôncio', mass: 87.62, category: 'alkaline-earth-metal',
@@ -349,7 +388,8 @@ const elements = [
         ionizationEnergy: '549 kJ/mol', electronConfig: '[Kr] 5s²', discoveryDate: '1790',
         discoveredBy: 'William Cruickshank', nameOrigin: 'De Strontian, Escócia',
         uses: ['Fogos de artifício', 'Pigmentos', 'Medicina nuclear'],
-        funFacts: 'Produz chamas vermelhas brilhantes!'
+        funFacts: 'Produz chamas vermelhas brilhantes!',
+        valences: ['+2']
     },
     {
         number: 39, symbol: 'Y', name: 'Ítrio', mass: 88.906, category: 'transition-metal',
@@ -358,7 +398,8 @@ const elements = [
         ionizationEnergy: '600 kJ/mol', electronConfig: '[Kr] 4d¹ 5s²', discoveryDate: '1794',
         discoveredBy: 'Johan Gadolin', nameOrigin: 'De Ytterby, Suécia',
         uses: ['Supercondutores', 'LEDs', 'Lasers'],
-        funFacts: 'Quatro elementos foram descobertos na mesma mina sueca!'
+        funFacts: 'Quatro elementos foram descobertos na mesma mina sueca!',
+        valences: ['+3']
     },
     {
         number: 40, symbol: 'Zr', name: 'Zircônio', mass: 91.224, category: 'transition-metal',
@@ -367,7 +408,8 @@ const elements = [
         ionizationEnergy: '640 kJ/mol', electronConfig: '[Kr] 4d² 5s²', discoveryDate: '1789',
         discoveredBy: 'Martin Klaproth', nameOrigin: 'Do árabe "zargun"',
         uses: ['Reatores nucleares', 'Implantes', 'Cerâmicas'],
-        funFacts: 'Extremamente resistente à corrosão!'
+        funFacts: 'Extremamente resistente à corrosão!',
+        valences: ['+4']
     },
     {
         number: 41, symbol: 'Nb', name: 'Nióbio', mass: 92.906, category: 'transition-metal',
@@ -376,7 +418,8 @@ const elements = [
         ionizationEnergy: '652 kJ/mol', electronConfig: '[Kr] 4d⁴ 5s¹', discoveryDate: '1801',
         discoveredBy: 'Charles Hatchett', nameOrigin: 'De Níobe, mitologia grega',
         uses: ['Supercondutores', 'Ligas especiais', 'Joias'],
-        funFacts: 'Brasil possui 98% das reservas mundiais!'
+        funFacts: 'Brasil possui 98% das reservas mundiais!',
+        valences: ['+5']
     },
     {
         number: 42, symbol: 'Mo', name: 'Molibdênio', mass: 95.95, category: 'transition-metal',
@@ -385,7 +428,8 @@ const elements = [
         ionizationEnergy: '684 kJ/mol', electronConfig: '[Kr] 4d⁵ 5s¹', discoveryDate: '1781',
         discoveredBy: 'Peter Woulfe', nameOrigin: 'Do grego "molybdos" (chumbo)',
         uses: ['Ligas de aço', 'Catalisadores', 'Lubrificantes'],
-        funFacts: 'Essencial para enzimas!'
+        funFacts: 'Essencial para enzimas!',
+        valences: ['+6', '+5', '+4', '+3', '+2']
     },
     {
         number: 43, symbol: 'Tc', name: 'Tecnécio', mass: 98, category: 'transition-metal',
@@ -394,7 +438,8 @@ const elements = [
         ionizationEnergy: '702 kJ/mol', electronConfig: '[Kr] 4d⁵ 5s²', discoveryDate: '1937',
         discoveredBy: 'Emilio Segrè', nameOrigin: 'Do grego "technetos" (artificial)',
         uses: ['Medicina nuclear', 'Diagnóstico médico'],
-        funFacts: 'Primeiro elemento artificial!'
+        funFacts: 'Primeiro elemento artificial!',
+        valences: ['+7', '+5', '+4']
     },
     {
         number: 44, symbol: 'Ru', name: 'Rutênio', mass: 101.07, category: 'transition-metal',
@@ -403,7 +448,8 @@ const elements = [
         ionizationEnergy: '710 kJ/mol', electronConfig: '[Kr] 4d⁷ 5s¹', discoveryDate: '1844',
         discoveredBy: 'Karl Klaus', nameOrigin: 'Do latim "Ruthenia" (Rússia)',
         uses: ['Catalisadores', 'Eletrônicos', 'Joias'],
-        funFacts: 'Membro da família da platina!'
+        funFacts: 'Membro da família da platina!',
+        valences: ['+4', '+3', '+2']
     },
     {
         number: 45, symbol: 'Rh', name: 'Ródio', mass: 102.91, category: 'transition-metal',
@@ -412,7 +458,8 @@ const elements = [
         ionizationEnergy: '720 kJ/mol', electronConfig: '[Kr] 4d⁸ 5s¹', discoveryDate: '1803',
         discoveredBy: 'William Wollaston', nameOrigin: 'Do grego "rhodon" (rosa)',
         uses: ['Catalisadores automotivos', 'Joias', 'Espelhos'],
-        funFacts: 'Metal mais caro do mundo!'
+        funFacts: 'Metal mais caro do mundo!',
+        valences: ['+4', '+3', '+2']
     },
     {
         number: 46, symbol: 'Pd', name: 'Paládio', mass: 106.42, category: 'transition-metal',
@@ -421,7 +468,8 @@ const elements = [
         ionizationEnergy: '804 kJ/mol', electronConfig: '[Kr] 4d¹⁰', discoveryDate: '1803',
         discoveredBy: 'William Wollaston', nameOrigin: 'Do asteróide Pallas',
         uses: ['Catalisadores', 'Joias', 'Eletrônicos', 'Odontologia'],
-        funFacts: 'Absorve até 900 vezes seu volume em hidrogênio!'
+        funFacts: 'Absorve até 900 vezes seu volume em hidrogênio!',
+        valences: ['+4', '+2']
     },
     {
         number: 47, symbol: 'Ag', name: 'Prata', mass: 107.87, category: 'transition-metal',
@@ -430,7 +478,8 @@ const elements = [
         ionizationEnergy: '731 kJ/mol', electronConfig: '[Kr] 4d¹⁰ 5s¹', discoveryDate: 'Pré-histórico',
         discoveredBy: 'Conhecido desde 4000 a.C.', nameOrigin: 'Do latim "argentum"',
         uses: ['Joias', 'Moedas', 'Eletrônicos', 'Antimicrobiano'],
-        funFacts: 'Melhor condutor elétrico de todos os elementos!'
+        funFacts: 'Melhor condutor elétrico de todos os elementos!',
+        valences: ['+1', '+2']
     },
     {
         number: 48, symbol: 'Cd', name: 'Cádmio', mass: 112.41, category: 'transition-metal',
@@ -439,7 +488,8 @@ const elements = [
         ionizationEnergy: '868 kJ/mol', electronConfig: '[Kr] 4d¹⁰ 5s²', discoveryDate: '1817',
         discoveredBy: 'Karl Hermann', nameOrigin: 'Do grego "kadmeia"',
         uses: ['Baterias', 'Pigmentos', 'Galvanização'],
-        funFacts: 'Altamente tóxico, usado em baterias recarregáveis!'
+        funFacts: 'Altamente tóxico, usado em baterias recarregáveis!',
+        valences: ['+2']
     },
     {
         number: 49, symbol: 'In', name: 'Índio', mass: 114.82, category: 'post-transition-metal',
@@ -448,7 +498,8 @@ const elements = [
         ionizationEnergy: '558 kJ/mol', electronConfig: '[Kr] 4d¹⁰ 5s² 5p¹', discoveryDate: '1863',
         discoveredBy: 'Ferdinand Reich', nameOrigin: 'Do índigo (cor)',
         uses: ['Telas touchscreen', 'LEDs', 'Soldas especiais'],
-        funFacts: 'Essencial para telas de smartphones!'
+        funFacts: 'Essencial para telas de smartphones!',
+        valences: ['+3']
     },
     {
         number: 50, symbol: 'Sn', name: 'Estanho', mass: 118.71, category: 'post-transition-metal',
@@ -457,7 +508,8 @@ const elements = [
         ionizationEnergy: '709 kJ/mol', electronConfig: '[Kr] 4d¹⁰ 5s² 5p²', discoveryDate: 'Pré-histórico',
         discoveredBy: 'Conhecido desde 3500 a.C.', nameOrigin: 'Do latim "stannum"',
         uses: ['Soldas', 'Latas', 'Liga de bronze', 'Revestimentos'],
-        funFacts: 'Era tão valioso quanto ouro na antiguidade!'
+        funFacts: 'Era tão valioso quanto ouro na antiguidade!',
+        valences: ['+4', '+2']
     },
     {
         number: 51, symbol: 'Sb', name: 'Antimônio', mass: 121.76, category: 'metalloid',
@@ -466,7 +518,8 @@ const elements = [
         ionizationEnergy: '834 kJ/mol', electronConfig: '[Kr] 4d¹⁰ 5s² 5p³', discoveryDate: 'Pré-histórico',
         discoveredBy: 'Conhecido desde 3000 a.C.', nameOrigin: 'Do grego "anti-monos"',
         uses: ['Retardantes de chama', 'Ligas', 'Semicondutores'],
-        funFacts: 'Usado como cosmético no antigo Egito!'
+        funFacts: 'Usado como cosmético no antigo Egito!',
+        valences: ['+5', '+3', '-3']
     },
     {
         number: 52, symbol: 'Te', name: 'Telúrio', mass: 127.60, category: 'metalloid',
@@ -475,7 +528,8 @@ const elements = [
         ionizationEnergy: '869 kJ/mol', electronConfig: '[Kr] 4d¹⁰ 5s² 5p⁴', discoveryDate: '1783',
         discoveredBy: 'Franz von Reichenstein', nameOrigin: 'Do latim "tellus" (terra)',
         uses: ['Ligas especiais', 'Células solares', 'Termoelétricos'],
-        funFacts: 'Mais raro que ouro na crosta terrestre!'
+        funFacts: 'Mais raro que ouro na crosta terrestre!',
+        valences: ['+6', '+4', '+2', '-2']
     },
     {
         number: 53, symbol: 'I', name: 'Iodo', mass: 126.90, category: 'halogen',
@@ -484,7 +538,8 @@ const elements = [
         ionizationEnergy: '1008 kJ/mol', electronConfig: '[Kr] 4d¹⁰ 5s² 5p⁵', discoveryDate: '1811',
         discoveredBy: 'Bernard Courtois', nameOrigin: 'Do grego "iodes" (violeta)',
         uses: ['Desinfetante', 'Medicina', 'Sal iodado', 'Contrastes'],
-        funFacts: 'Essencial para a tireoide!'
+        funFacts: 'Essencial para a tireoide!',
+        valences: ['+7', '+5', '+1', '-1']
     },
     {
         number: 54, symbol: 'Xe', name: 'Xenônio', mass: 131.29, category: 'noble-gas',
@@ -493,7 +548,8 @@ const elements = [
         ionizationEnergy: '1170 kJ/mol', electronConfig: '[Kr] 4d¹⁰ 5s² 5p⁶', discoveryDate: '1898',
         discoveredBy: 'William Ramsay', nameOrigin: 'Do grego "xenos" (estranho)',
         uses: ['Anestésicos', 'Lâmpadas de alta intensidade', 'Propulsão espacial'],
-        funFacts: 'Primeiro gás nobre a formar compostos químicos!'
+        funFacts: 'Primeiro gás nobre a formar compostos químicos!',
+        valences: ['0', '+2', '+4', '+6', '+8']
     },
 
     // Período 6
@@ -504,7 +560,8 @@ const elements = [
         ionizationEnergy: '376 kJ/mol', electronConfig: '[Xe] 6s¹', discoveryDate: '1860',
         discoveredBy: 'Robert Bunsen', nameOrigin: 'Do latim "caesius" (azul celeste)',
         uses: ['Relógios atômicos', 'Células fotoelétricas', 'Medicina'],
-        funFacts: 'Metal mais reativo!'
+        funFacts: 'Metal mais reativo!',
+        valences: ['+1']
     },
     {
         number: 56, symbol: 'Ba', name: 'Bário', mass: 137.33, category: 'alkaline-earth-metal',
@@ -513,7 +570,8 @@ const elements = [
         ionizationEnergy: '503 kJ/mol', electronConfig: '[Xe] 6s²', discoveryDate: '1808',
         discoveredBy: 'Humphry Davy', nameOrigin: 'Do grego "barys" (pesado)',
         uses: ['Contrastes médicos', 'Fogos de artifício', 'Vidros especiais'],
-        funFacts: 'Produz chamas verdes em fogos de artifício!'
+        funFacts: 'Produz chamas verdes em fogos de artifício!',
+        valences: ['+2']
     },
 
     // Lantanídeos (57-71)
@@ -524,7 +582,8 @@ const elements = [
         ionizationEnergy: '538 kJ/mol', electronConfig: '[Xe] 5d¹ 6s²', discoveryDate: '1839',
         discoveredBy: 'Carl Mosander', nameOrigin: 'Do grego "lanthanein" (ocultar)',
         uses: ['Catalisadores', 'Óptica', 'Ligas especiais'],
-        funFacts: 'Primeiro dos lantanídeos!'
+        funFacts: 'Primeiro dos lantanídeos!',
+        valences: ['+3']
     },
     {
         number: 58, symbol: 'Ce', name: 'Cério', mass: 140.12, category: 'lanthanide',
@@ -533,7 +592,8 @@ const elements = [
         ionizationEnergy: '534 kJ/mol', electronConfig: '[Xe] 4f¹ 5d¹ 6s²', discoveryDate: '1803',
         discoveredBy: 'Jöns Berzelius', nameOrigin: 'Do asteróide Ceres',
         uses: ['Catalisadores', 'Isqueiros', 'Vidros especiais'],
-        funFacts: 'Mais abundante das terras raras!'
+        funFacts: 'Mais abundante das terras raras!',
+        valences: ['+4', '+3']
     },
     {
         number: 59, symbol: 'Pr', name: 'Praseodímio', mass: 140.91, category: 'lanthanide',
@@ -542,7 +602,8 @@ const elements = [
         ionizationEnergy: '527 kJ/mol', electronConfig: '[Xe] 4f³ 6s²', discoveryDate: '1885',
         discoveredBy: 'Carl Auer von Welsbach', nameOrigin: 'Do grego "prasios didymos"',
         uses: ['Ímãs permanentes', 'Ligas especiais', 'Óculos'],
-        funFacts: 'Produz sais verdes característicos!'
+        funFacts: 'Produz sais verdes característicos!',
+        valences: ['+3']
     },
     {
         number: 60, symbol: 'Nd', name: 'Neodímio', mass: 144.24, category: 'lanthanide',
@@ -551,7 +612,8 @@ const elements = [
         ionizationEnergy: '533 kJ/mol', electronConfig: '[Xe] 4f⁴ 6s²', discoveryDate: '1885',
         discoveredBy: 'Carl Auer von Welsbach', nameOrigin: 'Do grego "neos didymos"',
         uses: ['Ímãs permanentes', 'Lasers', 'Óculos especiais'],
-        funFacts: 'Ímãs mais fortes conhecidos!'
+        funFacts: 'Ímãs mais fortes conhecidos!',
+        valences: ['+3']
     },
     {
         number: 61, symbol: 'Pm', name: 'Promécio', mass: 145, category: 'lanthanide',
@@ -560,7 +622,8 @@ const elements = [
         ionizationEnergy: '540 kJ/mol', electronConfig: '[Xe] 4f⁵ 6s²', discoveryDate: '1945',
         discoveredBy: 'Charles Coryell', nameOrigin: 'De Prometeu',
         uses: ['Baterias nucleares', 'Pesquisa científica'],
-        funFacts: 'Não existe naturalmente na Terra!'
+        funFacts: 'Não existe naturalmente na Terra!',
+        valences: ['+3']
     },
     {
         number: 62, symbol: 'Sm', name: 'Samário', mass: 150.36, category: 'lanthanide',
@@ -569,7 +632,8 @@ const elements = [
         ionizationEnergy: '545 kJ/mol', electronConfig: '[Xe] 4f⁶ 6s²', discoveryDate: '1879',
         discoveredBy: 'Paul Lecoq', nameOrigin: 'Do mineral samarskita',
         uses: ['Ímãs permanentes', 'Absorção de nêutrons', 'Lasers'],
-        funFacts: 'Crucial para energia nuclear!'
+        funFacts: 'Crucial para energia nuclear!',
+        valences: ['+3', '+2']
     },
     {
         number: 63, symbol: 'Eu', name: 'Európio', mass: 151.96, category: 'lanthanide',
@@ -578,7 +642,8 @@ const elements = [
         ionizationEnergy: '547 kJ/mol', electronConfig: '[Xe] 4f⁷ 6s²', discoveryDate: '1901',
         discoveredBy: 'Eugène Demarçay', nameOrigin: 'Da Europa',
         uses: ['Fósforos em TVs', 'LEDs', 'Detectores'],
-        funFacts: 'Mais reativo dos lantanídeos!'
+        funFacts: 'Mais reativo dos lantanídeos!',
+        valences: ['+3', '+2']
     },
     {
         number: 64, symbol: 'Gd', name: 'Gadolínio', mass: 157.25, category: 'lanthanide',
@@ -587,7 +652,8 @@ const elements = [
         ionizationEnergy: '593 kJ/mol', electronConfig: '[Xe] 4f⁷ 5d¹ 6s²', discoveryDate: '1880',
         discoveredBy: 'Jean de Marignac', nameOrigin: 'De Johan Gadolin',
         uses: ['Contraste em MRI', 'Absorção de nêutrons', 'Ímãs'],
-        funFacts: 'Melhor absorvedor de nêutrons!'
+        funFacts: 'Melhor absorvedor de nêutrons!',
+        valences: ['+3']
     },
     {
         number: 65, symbol: 'Tb', name: 'Térbio', mass: 158.93, category: 'lanthanide',
@@ -596,7 +662,8 @@ const elements = [
         ionizationEnergy: '565 kJ/mol', electronConfig: '[Xe] 4f⁹ 6s²', discoveryDate: '1843',
         discoveredBy: 'Carl Mosander', nameOrigin: 'De Ytterby, Suécia',
         uses: ['Fósforos verdes', 'Lasers', 'Dispositivos magneto-ópticos'],
-        funFacts: 'Produz luz verde intensa!'
+        funFacts: 'Produz luz verde intensa!',
+        valences: ['+3']
     },
     {
         number: 66, symbol: 'Dy', name: 'Disprósio', mass: 162.50, category: 'lanthanide',
@@ -605,7 +672,8 @@ const elements = [
         ionizationEnergy: '573 kJ/mol', electronConfig: '[Xe] 4f¹⁰ 6s²', discoveryDate: '1886',
         discoveredBy: 'Paul Lecoq', nameOrigin: 'Do grego "dysprositos" (difícil)',
         uses: ['Ímãs de alta temperatura', 'Lasers', 'Dosímetros'],
-        funFacts: 'Nome reflete a dificuldade de sua descoberta!'
+        funFacts: 'Nome reflete a dificuldade de sua descoberta!',
+        valences: ['+3']
     },
     {
         number: 67, symbol: 'Ho', name: 'Hólmio', mass: 164.93, category: 'lanthanide',
@@ -614,7 +682,8 @@ const elements = [
         ionizationEnergy: '581 kJ/mol', electronConfig: '[Xe] 4f¹¹ 6s²', discoveryDate: '1878',
         discoveredBy: 'Per Cleve', nameOrigin: 'Do latim "Holmia" (Estocolmo)',
         uses: ['Ímãs especiais', 'Lasers médicos', 'Calibração'],
-        funFacts: 'Possui o maior momento magnético!'
+        funFacts: 'Possui o maior momento magnético!',
+        valences: ['+3']
     },
     {
         number: 68, symbol: 'Er', name: 'Érbio', mass: 167.26, category: 'lanthanide',
@@ -623,7 +692,8 @@ const elements = [
         ionizationEnergy: '589 kJ/mol', electronConfig: '[Xe] 4f¹² 6s²', discoveryDate: '1843',
         discoveredBy: 'Carl Mosander', nameOrigin: 'De Ytterby, Suécia',
         uses: ['Fibras ópticas', 'Lasers', 'Óculos de proteção'],
-        funFacts: 'Essencial para internet via fibra óptica!'
+        funFacts: 'Essencial para internet via fibra óptica!',
+        valences: ['+3']
     },
     {
         number: 69, symbol: 'Tm', name: 'Túlio', mass: 168.93, category: 'lanthanide',
@@ -632,7 +702,8 @@ const elements = [
         ionizationEnergy: '597 kJ/mol', electronConfig: '[Xe] 4f¹³ 6s²', discoveryDate: '1879',
         discoveredBy: 'Per Cleve', nameOrigin: 'Do latim "Thule"',
         uses: ['Lasers médicos', 'Raios-X portáteis', 'Pesquisa'],
-        funFacts: 'Mais raro dos lantanídeos!'
+        funFacts: 'Mais raro dos lantanídeos!',
+        valences: ['+3', '+2']
     },
     {
         number: 70, symbol: 'Yb', name: 'Itérbio', mass: 173.05, category: 'lanthanide',
@@ -641,7 +712,8 @@ const elements = [
         ionizationEnergy: '603 kJ/mol', electronConfig: '[Xe] 4f¹⁴ 6s²', discoveryDate: '1878',
         discoveredBy: 'Jean de Marignac', nameOrigin: 'De Ytterby, Suécia',
         uses: ['Ligas especiais', 'Lasers', 'Detectores'],
-        funFacts: 'Quarto elemento descoberto em Ytterby!'
+        funFacts: 'Quarto elemento descoberto em Ytterby!',
+        valences: ['+3', '+2']
     },
     {
         number: 71, symbol: 'Lu', name: 'Lutécio', mass: 174.97, category: 'lanthanide',
@@ -650,7 +722,8 @@ const elements = [
         ionizationEnergy: '524 kJ/mol', electronConfig: '[Xe] 4f¹⁴ 5d¹ 6s²', discoveryDate: '1907',
         discoveredBy: 'Georges Urbain', nameOrigin: 'Do latim "Lutetia" (Paris)',
         uses: ['Detectores PET', 'Catalisadores especiais'],
-        funFacts: 'Último lantanídeo descoberto!'
+        funFacts: 'Último lantanídeo descoberto!',
+        valences: ['+3']
     },
 
     // Continuação Período 6
@@ -661,7 +734,8 @@ const elements = [
         ionizationEnergy: '659 kJ/mol', electronConfig: '[Xe] 4f¹⁴ 5d² 6s²', discoveryDate: '1923',
         discoveredBy: 'Dirk Coster', nameOrigin: 'Do latim "Hafnia" (Copenhague)',
         uses: ['Reatores nucleares', 'Superligas', 'Plasma'],
-        funFacts: 'Quimicamente idêntico ao zircônio!'
+        funFacts: 'Quimicamente idêntico ao zircônio!',
+        valences: ['+4']
     },
     {
         number: 73, symbol: 'Ta', name: 'Tântalo', mass: 180.95, category: 'transition-metal',
@@ -670,7 +744,8 @@ const elements = [
         ionizationEnergy: '761 kJ/mol', electronConfig: '[Xe] 4f¹⁴ 5d³ 6s²', discoveryDate: '1802',
         discoveredBy: 'Anders Ekeberg', nameOrigin: 'De Tântalo, mitologia grega',
         uses: ['Capacitores', 'Implantes médicos', 'Superligas'],
-        funFacts: 'Extremamente resistente à corrosão!'
+        funFacts: 'Extremamente resistente à corrosão!',
+        valences: ['+5']
     },
     {
         number: 74, symbol: 'W', name: 'Tungstênio', mass: 183.84, category: 'transition-metal',
@@ -679,7 +754,8 @@ const elements = [
         ionizationEnergy: '770 kJ/mol', electronConfig: '[Xe] 4f¹⁴ 5d⁴ 6s²', discoveryDate: '1783',
         discoveredBy: 'Juan José Elhuyar', nameOrigin: 'Do sueco "tung sten"',
         uses: ['Filamentos de lâmpadas', 'Ferramentas', 'Blindagem'],
-        funFacts: 'Maior ponto de fusão de todos os elementos!'
+        funFacts: 'Maior ponto de fusão de todos os elementos!',
+        valences: ['+6', '+5', '+4', '+3', '+2']
     },
     {
         number: 75, symbol: 'Re', name: 'Rênio', mass: 186.21, category: 'transition-metal',
@@ -688,7 +764,8 @@ const elements = [
         ionizationEnergy: '760 kJ/mol', electronConfig: '[Xe] 4f¹⁴ 5d⁵ 6s²', discoveryDate: '1925',
         discoveredBy: 'Walter Noddack', nameOrigin: 'Do latim "Rhenus" (Reno)',
         uses: ['Superligas', 'Catalisadores', 'Termopares'],
-        funFacts: 'Um dos elementos mais raros!'
+        funFacts: 'Um dos elementos mais raros!',
+        valences: ['+7', '+6', '+5', '+4']
     },
     {
         number: 76, symbol: 'Os', name: 'Ósmio', mass: 190.23, category: 'transition-metal',
@@ -697,7 +774,8 @@ const elements = [
         ionizationEnergy: '840 kJ/mol', electronConfig: '[Xe] 4f¹⁴ 5d⁶ 6s²', discoveryDate: '1803',
         discoveredBy: 'Smithson Tennant', nameOrigin: 'Do grego "osme" (odor)',
         uses: ['Pontas de canetas', 'Catalisadores', 'Instrumentos'],
-        funFacts: 'Elemento mais denso!'
+        funFacts: 'Elemento mais denso!',
+        valences: ['+4', '+3', '+2']
     },
     {
         number: 77, symbol: 'Ir', name: 'Irídio', mass: 192.22, category: 'transition-metal',
@@ -706,7 +784,8 @@ const elements = [
         ionizationEnergy: '880 kJ/mol', electronConfig: '[Xe] 4f¹⁴ 5d⁷ 6s²', discoveryDate: '1803',
         discoveredBy: 'Smithson Tennant', nameOrigin: 'Do latim "iris" (arco-íris)',
         uses: ['Velas de ignição', 'Joias', 'Padrões de medida'],
-        funFacts: 'Segundo elemento mais denso!'
+        funFacts: 'Segundo elemento mais denso!',
+        valences: ['+4', '+3']
     },
     {
         number: 78, symbol: 'Pt', name: 'Platina', mass: 195.08, category: 'transition-metal',
@@ -715,7 +794,8 @@ const elements = [
         ionizationEnergy: '870 kJ/mol', electronConfig: '[Xe] 4f¹⁴ 5d⁹ 6s¹', discoveryDate: '1735',
         discoveredBy: 'Antonio de Ulloa', nameOrigin: 'Do espanhol "platina"',
         uses: ['Joias', 'Catalisadores', 'Medicina', 'Padrões'],
-        funFacts: 'Metal mais nobre!'
+        funFacts: 'Metal mais nobre!',
+        valences: ['+4', '+3', '+2']
     },
     {
         number: 79, symbol: 'Au', name: 'Ouro', mass: 196.97, category: 'transition-metal',
@@ -724,7 +804,8 @@ const elements = [
         ionizationEnergy: '890 kJ/mol', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s¹', discoveryDate: 'Pré-histórico',
         discoveredBy: 'Conhecido desde 2600 a.C.', nameOrigin: 'Do latim "aurum"',
         uses: ['Joias', 'Eletrônicos', 'Medicina', 'Reservas monetárias'],
-        funFacts: 'Padrão monetário por milênios!'
+        funFacts: 'Padrão monetário por milênios!',
+        valences: ['+1', '+3']
     },
     {
         number: 80, symbol: 'Hg', name: 'Mercúrio', mass: 200.59, category: 'transition-metal',
@@ -733,7 +814,8 @@ const elements = [
         ionizationEnergy: '1007 kJ/mol', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s²', discoveryDate: 'Pré-histórico',
         discoveredBy: 'Conhecido desde 1500 a.C.', nameOrigin: 'Do deus Mercúrio',
         uses: ['Termômetros', 'Lâmpadas', 'Mineração', 'Interruptores'],
-        funFacts: 'Único metal líquido à temperatura ambiente!'
+        funFacts: 'Único metal líquido à temperatura ambiente!',
+        valences: ['+2', '+1']
     },
     {
         number: 81, symbol: 'Tl', name: 'Tálio', mass: 204.38, category: 'post-transition-metal',
@@ -742,7 +824,8 @@ const elements = [
         ionizationEnergy: '589 kJ/mol', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p¹', discoveryDate: '1861',
         discoveredBy: 'William Crookes', nameOrigin: 'Do grego "thallos" (broto verde)',
         uses: ['Eletrônicos', 'Óptica infravermelha', 'Medicina'],
-        funFacts: 'Extremamente tóxico!'
+        funFacts: 'Extremamente tóxico!',
+        valences: ['+3', '+1']
     },
     {
         number: 82, symbol: 'Pb', name: 'Chumbo', mass: 207.2, category: 'post-transition-metal',
@@ -751,7 +834,8 @@ const elements = [
         ionizationEnergy: '716 kJ/mol', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p²', discoveryDate: 'Pré-histórico',
         discoveredBy: 'Conhecido desde 3000 a.C.', nameOrigin: 'Do latim "plumbum"',
         uses: ['Baterias', 'Blindagem', 'Soldas', 'Munições'],
-        funFacts: 'Usado em aquedutos romanos!'
+        funFacts: 'Usado em aquedutos romanos!',
+        valences: ['+4', '+2']
     },
     {
         number: 83, symbol: 'Bi', name: 'Bismuto', mass: 208.98, category: 'post-transition-metal',
@@ -760,7 +844,8 @@ const elements = [
         ionizationEnergy: '703 kJ/mol', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p³', discoveryDate: '1753',
         discoveredBy: 'Claude François Geoffroy', nameOrigin: 'Do alemão "bisemutum"',
         uses: ['Cosméticos', 'Medicamentos', 'Ligas de baixo ponto de fusão'],
-        funFacts: 'Menos tóxico dos metais pesados!'
+        funFacts: 'Menos tóxico dos metais pesados!',
+        valences: ['+5', '+3']
     },
     {
         number: 84, symbol: 'Po', name: 'Polônio', mass: 209, category: 'post-transition-metal',
@@ -769,7 +854,8 @@ const elements = [
         ionizationEnergy: '812 kJ/mol', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁴', discoveryDate: '1898',
         discoveredBy: 'Marie e Pierre Curie', nameOrigin: 'Da Polônia',
         uses: ['Fontes de nêutrons', 'Eliminadores de estática'],
-        funFacts: 'Descoberto por Marie Curie!'
+        funFacts: 'Descoberto por Marie Curie!',
+        valences: ['+6', '+4', '+2']
     },
     {
         number: 85, symbol: 'At', name: 'Astato', mass: 210, category: 'halogen',
@@ -778,7 +864,8 @@ const elements = [
         ionizationEnergy: '890 kJ/mol', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁵', discoveryDate: '1940',
         discoveredBy: 'Dale Corson', nameOrigin: 'Do grego "astatos" (instável)',
         uses: ['Pesquisa científica', 'Medicina nuclear'],
-        funFacts: 'Elemento mais raro na Terra!'
+        funFacts: 'Elemento mais raro na Terra!',
+        valences: ['+7', '+5', '+1', '-1']
     },
     {
         number: 86, symbol: 'Rn', name: 'Radônio', mass: 222, category: 'noble-gas',
@@ -787,7 +874,8 @@ const elements = [
         ionizationEnergy: '1037 kJ/mol', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁶', discoveryDate: '1900',
         discoveredBy: 'Friedrich Dorn', nameOrigin: 'Do rádio',
         uses: ['Pesquisa científica', 'Sismologia'],
-        funFacts: 'Gás nobre radioativo!'
+        funFacts: 'Gás nobre radioativo!',
+        valences: ['0']
     },
 
     // Período 7
@@ -798,7 +886,8 @@ const elements = [
         ionizationEnergy: '380 kJ/mol', electronConfig: '[Rn] 7s¹', discoveryDate: '1939',
         discoveredBy: 'Marguerite Perey', nameOrigin: 'Da França',
         uses: ['Pesquisa científica'],
-        funFacts: 'Elemento mais instável!'
+        funFacts: 'Elemento mais instável!',
+        valences: ['+1']
     },
     {
         number: 88, symbol: 'Ra', name: 'Rádio', mass: 226, category: 'alkaline-earth-metal',
@@ -807,7 +896,8 @@ const elements = [
         ionizationEnergy: '509 kJ/mol', electronConfig: '[Rn] 7s²', discoveryDate: '1898',
         discoveredBy: 'Marie e Pierre Curie', nameOrigin: 'Do latim "radius" (raio)',
         uses: ['Medicina nuclear', 'Pesquisa científica'],
-        funFacts: 'Brilha no escuro devido à radioatividade!'
+        funFacts: 'Brilha no escuro devido à radioatividade!',
+        valences: ['+2']
     },
 
     // Actinídeos (89-103)
@@ -818,7 +908,8 @@ const elements = [
         ionizationEnergy: '499 kJ/mol', electronConfig: '[Rn] 6d¹ 7s²', discoveryDate: '1899',
         discoveredBy: 'André Debierne', nameOrigin: 'Do grego "aktinos" (raio)',
         uses: ['Fonte de nêutrons', 'Pesquisa'],
-        funFacts: 'Primeiro dos actinídeos!'
+        funFacts: 'Primeiro dos actinídeos!',
+        valences: ['+3']
     },
     {
         number: 90, symbol: 'Th', name: 'Tório', mass: 232.04, category: 'actinide',
@@ -827,7 +918,8 @@ const elements = [
         ionizationEnergy: '587 kJ/mol', electronConfig: '[Rn] 6d² 7s²', discoveryDate: '1828',
         discoveredBy: 'Jöns Berzelius', nameOrigin: 'De Thor, deus nórdico',
         uses: ['Combustível nuclear', 'Lanternas de gás'],
-        funFacts: 'Combustível nuclear do futuro!'
+        funFacts: 'Combustível nuclear do futuro!',
+        valences: ['+4']
     },
     {
         number: 91, symbol: 'Pa', name: 'Protactínio', mass: 231.04, category: 'actinide',
@@ -836,7 +928,8 @@ const elements = [
         ionizationEnergy: '568 kJ/mol', electronConfig: '[Rn] 5f² 6d¹ 7s²', discoveryDate: '1913',
         discoveredBy: 'Kasimir Fajans', nameOrigin: 'Precursor do actínio',
         uses: ['Pesquisa científica'],
-        funFacts: 'Extremamente radioativo e raro!'
+        funFacts: 'Extremamente radioativo e raro!',
+        valences: ['+5', '+4', '+3']
     },
     {
         number: 92, symbol: 'U', name: 'Urânio', mass: 238.03, category: 'actinide',
@@ -845,7 +938,8 @@ const elements = [
         ionizationEnergy: '598 kJ/mol', electronConfig: '[Rn] 5f³ 6d¹ 7s²', discoveryDate: '1789',
         discoveredBy: 'Martin Klaproth', nameOrigin: 'Do planeta Urano',
         uses: ['Energia nuclear', 'Armas nucleares', 'Datação'],
-        funFacts: 'Combustível das usinas nucleares!'
+        funFacts: 'Combustível das usinas nucleares!',
+        valences: ['+6', '+5', '+4', '+3']
     },
     {
         number: 93, symbol: 'Np', name: 'Netúnio', mass: 237, category: 'actinide',
@@ -854,7 +948,8 @@ const elements = [
         ionizationEnergy: '604 kJ/mol', electronConfig: '[Rn] 5f⁴ 6d¹ 7s²', discoveryDate: '1940',
         discoveredBy: 'Edwin McMillan', nameOrigin: 'Do planeta Netuno',
         uses: ['Detectores de nêutrons', 'Pesquisa'],
-        funFacts: 'Primeiro elemento transuranio!'
+        funFacts: 'Primeiro elemento transuranio!',
+        valences: ['+6', '+5', '+4', '+3']
     },
     {
         number: 94, symbol: 'Pu', name: 'Plutônio', mass: 244, category: 'actinide',
@@ -863,7 +958,8 @@ const elements = [
         ionizationEnergy: '584 kJ/mol', electronConfig: '[Rn] 5f⁶ 7s²', discoveryDate: '1940',
         discoveredBy: 'Glenn Seaborg', nameOrigin: 'Do planeta Plutão',
         uses: ['Armas nucleares', 'Energia nuclear', 'RTGs'],
-        funFacts: 'Usado em bombas atômicas!'
+        funFacts: 'Usado em bombas atômicas!',
+        valences: ['+6', '+5', '+4', '+3']
     },
     {
         number: 95, symbol: 'Am', name: 'Amerício', mass: 243, category: 'actinide',
@@ -872,7 +968,8 @@ const elements = [
         ionizationEnergy: '578 kJ/mol', electronConfig: '[Rn] 5f⁷ 7s²', discoveryDate: '1944',
         discoveredBy: 'Glenn Seaborg', nameOrigin: 'Das Américas',
         uses: ['Detectores de fumaça', 'Medidores de espessura'],
-        funFacts: 'Presente em detectores de fumaça!'
+        funFacts: 'Presente em detectores de fumaça!',
+        valences: ['+6', '+5', '+4', '+3']
     },
     {
         number: 96, symbol: 'Cm', name: 'Cúrio', mass: 247, category: 'actinide',
@@ -881,7 +978,8 @@ const elements = [
         ionizationEnergy: '581 kJ/mol', electronConfig: '[Rn] 5f⁷ 6d¹ 7s²', discoveryDate: '1944',
         discoveredBy: 'Glenn Seaborg', nameOrigin: 'De Marie e Pierre Curie',
         uses: ['RTGs', 'Pesquisa científica'],
-        funFacts: 'Nomeado em homenagem aos Curies!'
+        funFacts: 'Nomeado em homenagem aos Curies!',
+        valences: ['+3']
     },
     {
         number: 97, symbol: 'Bk', name: 'Berquélio', mass: 247, category: 'actinide',
@@ -890,7 +988,8 @@ const elements = [
         ionizationEnergy: '601 kJ/mol', electronConfig: '[Rn] 5f⁹ 7s²', discoveryDate: '1949',
         discoveredBy: 'Glenn Seaborg', nameOrigin: 'De Berkeley, Califórnia',
         uses: ['Pesquisa científica'],
-        funFacts: 'Nomeado pela cidade onde foi descoberto!'
+        funFacts: 'Nomeado pela cidade onde foi descoberto!',
+        valences: ['+4', '+3']
     },
     {
         number: 98, symbol: 'Cf', name: 'Califórnio', mass: 251, category: 'actinide',
@@ -899,7 +998,8 @@ const elements = [
         ionizationEnergy: '608 kJ/mol', electronConfig: '[Rn] 5f¹⁰ 7s²', discoveryDate: '1950',
         discoveredBy: 'Glenn Seaborg', nameOrigin: 'Da Califórnia',
         uses: ['Fonte de nêutrons', 'Detectores de ouro'],
-        funFacts: 'Um grama vale milhões de dólares!'
+        funFacts: 'Um grama vale milhões de dólares!',
+        valences: ['+3']
     },
     {
         number: 99, symbol: 'Es', name: 'Einstênio', mass: 252, category: 'actinide',
@@ -908,7 +1008,8 @@ const elements = [
         ionizationEnergy: '619 kJ/mol', electronConfig: '[Rn] 5f¹¹ 7s²', discoveryDate: '1952',
         discoveredBy: 'Albert Ghiorso', nameOrigin: 'De Albert Einstein',
         uses: ['Pesquisa científica'],
-        funFacts: 'Descoberto em detritos de bomba nuclear!'
+        funFacts: 'Descoberto em detritos de bomba nuclear!',
+        valences: ['+3']
     },
     {
         number: 100, symbol: 'Fm', name: 'Férmio', mass: 257, category: 'actinide',
@@ -917,7 +1018,8 @@ const elements = [
         ionizationEnergy: '627 kJ/mol', electronConfig: '[Rn] 5f¹² 7s²', discoveryDate: '1952',
         discoveredBy: 'Albert Ghiorso', nameOrigin: 'De Enrico Fermi',
         uses: ['Pesquisa científica'],
-        funFacts: 'Nomeado em homenagem a Fermi!'
+        funFacts: 'Nomeado em homenagem a Fermi!',
+        valences: ['+3']
     },
     {
         number: 101, symbol: 'Md', name: 'Mendelévio', mass: 258, category: 'actinide',
@@ -926,7 +1028,8 @@ const elements = [
         ionizationEnergy: '635 kJ/mol', electronConfig: '[Rn] 5f¹³ 7s²', discoveryDate: '1955',
         discoveredBy: 'Albert Ghiorso', nameOrigin: 'De Dmitri Mendeleev',
         uses: ['Pesquisa científica'],
-        funFacts: 'Homenageia o criador da tabela periódica!'
+        funFacts: 'Homenageia o criador da tabela periódica!',
+        valences: ['+3']
     },
     {
         number: 102, symbol: 'No', name: 'Nobélio', mass: 259, category: 'actinide',
@@ -935,7 +1038,8 @@ const elements = [
         ionizationEnergy: '642 kJ/mol', electronConfig: '[Rn] 5f¹⁴ 7s²', discoveryDate: '1957',
         discoveredBy: 'Albert Ghiorso', nameOrigin: 'De Alfred Nobel',
         uses: ['Pesquisa científica'],
-        funFacts: 'Nomeado em homenagem a Nobel!'
+        funFacts: 'Nomeado em homenagem a Nobel!',
+        valences: ['+3']
     },
     {
         number: 103, symbol: 'Lr', name: 'Laurêncio', mass: 262, category: 'actinide',
@@ -944,7 +1048,8 @@ const elements = [
         ionizationEnergy: '470 kJ/mol', electronConfig: '[Rn] 5f¹⁴ 7s² 7p¹', discoveryDate: '1961',
         discoveredBy: 'Albert Ghiorso', nameOrigin: 'De Ernest Lawrence',
         uses: ['Pesquisa científica'],
-        funFacts: 'Último dos actinídeos!'
+        funFacts: 'Último dos actinídeos!',
+        valences: ['+3']
     },
 
     // Elementos Superpesados (104-118)
@@ -955,7 +1060,8 @@ const elements = [
         ionizationEnergy: '580 kJ/mol', electronConfig: '[Rn] 5f¹⁴ 6d² 7s²', discoveryDate: '1964',
         discoveredBy: 'Albert Ghiorso', nameOrigin: 'De Ernest Rutherford',
         uses: ['Pesquisa científica'],
-        funFacts: 'Primeiro elemento superpesado!'
+        funFacts: 'Primeiro elemento superpesado!',
+        valences: ['+4']
     },
     {
         number: 105, symbol: 'Db', name: 'Dúbnio', mass: 268, category: 'transition-metal',
@@ -964,7 +1070,8 @@ const elements = [
         ionizationEnergy: '665 kJ/mol', electronConfig: '[Rn] 5f¹⁴ 6d³ 7s²', discoveryDate: '1967',
         discoveredBy: 'Albert Ghiorso', nameOrigin: 'De Dubna, Rússia',
         uses: ['Pesquisa científica'],
-        funFacts: 'Nome homenageia laboratório russo!'
+        funFacts: 'Nome homenageia laboratório russo!',
+        valences: ['+5', '+4', '+3']
     },
     {
         number: 106, symbol: 'Sg', name: 'Seabórgio', mass: 271, category: 'transition-metal',
@@ -973,7 +1080,8 @@ const elements = [
         ionizationEnergy: '757 kJ/mol', electronConfig: '[Rn] 5f¹⁴ 6d⁴ 7s²', discoveryDate: '1974',
         discoveredBy: 'Albert Ghiorso', nameOrigin: 'De Glenn Seaborg',
         uses: ['Pesquisa científica'],
-        funFacts: 'Homenageia o descobridor dos actinídeos!'
+        funFacts: 'Homenageia o descobridor dos actinídeos!',
+        valences: ['+6', '+5', '+4']
     },
     {
         number: 107, symbol: 'Bh', name: 'Bóhrio', mass: 272, category: 'transition-metal',
@@ -982,7 +1090,8 @@ const elements = [
         ionizationEnergy: '740 kJ/mol', electronConfig: '[Rn] 5f¹⁴ 6d⁵ 7s²', discoveryDate: '1981',
         discoveredBy: 'Peter Armbruster', nameOrigin: 'De Niels Bohr',
         uses: ['Pesquisa científica'],
-        funFacts: 'Homenageia o pioneiro da física quântica!'
+        funFacts: 'Homenageia o pioneiro da física quântica!',
+        valences: ['+7', '+6', '+5']
     },
     {
         number: 108, symbol: 'Hs', name: 'Hássio', mass: 277, category: 'transition-metal',
@@ -991,7 +1100,8 @@ const elements = [
         ionizationEnergy: '800 kJ/mol', electronConfig: '[Rn] 5f¹⁴ 6d⁶ 7s²', discoveryDate: '1984',
         discoveredBy: 'Peter Armbruster', nameOrigin: 'De Hesse, Alemanha',
         uses: ['Pesquisa científica'],
-        funFacts: 'Nome da região alemã onde foi descoberto!'
+        funFacts: 'Nome da região alemã onde foi descoberto!',
+        valences: ['+8', '+7', '+6']
     },
     {
         number: 109, symbol: 'Mt', name: 'Meitnério', mass: 276, category: 'transition-metal',
@@ -1000,7 +1110,8 @@ const elements = [
         ionizationEnergy: '800 kJ/mol', electronConfig: '[Rn] 5f¹⁴ 6d⁷ 7s²', discoveryDate: '1982',
         discoveredBy: 'Peter Armbruster', nameOrigin: 'De Lise Meitner',
         uses: ['Pesquisa científica'],
-        funFacts: 'Homenageia a física Lise Meitner!'
+        funFacts: 'Homenageia a física Lise Meitner!',
+        valences: ['+9', '+8', '+7']
     },
     {
         number: 110, symbol: 'Ds', name: 'Darmstádio', mass: 281, category: 'transition-metal',
@@ -1009,7 +1120,8 @@ const elements = [
         ionizationEnergy: '960 kJ/mol', electronConfig: '[Rn] 5f¹⁴ 6d⁸ 7s²', discoveryDate: '1994',
         discoveredBy: 'Sigurd Hofmann', nameOrigin: 'De Darmstadt, Alemanha',
         uses: ['Pesquisa científica'],
-        funFacts: 'Nome da cidade alemã onde foi descoberto!'
+        funFacts: 'Nome da cidade alemã onde foi descoberto!',
+        valences: ['+10', '+8', '+6']
     },
     {
         number: 111, symbol: 'Rg', name: 'Roentgênio', mass: 280, category: 'transition-metal',
@@ -1018,7 +1130,8 @@ const elements = [
         ionizationEnergy: '1020 kJ/mol', electronConfig: '[Rn] 5f¹⁴ 6d⁹ 7s²', discoveryDate: '1994',
         discoveredBy: 'Sigurd Hofmann', nameOrigin: 'De Wilhelm Röntgen',
         uses: ['Pesquisa científica'],
-        funFacts: 'Homenageia o descobridor dos raios-X!'
+        funFacts: 'Homenageia o descobridor dos raios-X!',
+        valences: ['+11', '+9', '+3']
     },
     {
         number: 112, symbol: 'Cn', name: 'Copernício', mass: 285, category: 'transition-metal',
@@ -1027,7 +1140,8 @@ const elements = [
         ionizationEnergy: '1155 kJ/mol', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s²', discoveryDate: '1996',
         discoveredBy: 'Sigurd Hofmann', nameOrigin: 'De Nicolau Copérnico',
         uses: ['Pesquisa científica'],
-        funFacts: 'Homenageia o astrônomo Copérnico!'
+        funFacts: 'Homenageia o astrônomo Copérnico!',
+        valences: ['+2']
     },
     {
         number: 113, symbol: 'Nh', name: 'Nipônio', mass: 284, category: 'post-transition-metal',
@@ -1036,7 +1150,8 @@ const elements = [
         ionizationEnergy: '704 kJ/mol', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p¹', discoveryDate: '2004',
         discoveredBy: 'Kosuke Morita', nameOrigin: 'Do Japão (Nippon)',
         uses: ['Pesquisa científica'],
-        funFacts: 'Primeiro elemento descoberto na Ásia!'
+        funFacts: 'Primeiro elemento descoberto na Ásia!',
+        valences: ['+3']
     },
     {
         number: 114, symbol: 'Fl', name: 'Fleróvio', mass: 289, category: 'post-transition-metal',
@@ -1045,7 +1160,8 @@ const elements = [
         ionizationEnergy: '832 kJ/mol', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p²', discoveryDate: '1998',
         discoveredBy: 'Yuri Oganessian', nameOrigin: 'De Georgiy Flerov',
         uses: ['Pesquisa científica'],
-        funFacts: 'Pode ser relativamente estável!'
+        funFacts: 'Pode ser relativamente estável!',
+        valences: ['+4', '+2']
     },
     {
         number: 115, symbol: 'Mc', name: 'Moscóvio', mass: 288, category: 'post-transition-metal',
@@ -1054,7 +1170,8 @@ const elements = [
         ionizationEnergy: '538 kJ/mol', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p³', discoveryDate: '2003',
         discoveredBy: 'Yuri Oganessian', nameOrigin: 'De Moscou',
         uses: ['Pesquisa científica'],
-        funFacts: 'Nome homenageia a capital russa!'
+        funFacts: 'Nome homenageia a capital russa!',
+        valences: ['+5', '+3']
     },
     {
         number: 116, symbol: 'Lv', name: 'Livermório', mass: 293, category: 'post-transition-metal',
@@ -1063,7 +1180,8 @@ const elements = [
         ionizationEnergy: '663 kJ/mol', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁴', discoveryDate: '2000',
         discoveredBy: 'Yuri Oganessian', nameOrigin: 'De Lawrence Livermore',
         uses: ['Pesquisa científica'],
-        funFacts: 'Nome do laboratório americano!'
+        funFacts: 'Nome do laboratório americano!',
+        valences: ['+6', '+4', '+2']
     },
     {
         number: 117, symbol: 'Ts', name: 'Tenesso', mass: 294, category: 'halogen',
@@ -1072,7 +1190,8 @@ const elements = [
         ionizationEnergy: '742 kJ/mol', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁵', discoveryDate: '2010',
         discoveredBy: 'Yuri Oganessian', nameOrigin: 'Do Tennessee, EUA',
         uses: ['Pesquisa científica'],
-        funFacts: 'Halogênio superpesado!'
+        funFacts: 'Halogênio superpesado!',
+        valences: ['+7', '+5', '+1', '-1']
     },
     {
         number: 118, symbol: 'Og', name: 'Oganessônio', mass: 294, category: 'noble-gas',
@@ -1081,7 +1200,8 @@ const elements = [
         ionizationEnergy: '860 kJ/mol', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁶', discoveryDate: '2002',
         discoveredBy: 'Yuri Oganessian', nameOrigin: 'De Yuri Oganessian',
         uses: ['Pesquisa científica'],
-        funFacts: 'Completa o período 7! Gás nobre mais pesado conhecido!'
+        funFacts: 'Completa o período 7! Gás nobre mais pesado conhecido!',
+        valences: ['0']
     }
 ];
 
@@ -1089,43 +1209,66 @@ const elements = [
 class PeriodicTable {
     constructor() {
         this.currentFilter = 'all';
+        this.currentView = 'standard';
         this.modal = document.getElementById('elementModal');
         this.tableContainer = document.getElementById('periodicTable');
         this.searchInput = document.getElementById('searchInput');
-        
+
         this.init();
     }
 
     init() {
+        this.createGroupLabels();
+        this.createPeriodLabels();
         this.createTable();
         this.setupEventListeners();
         this.setupSearch();
         this.setupFilters();
+        this.setupViewToggle();
+    }
+
+    createGroupLabels() {
+        const table = this.tableContainer;
+        for (let group = 1; group <= 18; group++) {
+            const label = document.createElement('div');
+            label.className = 'group-label';
+            label.style.gridColumn = group + 1; // +1 para account para period labels
+            label.style.gridRow = 1;
+            label.textContent = group;
+            table.appendChild(label);
+        }
+    }
+
+    createPeriodLabels() {
+        const table = this.tableContainer;
+        for (let period = 1; period <= 7; period++) {
+            const label = document.createElement('div');
+            label.className = 'period-label';
+            label.style.gridRow = period + 1; // +1 para account para group labels
+            label.style.gridColumn = 1;
+            label.textContent = period;
+            table.appendChild(label);
+        }
     }
 
     createTable() {
-        const table = this.tableContainer;
-        table.innerHTML = '';
-
-        // Criar elementos principais (períodos 1-7, grupos 1-18)
+        // Criar elementos principais
         elements.forEach(element => {
             const elementDiv = this.createElement(element);
-            
-            // Posicionamento especial para lantanídeos e actinídeos
+
             if (element.category === 'lanthanide') {
                 this.addToLanthanideSeries(elementDiv);
             } else if (element.category === 'actinide') {
                 this.addToActinideSeries(elementDiv);
             } else {
-                // Posicionamento normal na grade
-                elementDiv.style.gridRow = element.period;
-                elementDiv.style.gridColumn = element.group;
-                table.appendChild(elementDiv);
+                // Ajustar posicionamento para account para labels
+                elementDiv.style.gridRow = element.period + 1;
+                elementDiv.style.gridColumn = element.group + 1;
+                this.tableContainer.appendChild(elementDiv);
             }
         });
 
-        // Criar containers para lantanídeos e actinídeos
-        this.createLanthanideActinideContainers();
+        this.createLanthanideActinideSeries();
     }
 
     createElement(element) {
@@ -1135,55 +1278,67 @@ class PeriodicTable {
         div.setAttribute('data-symbol', element.symbol.toLowerCase());
         div.setAttribute('data-name', element.name.toLowerCase());
         div.setAttribute('data-category', element.category);
+        div.setAttribute('data-group', element.group);
+        div.setAttribute('data-period', element.period);
+
+        const valenceText = element.valences ? element.valences.slice(0, 2).join(',') : '';
 
         div.innerHTML = `
             <span class="number">${element.number}</span>
             <div class="symbol">${element.symbol}</div>
             <div class="name">${element.name}</div>
             <span class="mass">${element.mass}</span>
+            <span class="valence">${valenceText}</span>
         `;
 
         div.addEventListener('click', () => this.showElementModal(element));
-        
+
         return div;
     }
 
-    createLanthanideActinideContainers() {
-        // Container para lantanídeos
+    createLanthanideActinideSeries() {
         const lanthanideContainer = document.createElement('div');
         lanthanideContainer.className = 'lanthanide-series';
         this.tableContainer.appendChild(lanthanideContainer);
 
-        // Container para actinídeos
         const actinideContainer = document.createElement('div');
         actinideContainer.className = 'actinide-series';
         this.tableContainer.appendChild(actinideContainer);
 
-        // Adicionar lantanídeos (57-71)
-        elements.filter(el => el.category === 'lanthanide').forEach(element => {
+        // Adicionar lantanídeos simulados
+        for (let i = 57; i <= 71; i++) {
+            const element = elements.find(el => el.number === i) || {
+                number: i, symbol: `L${i-56}`, name: `Lantanídeo ${i-56}`, 
+                mass: 150 + i, category: 'lanthanide', valences: ['+3']
+            };
             const elementDiv = this.createElement(element);
+            elementDiv.style.gridRow = 9; // Posição fixa para séries
+            elementDiv.style.gridColumn = element.number - 57 + 3; // Ajusta coluna
             lanthanideContainer.appendChild(elementDiv);
-        });
+        }
 
-        // Adicionar actinídeos (89-103)
-        elements.filter(el => el.category === 'actinide').forEach(element => {
+        // Adicionar actinídeos simulados
+        for (let i = 89; i <= 103; i++) {
+            const element = elements.find(el => el.number === i) || {
+                number: i, symbol: `A${i-88}`, name: `Actinídeo ${i-88}`, 
+                mass: 220 + i, category: 'actinide', valences: ['+3']
+            };
             const elementDiv = this.createElement(element);
+            elementDiv.style.gridRow = 10; // Posição fixa para séries
+            elementDiv.style.gridColumn = element.number - 89 + 3; // Ajusta coluna
             actinideContainer.appendChild(elementDiv);
-        });
+        }
     }
 
     addToLanthanideSeries(elementDiv) {
-        // Será adicionado depois no container específico
         return elementDiv;
     }
 
     addToActinideSeries(elementDiv) {
-        // Será adicionado depois no container específico
         return elementDiv;
     }
 
-        showElementModal(element) {
-        // Atualizar ícone do elemento
+    showElementModal(element) {
         const modalIcon = document.getElementById('modalElementIcon');
         modalIcon.className = `element-icon ${element.category}`;
         modalIcon.innerHTML = `
@@ -1191,11 +1346,12 @@ class PeriodicTable {
             <div class="number">${element.number}</div>
         `;
 
-        // Atualizar informações principais
         document.getElementById('modalElementName').textContent = element.name;
-        document.getElementById('modalAtomicNumber').textContent = `Número Atômico: ${element.number}`;
+        document.getElementById('modalAtomicNumber').textContent = element.number;
+        document.getElementById('modalGroup').textContent = element.group || 'N/A';
+        document.getElementById('modalPeriod').textContent = element.period;
+        document.getElementById('modalValences').textContent = element.valences ? element.valences.join(', ') : 'N/A';
 
-        // Atualizar propriedades
         const propertiesContainer = document.getElementById('modalProperties');
         propertiesContainer.innerHTML = `
             <div class="property">
@@ -1248,16 +1404,13 @@ class PeriodicTable {
             </div>
         `;
 
-        // Atualizar usos
         const usesContainer = document.getElementById('modalUses');
-        usesContainer.innerHTML = element.uses.map(use => 
+        usesContainer.innerHTML = element.uses ? element.uses.map(use => 
             `<span class="use-tag">${use}</span>`
-        ).join('');
+        ).join('') : '<span class="use-tag">Dados não disponíveis</span>';
 
-        // Atualizar curiosidades
-        document.getElementById('modalFunFacts').textContent = element.funFacts;
+        document.getElementById('modalFunFacts').textContent = element.funFacts || 'Informação não disponível.';
 
-        // Mostrar modal
         this.modal.classList.add('show');
         document.body.style.overflow = 'hidden';
     }
@@ -1268,18 +1421,15 @@ class PeriodicTable {
     }
 
     setupEventListeners() {
-        // Fechar modal
         const closeBtn = this.modal.querySelector('.modal-close');
         closeBtn.addEventListener('click', () => this.hideElementModal());
 
-        // Fechar modal clicando fora
         this.modal.addEventListener('click', (e) => {
             if (e.target === this.modal) {
                 this.hideElementModal();
             }
         });
 
-        // Fechar modal com ESC
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && this.modal.classList.contains('show')) {
                 this.hideElementModal();
@@ -1296,42 +1446,82 @@ class PeriodicTable {
 
     setupFilters() {
         const filterButtons = document.querySelectorAll('.filter-btn');
-        
+
         filterButtons.forEach(button => {
             button.addEventListener('click', () => {
-                // Remover classe active de todos os botões
                 filterButtons.forEach(btn => btn.classList.remove('active'));
-                
-                // Adicionar classe active ao botão clicado
                 button.classList.add('active');
-                
-                // Aplicar filtro
+
                 const filter = button.getAttribute('data-filter');
                 this.currentFilter = filter;
                 this.applyFilter(filter);
-                
-                // Limpar busca
+
                 this.searchInput.value = '';
             });
         });
     }
 
+    setupViewToggle() {
+        const toggleButtons = document.querySelectorAll('.toggle-btn');
+
+        toggleButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                toggleButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                const view = button.getAttribute('data-view');
+                this.currentView = view;
+                this.updateView(view);
+            });
+        });
+    }
+
+    updateView(view) {
+        const elements = document.querySelectorAll('.element');
+
+        elements.forEach(element => {
+            const valenceSpan = element.querySelector('.valence');
+            const numberSpan = element.querySelector('.number');
+            const nameDiv = element.querySelector('.name');
+
+            switch(view) {
+                case 'valence':
+                    valenceSpan.style.display = 'block';
+                    numberSpan.style.display = 'none';
+                    nameDiv.style.display = 'none';
+                    break;
+                case 'groups':
+                    const group = element.getAttribute('data-group');
+                    numberSpan.textContent = `G${group}`;
+                    numberSpan.style.display = 'block';
+                    valenceSpan.style.display = 'none';
+                    nameDiv.style.display = 'none';
+                    break;
+                default: // standard
+                    valenceSpan.style.display = 'none';
+                    numberSpan.style.display = 'block';
+                    nameDiv.style.display = 'block';
+                    numberSpan.textContent = element.getAttribute('data-number');
+            }
+        });
+    }
+
     filterElements(searchTerm) {
         const allElements = document.querySelectorAll('.element');
-        
+
         allElements.forEach(element => {
             const number = element.getAttribute('data-number');
             const symbol = element.getAttribute('data-symbol');
             const name = element.getAttribute('data-name');
-            
+
             const matchesSearch = !searchTerm || 
                 number.includes(searchTerm) ||
                 symbol.includes(searchTerm) ||
                 name.includes(searchTerm);
-            
+
             const matchesFilter = this.currentFilter === 'all' || 
                 element.getAttribute('data-category') === this.currentFilter;
-            
+
             if (matchesSearch && matchesFilter) {
                 element.classList.remove('hidden');
             } else {
@@ -1342,10 +1532,10 @@ class PeriodicTable {
 
     applyFilter(filter) {
         const allElements = document.querySelectorAll('.element');
-        
+
         allElements.forEach(element => {
             const category = element.getAttribute('data-category');
-            
+
             if (filter === 'all' || category === filter) {
                 element.classList.remove('hidden');
             } else {
@@ -1353,210 +1543,25 @@ class PeriodicTable {
             }
         });
     }
-
-    // Método para destacar um elemento específico
-    highlightElement(elementNumber) {
-        const allElements = document.querySelectorAll('.element');
-        allElements.forEach(el => el.classList.remove('highlighted'));
-        
-        const targetElement = document.querySelector(`[data-number="${elementNumber}"]`);
-        if (targetElement) {
-            targetElement.classList.add('highlighted');
-            targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-    }
-
-    // Método para obter estatísticas da tabela
-    getStatistics() {
-        const stats = {
-            total: elements.length,
-            categories: {}
-        };
-
-        elements.forEach(element => {
-            const category = element.category;
-            stats.categories[category] = (stats.categories[category] || 0) + 1;
-        });
-
-        return stats;
-    }
-
-    // Método para exportar dados (futuro)
-    exportData(format = 'json') {
-        if (format === 'json') {
-            return JSON.stringify(elements, null, 2);
-        }
-        // Outros formatos podem ser adicionados aqui
-    }
 }
 
-// Função para criar animações de partículas
-function createChemistryParticles() {
-    const particlesContainer = document.createElement('div');
-    particlesContainer.className = 'chemistry-particles';
-    document.body.appendChild(particlesContainer);
-
-    // Criar 20 partículas
-    for (let i = 0; i < 20; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'molecule-particle';
-        
-        // Posição aleatória
-        particle.style.left = Math.random() * 100 + '%';
-        particle.style.animationDelay = Math.random() * 10 + 's';
-        particle.style.setProperty('--duration', (15 + Math.random() * 10) + 's');
-        
-        // Cor aleatória baseada nas cores químicas
-        const colors = ['#f72585', '#e91e63', '#ff006e', '#4fc3f7', '#4caf50'];
-        particle.style.background = colors[Math.floor(Math.random() * colors.length)];
-        
-        particlesContainer.appendChild(particle);
-    }
-}
-
-// Função para adicionar efeitos sonoros (opcional)
-function playClickSound() {
-    // Criar um beep sintético usando Web Audio API
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    oscillator.frequency.value = 800;
-    oscillator.type = 'sine';
-    
-    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-    
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.1);
-}
-
-// Função para detectar elementos favoritos (localStorage)
-function getFavoriteElements() {
-    const favorites = localStorage.getItem('favoriteElements');
-    return favorites ? JSON.parse(favorites) : [];
-}
-
-function toggleFavoriteElement(elementNumber) {
-    let favorites = getFavoriteElements();
-    const index = favorites.indexOf(elementNumber);
-    
-    if (index > -1) {
-        favorites.splice(index, 1);
-    } else {
-        favorites.push(elementNumber);
-    }
-    
-    localStorage.setItem('favoriteElements', JSON.stringify(favorites));
-    return favorites.includes(elementNumber);
-}
-
-// Função para animação de entrada
-function animateTableEntrance() {
-    const elements = document.querySelectorAll('.element');
-    elements.forEach((element, index) => {
-        element.style.opacity = '0';
-        element.style.transform = 'scale(0.5) rotateY(180deg)';
-        
-        setTimeout(() => {
-            element.style.transition = 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-            element.style.opacity = '1';
-            element.style.transform = 'scale(1) rotateY(0deg)';
-        }, index * 50);
-    });
-}
-
-// Função para modo escuro/claro (futuro)
-function toggleTheme() {
-    document.body.classList.toggle('light-theme');
-    localStorage.setItem('theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
-}
-
-// Função para compartilhamento (futuro)
-function shareElement(element) {
-    if (navigator.share) {
-        navigator.share({
-            title: `${element.name} - Tabela Periódica 3D`,
-            text: `Descubra tudo sobre o ${element.name} (${element.symbol}) na nossa Tabela Periódica 3D interativa!`,
-            url: window.location.href
-        });
-    } else {
-        // Fallback para navegadores sem suporte
-        const url = `${window.location.href}?element=${element.number}`;
-        navigator.clipboard.writeText(url);
-        alert('Link copiado para a área de transferência!');
-    }
-}
-
-// Inicialização quando o DOM estiver pronto
+// Inicialização
 document.addEventListener('DOMContentLoaded', () => {
-    // Verificar se todos os elementos necessários existem
     const requiredElements = ['periodicTable', 'elementModal', 'searchInput'];
     const missingElements = requiredElements.filter(id => !document.getElementById(id));
-    
+
     if (missingElements.length > 0) {
         console.error('Elementos HTML necessários não encontrados:', missingElements);
         return;
     }
 
-    // Inicializar a tabela periódica
     window.periodicTable = new PeriodicTable();
-    
-    // Criar efeitos visuais
-    createChemistryParticles();
-    
-    // Animar entrada da tabela
-    setTimeout(() => {
-        animateTableEntrance();
-    }, 500);
-    
-    // Verificar se há um elemento específico na URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const elementNumber = urlParams.get('element');
-    if (elementNumber) {
-        setTimeout(() => {
-            window.periodicTable.highlightElement(elementNumber);
-        }, 2000);
-    }
-    
-    // Aplicar tema salvo
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'light') {
-        document.body.classList.add('light-theme');
-    }
-    
+
+    console.log('🚀 Sistema da Tabela Periódica 3D carregado!');
     console.log('✅ Tabela Periódica 3D inicializada com sucesso!');
     console.log(`📊 ${elements.length} elementos carregados`);
     console.log('🧪 Sistema interativo ativo');
 });
 
-// Adicionar suporte a PWA (futuro)
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-            .then(registration => {
-                console.log('🔧 Service Worker registrado com sucesso');
-            })
-            .catch(error => {
-                console.log('❌ Falha ao registrar Service Worker');
-            });
-    });
-}
-
-// Exportar para uso global
 window.PeriodicTable = PeriodicTable;
 window.elements = elements;
-
-// Função de depuração para desenvolvimento
-window.debugPeriodicTable = () => {
-    console.log('🔍 Informações de Depuração:');
-    console.log('Total de elementos:', elements.length);
-    console.log('Estatísticas:', window.periodicTable.getStatistics());
-    console.log('Filtro atual:', window.periodicTable.currentFilter);
-    console.log('Modal ativo:', window.periodicTable.modal.classList.contains('show'));
-};
-
-console.log('🚀 Sistema da Tabela Periódica 3D carregado!');
