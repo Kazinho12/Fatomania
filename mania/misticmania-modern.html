@@ -513,17 +513,39 @@
 
         async function loadArticles() {
             try {
-                const articlesQuery = window.firebaseDB.query(
+                let articlesQuery = window.firebaseDB.query(
                     window.firebaseDB.collection(window.firebaseDB.db, 'mystic-articles'),
                     window.firebaseDB.where('status', '==', 'published'),
                     window.firebaseDB.orderBy('createdAt', 'desc')
                 );
 
-                const snapshot = await window.firebaseDB.getDocs(articlesQuery);
-                currentArticles = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
+                try {
+                    const snapshot = await window.firebaseDB.getDocs(articlesQuery);
+                    currentArticles = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                } catch (queryError) {
+                    if (queryError.code === 'failed-precondition') {
+                        console.warn('⚠️ Índice composto não disponível, usando query simples');
+                        articlesQuery = window.firebaseDB.query(
+                            window.firebaseDB.collection(window.firebaseDB.db, 'mystic-articles'),
+                            window.firebaseDB.where('status', '==', 'published')
+                        );
+                        const snapshot = await window.firebaseDB.getDocs(articlesQuery);
+                        currentArticles = snapshot.docs.map(doc => ({
+                            id: doc.id,
+                            ...doc.data()
+                        }));
+                        currentArticles.sort((a, b) => {
+                            const dateA = a.createdAt?.seconds || 0;
+                            const dateB = b.createdAt?.seconds || 0;
+                            return dateB - dateA;
+                        });
+                    } else {
+                        throw queryError;
+                    }
+                }
 
                 filteredArticles = [...currentArticles];
                 renderArticles();
@@ -597,9 +619,16 @@
             return levels[level] || '⭐ Baixo';
         }
 
-        function openArticle(articleId) {
-            // Redirecionar para página detalhada do artigo
-            window.location.href = `/article.html?id=${articleId}&type=mystic`;
+        async function openArticle(articleId) {
+            try {
+                if (window.openArticle) {
+                    await window.openArticle(articleId, 'mystic-articles');
+                } else {
+                    console.error('openArticle não está disponível');
+                }
+            } catch (error) {
+                console.error('Erro ao abrir artigo:', error);
+            }
         }
 
         // Global functions

@@ -441,10 +441,10 @@
             <p class="slogan">Ciência que transforma atletas!</p>
         </div>
         <nav>
-            <a href="/dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="../dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
             <a href="#" onclick="toggleFavorites()"><i class="fas fa-bookmark"></i> Favoritos</a>
-            <a href="/submit-sports.html" class="submit-btn">
-                <i class="fas fa-plus"></i> Enviar Conteúdo
+            <a href="../submit-sports.html" class="submit-btn">
+                <i class="fas fa-plus"></i> Enviar Pesquisa
             </a>
         </nav>
     </header>
@@ -516,17 +516,39 @@
 
         async function loadArticles() {
             try {
-                const articlesQuery = window.firebaseDB.query(
+                let articlesQuery = window.firebaseDB.query(
                     window.firebaseDB.collection(window.firebaseDB.db, 'sports-articles'),
                     window.firebaseDB.where('status', '==', 'published'),
                     window.firebaseDB.orderBy('createdAt', 'desc')
                 );
 
-                const snapshot = await window.firebaseDB.getDocs(articlesQuery);
-                currentArticles = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
+                try {
+                    const snapshot = await window.firebaseDB.getDocs(articlesQuery);
+                    currentArticles = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                } catch (queryError) {
+                    if (queryError.code === 'failed-precondition') {
+                        console.warn('⚠️ Índice composto não disponível, usando query simples');
+                        articlesQuery = window.firebaseDB.query(
+                            window.firebaseDB.collection(window.firebaseDB.db, 'sports-articles'),
+                            window.firebaseDB.where('status', '==', 'published')
+                        );
+                        const snapshot = await window.firebaseDB.getDocs(articlesQuery);
+                        currentArticles = snapshot.docs.map(doc => ({
+                            id: doc.id,
+                            ...doc.data()
+                        }));
+                        currentArticles.sort((a, b) => {
+                            const dateA = a.createdAt?.seconds || 0;
+                            const dateB = b.createdAt?.seconds || 0;
+                            return dateB - dateA;
+                        });
+                    } else {
+                        throw queryError;
+                    }
+                }
 
                 filteredArticles = [...currentArticles];
                 renderArticles();
@@ -590,21 +612,11 @@
 
         async function openArticle(articleId) {
             try {
-                const article = currentArticles.find(a => a.id === articleId);
-                if (!article) return;
-
-                // Increment view count
-                try {
-                    const articleRef = window.firebaseDB.doc(window.firebaseDB.db, 'sports-articles', articleId);
-                    await window.firebaseDB.updateDoc(articleRef, {
-                        views: window.firebaseDB.increment(1)
-                    });
-                    article.views = (article.views || 0) + 1;
-                } catch (error) {
-                    console.error('Erro ao atualizar visualizações:', error);
+                if (window.openArticle) {
+                    await window.openArticle(articleId, 'sports-articles');
+                } else {
+                    console.error('openArticle não está disponível');
                 }
-
-                showArticleModal(article);
             } catch (error) {
                 console.error('Erro ao abrir artigo:', error);
             }

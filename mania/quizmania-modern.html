@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width,device-scale=1.0">
     <title>QuizMANIA - Desafios Científicos</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
@@ -297,6 +297,13 @@
         .quiz-header {
             text-align: center;
             margin-bottom: 2rem;
+            position: sticky;
+            top: 70px; /* Ajuste conforme a altura do header */
+            background: var(--fundo-card);
+            padding: 1rem;
+            border-radius: 15px;
+            z-index: 10;
+            border: 2px solid var(--vermelho);
         }
 
         .quiz-progress {
@@ -770,6 +777,11 @@
                 flex-direction: column;
                 gap: 1rem;
             }
+
+            .quiz-header {
+                position: static; /* O cronômetro ficará visível o tempo todo */
+                margin-bottom: 1rem;
+            }
         }
     </style>
 </head>
@@ -781,8 +793,7 @@
         </div>
         <nav>
             <a href="/dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
-            <a href="#" onclick="showTab('browse')"><i class="fas fa-list"></i> Quizzes</a>
-            <a href="#" onclick="showTab('rankings')"><i class="fas fa-trophy"></i> Rankings</a>
+            <a href="#rankings-tab" onclick="showTab('rankings')"><i class="fas fa-trophy"></i> Rankings</a>
             <a href="/submit-quiz.html" class="submit-quiz-btn">
                 <i class="fas fa-plus"></i> Criar Quiz
             </a>
@@ -849,8 +860,20 @@
         <div class="tab-content" id="rankingsTab">
             <div class="rankings-container">
                 <h2 class="rankings-title">
-                    <i class="fas fa-trophy"></i> Ranking Geral
+                    <i class="fas fa-trophy"></i> Rankings
                 </h2>
+
+                <!-- Filtros de Ranking -->
+                <div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; justify-content: center;">
+                    <select id="rankingType" class="filter-select" onchange="updateRankings()" style="min-width: 200px;">
+                        <option value="general">🏆 Ranking Geral</option>
+                        <option value="easy">😊 Quizzes Fáceis</option>
+                        <option value="medium">🎯 Quizzes Médios</option>
+                        <option value="hard">🔥 Quizzes Difíceis</option>
+                        <option value="popular">⭐ Mais Jogados</option>
+                    </select>
+                </div>
+
                 <div id="rankingsContent">
                     <!-- Rankings serão carregados aqui -->
                 </div>
@@ -870,6 +893,9 @@
                         <div class="quiz-progress-bar" id="progressBar"></div>
                     </div>
                     <p id="questionCounter"></p>
+                    <div style="margin-top: 10px; font-size: 1.2rem; font-weight: bold;">
+                        Tempo Restante: <span id="timeRemaining">--:--</span>
+                    </div>
                 </div>
 
                 <div class="question-container">
@@ -881,9 +907,6 @@
                     <button class="quiz-btn" onclick="previousQuestion()" id="prevBtn">
                         <i class="fas fa-arrow-left"></i> Anterior
                     </button>
-                    <div>
-                        <span id="timeRemaining"></span>
-                    </div>
                     <button class="quiz-btn" onclick="nextQuestion()" id="nextBtn">
                         Próxima <i class="fas fa-arrow-right"></i>
                     </button>
@@ -892,21 +915,35 @@
         </div>
     </div>
 
-    <!-- Results Modal -->
+    <!-- Results Modal - Reorganizado com Scroll -->
     <div class="modal" id="resultsModal">
-        <div class="modal-content">
-            <h2 class="results-title">
-                <i class="fas fa-medal"></i> Resultado Final
-            </h2>
-            <div class="score-display" id="finalScore"></div>
-            <div class="results-details" id="resultsDetails"></div>
+        <div class="modal-content" style="max-width: 700px; max-height: 90vh; overflow-y: auto; overflow-x: hidden;">
+            <!-- Header do Modal -->
+            <div style="text-align: center; margin-bottom: 2rem; position: sticky; top: 0; background: var(--fundo-card); z-index: 10; padding: 1rem 0;">
+                <h2 class="results-title" style="margin-bottom: 0.5rem;">
+                    <i class="fas fa-medal"></i> Resultado Final
+                </h2>
+                <div class="score-display" id="finalScore" style="font-size: 4rem; font-weight: bold; margin: 1rem 0;"></div>
+                <p id="performanceText" style="font-size: 1.5rem; color: var(--amarelo); margin-bottom: 1rem;"></p>
+            </div>
 
-            <!-- Certificate Container -->
-            <div id="certificateContainer" style="display: none; margin-top: 20px;"></div>
+            <!-- Detalhes dos Resultados -->
+            <div class="results-details" id="resultsDetails" style="margin-bottom: 2rem; padding: 0 1rem;"></div>
 
-            <button class="quiz-btn" onclick="closeResults()" style="margin-top: 1rem;">
-                <i class="fas fa-home"></i> Voltar aos Quizzes
-            </button>
+            <!-- Botões de Ação -->
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem; position: sticky; bottom: 0; background: var(--fundo-card); padding: 1rem 0; border-top: 2px solid rgba(255, 255, 255, 0.1);">
+                <!-- Botão Ver Certificado (Taça) -->
+                <button id="certificateBtn" class="quiz-btn" onclick="toggleCertificate()" style="display: none; background: linear-gradient(45deg, #ffd700, #ffed4e); color: #0f0c29; font-weight: bold; padding: 1rem 2rem; border-radius: 30px; border: none; cursor: pointer; transition: all 0.3s;">
+                    <i class="fas fa-trophy"></i> Ver Certificado
+                </button>
+
+                <button class="quiz-btn" onclick="closeResults()" style="background: linear-gradient(45deg, var(--roxo), var(--azul)); padding: 1rem 2rem;">
+                    <i class="fas fa-home"></i> Voltar aos Quizzes
+                </button>
+            </div>
+
+            <!-- Container do Certificado (Inicialmente Oculto) -->
+            <div id="certificateContainer" style="display: none; margin-top: 2rem; padding: 1rem; border-top: 2px solid rgba(255, 255, 255, 0.1);"></div>
         </div>
     </div>
 
@@ -1080,21 +1117,131 @@
         }
 
         async function loadRankings() {
+            await updateRankings();
+        }
+
+        async function updateRankings() {
+            const rankingType = document.getElementById('rankingType')?.value || 'general';
+            const loading = document.getElementById('rankingsLoading');
+            const content = document.getElementById('rankingsContent');
+
+            loading.style.display = 'block';
+            content.innerHTML = '';
+
             try {
-                const scoresQuery = window.firebaseDB.query(
-                    window.firebaseDB.collection(window.firebaseDB.db, 'quiz-scores'),
-                    window.firebaseDB.orderBy('totalScore', 'desc'),
-                    window.firebaseDB.limit(10)
-                );
+                if (rankingType === 'general') {
+                    // Ranking geral por pontuação total
+                    const scoresQuery = window.firebaseDB.query(
+                        window.firebaseDB.collection(window.firebaseDB.db, 'quiz-scores'),
+                        window.firebaseDB.orderBy('totalScore', 'desc'),
+                        window.firebaseDB.limit(10)
+                    );
 
-                const snapshot = await window.firebaseDB.getDocs(scoresQuery);
-                const rankings = snapshot.docs.map(doc => doc.data());
+                    const snapshot = await window.firebaseDB.getDocs(scoresQuery);
+                    const rankings = snapshot.docs.map(doc => doc.data());
+                    renderRankings(rankings, 'Pontuação Total');
 
-                renderRankings(rankings);
+                } else if (rankingType === 'popular') {
+                    // Quizzes mais jogados
+                    const quizzesQuery = window.firebaseDB.query(
+                        window.firebaseDB.collection(window.firebaseDB.db, 'quizzes'),
+                        window.firebaseDB.where('status', '==', 'published'),
+                        window.firebaseDB.orderBy('plays', 'desc'),
+                        window.firebaseDB.limit(10)
+                    );
+
+                    const snapshot = await window.firebaseDB.getDocs(quizzesQuery);
+                    const popularQuizzes = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                    renderPopularQuizzes(popularQuizzes);
+
+                } else {
+                    // Ranking por dificuldade (easy, medium, hard)
+                    const resultsQuery = window.firebaseDB.query(
+                        window.firebaseDB.collection(window.firebaseDB.db, 'quiz-results'),
+                        window.firebaseDB.orderBy('score', 'desc'),
+                        window.firebaseDB.limit(50)
+                    );
+
+                    const snapshot = await window.firebaseDB.getDocs(resultsQuery);
+                    const allResults = snapshot.docs.map(doc => doc.data());
+
+                    // Filtrar por dificuldade
+                    const filteredResults = [];
+                    for (const result of allResults) {
+                        try {
+                            const quizDoc = await window.firebaseDB.getDoc(
+                                window.firebaseDB.doc(window.firebaseDB.db, 'quizzes', result.quizId)
+                            );
+                            if (quizDoc.exists() && quizDoc.data().difficulty === rankingType) {
+                                filteredResults.push({
+                                    ...result,
+                                    quizTitle: quizDoc.data().title
+                                });
+                            }
+                        } catch (err) {
+                            console.warn('Erro ao buscar quiz:', err);
+                        }
+                    }
+
+                    // Agrupar por usuário e pegar melhor pontuação
+                    const userBest = {};
+                    filteredResults.forEach(result => {
+                        if (!userBest[result.userId] || result.score > userBest[result.userId].score) {
+                            userBest[result.userId] = result;
+                        }
+                    });
+
+                    const rankings = Object.values(userBest)
+                        .sort((a, b) => b.score - a.score)
+                        .slice(0, 10);
+
+                    const difficultyNames = {
+                        easy: 'Fácil',
+                        medium: 'Médio',
+                        hard: 'Difícil'
+                    };
+                    renderRankings(rankings, `Melhor Pontuação - Nível ${difficultyNames[rankingType]}`);
+                }
+
+                loading.style.display = 'none';
             } catch (error) {
                 console.error('Erro ao carregar rankings:', error);
-                document.getElementById('rankingsLoading').innerHTML = '<p>Erro ao carregar rankings. Tente novamente.</p>';
+                loading.innerHTML = '<p>Erro ao carregar rankings. Tente novamente.</p>';
             }
+        }
+
+        function renderPopularQuizzes(quizzes) {
+            const content = document.getElementById('rankingsContent');
+
+            if (quizzes.length === 0) {
+                content.innerHTML = '<p style="text-align: center; color: #aaa;">Nenhum quiz encontrado.</p>';
+                return;
+            }
+
+            content.innerHTML = `
+                <h3 style="text-align: center; color: var(--amarelo); margin-bottom: 1.5rem;">
+                    ⭐ Quizzes Mais Populares
+                </h3>
+                ${quizzes.map((quiz, index) => `
+                    <div class="ranking-item" onclick="startQuiz('${quiz.id}')" style="cursor: pointer;">
+                        <div class="ranking-position ${getPositionClass(index + 1)}">
+                            ${index + 1}°
+                        </div>
+                        <div class="ranking-user">
+                            <div style="font-weight: bold; font-size: 1.1rem;">${quiz.title}</div>
+                            <div style="font-size: 0.9rem; opacity: 0.8;">
+                                Por ${quiz.author} • ${quiz.category}
+                            </div>
+                        </div>
+                        <div class="ranking-score">
+                            <i class="fas fa-play"></i> ${quiz.plays || 0}
+                        </div>
+                    </div>
+                `).join('')}
+            `;
         }
 
         async function renderQuizzes() {
@@ -1104,9 +1251,10 @@
 
             loading.style.display = 'none';
 
-            if (filteredQuizzes.length === 0) {
+            if (!filteredQuizzes || filteredQuizzes.length === 0) {
                 noResults.style.display = 'block';
                 quizzesGrid.innerHTML = '';
+                console.log('⚠️ Nenhum quiz para renderizar');
                 return;
             }
 
@@ -1136,6 +1284,8 @@
                 }
             }
 
+            console.log('🎨 Renderizando', filteredQuizzes.length, 'quizzes...');
+
             quizzesGrid.innerHTML = filteredQuizzes.map(quiz => {
                 const timesPlayed = userQuizStats[quiz.id] || 0;
                 const playedBadge = timesPlayed > 0 ? `
@@ -1145,7 +1295,7 @@
                 ` : '';
 
                 return `
-                <div class="quiz-card" data-quiz-id="${quiz.id}" style="position: relative;">
+                <div class="quiz-card" data-quiz-id="${quiz.id}" style="position: relative; cursor: pointer;">
                     ${playedBadge}
                     ${quiz.imageUrl ? `
                         <div style="width: 100%; height: 200px; border-radius: 15px 15px 0 0; overflow: hidden; margin: -1.5rem -1.5rem 1rem -1.5rem;">
@@ -1156,7 +1306,7 @@
                     <p class="quiz-description">${quiz.description}</p>
                     <div class="quiz-stats">
                         <span><i class="fas fa-question-circle"></i> ${quiz.questions?.length || 0} perguntas</span>
-                        <span><i class="fas fa-clock"></i> ${quiz.timeLimit || 'Sem limite'}</span>
+                        <span><i class="fas fa-clock"></i> ${quiz.timeLimit ? quiz.timeLimit + ' seg' : 'Sem limite'}</span>
                         <span><i class="fas fa-user"></i> ${quiz.author}</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
@@ -1165,50 +1315,60 @@
                         </span>
                         <span class="quiz-category">${getCategoryIcon(quiz.category)} ${quiz.category}</span>
                     </div>
-                    <button class="play-btn">
+                    <button class="play-btn" onclick="event.stopPropagation(); startQuiz('${quiz.id}')">
                         <i class="fas fa-play"></i> ${timesPlayed > 0 ? 'Jogar Novamente' : 'Jogar Agora'}
                     </button>
                 </div>
                 `;
             }).join('');
 
+            console.log('✅ Quizzes renderizados no DOM');
+
             // Adicionar event listeners aos cards após renderização
             document.querySelectorAll('.quiz-card').forEach(card => {
-                card.addEventListener('click', function() {
+                card.addEventListener('click', function(e) {
+                    // Evita duplo clique se clicar no botão
+                    if (e.target.closest('.play-btn')) return;
+
                     const quizId = this.getAttribute('data-quiz-id');
-                    console.log('Clicou no quiz:', quizId);
+                    console.log('🖱️ Clicou no quiz card:', quizId);
                     startQuiz(quizId);
                 });
             });
         }
 
-        function renderRankings(rankings) {
+        function renderRankings(rankings, title = 'Ranking Geral') {
             const rankingsContent = document.getElementById('rankingsContent');
             const loading = document.getElementById('rankingsLoading');
 
             loading.style.display = 'none';
 
             if (rankings.length === 0) {
-                rankingsContent.innerHTML = '<p>Nenhum ranking disponível ainda.</p>';
+                rankingsContent.innerHTML = '<p style="text-align: center; color: #aaa;">Nenhum ranking disponível ainda.</p>';
                 return;
             }
 
-            rankingsContent.innerHTML = rankings.map((score, index) => `
-                <div class="ranking-item">
-                    <div class="ranking-position ${getPositionClass(index + 1)}">
-                        ${index + 1}°
-                    </div>
-                    <div class="ranking-user">
-                        <div style="font-weight: bold; font-size: 1.1rem;">${score.userName}</div>
-                        <div style="font-size: 0.9rem; opacity: 0.8;">
-                            ${score.quizzesCompleted || 0} quizzes completados
+            rankingsContent.innerHTML = `
+                <h3 style="text-align: center; color: var(--amarelo); margin-bottom: 1.5rem;">
+                    ${title}
+                </h3>
+                ${rankings.map((score, index) => `
+                    <div class="ranking-item">
+                        <div class="ranking-position ${getPositionClass(index + 1)}">
+                            ${index + 1}°
+                        </div>
+                        <div class="ranking-user">
+                            <div style="font-weight: bold; font-size: 1.1rem;">${score.userName}</div>
+                            <div style="font-size: 0.9rem; opacity: 0.8;">
+                                ${score.quizTitle ? `Quiz: ${score.quizTitle}` : `${score.quizzesCompleted || 0} quizzes completados`}
+                            </div>
+                        </div>
+                        <div class="ranking-score">
+                            ${score.score !== undefined ? score.score + '%' : score.totalScore + ' pts'}
                         </div>
                     </div>
-                    <div class="ranking-score">
-                        ${score.totalScore} pts
-                    </div>
-                </div>
-            `).join('');
+                `).join('')}
+            `;
         }
 
         function getDifficultyText(difficulty) {
@@ -1259,8 +1419,12 @@
             currentQuestionIndex = 0;
             userAnswers = [];
             quizStartTime = Date.now();
-            timeRemaining = quiz.timeLimit ? quiz.timeLimit * 60 : Infinity; // Set quiz time limit in seconds
-            document.getElementById('timeRemaining').textContent = '--:--'; // Initialize timer display
+            // timeLimit já vem em SEGUNDOS do banco de dados
+            timeRemaining = quiz.timeLimit || Infinity;
+
+            const mins = Math.floor(timeRemaining / 60);
+            const secs = timeRemaining % 60;
+            document.getElementById('timeRemaining').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
 
             // Start the timer
             if (questionTimer) clearInterval(questionTimer); // Clear any existing timer
@@ -1378,16 +1542,28 @@
             // Display results with justifications
             document.getElementById('finalScore').textContent = score + '%';
 
+            // Show performance text
+            const performanceText = getPerformanceText(score);
+            document.getElementById('performanceText').textContent = performanceText;
+
             // Generate detailed results with justifications
             const detailedResults = generateDetailedResults(correct, timeSpent, score);
             document.getElementById('resultsDetails').innerHTML = detailedResults;
 
-            // Generate certificate if good performance
+            // Generate certificate if good performance (70% or more)
+            const certBtn = document.getElementById('certificateBtn');
+            const certContainer = document.getElementById('certificateContainer');
+
+            console.log('📊 Pontuação:', score, '- Botão certificado deve aparecer:', score >= 70);
+
             if (score >= 70) {
-                document.getElementById('certificateContainer').innerHTML = generateCertificate(score, correct, timeSpent);
-                document.getElementById('certificateContainer').style.display = 'block';
+                certContainer.innerHTML = generateCertificate(score, correct, timeSpent);
+                certBtn.style.display = 'inline-flex';
+                certContainer.style.display = 'none'; // Sempre oculto até clicar no botão
+                certBtn.innerHTML = '<i class="fas fa-trophy"></i> Ver Certificado';
             } else {
-                document.getElementById('certificateContainer').style.display = 'none';
+                certBtn.style.display = 'none';
+                certContainer.style.display = 'none';
             }
 
             document.getElementById('resultsModal').classList.add('active');
@@ -1616,6 +1792,20 @@
             renderQuizzes();
         }
 
+        function toggleCertificate() {
+            const certContainer = document.getElementById('certificateContainer');
+            const certBtn = document.getElementById('certificateBtn');
+
+            if (certContainer.style.display === 'none') {
+                certContainer.style.display = 'block';
+                certBtn.innerHTML = '<i class="fas fa-trophy"></i> Ocultar Certificado';
+                certContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else {
+                certContainer.style.display = 'none';
+                certBtn.innerHTML = '<i class="fas fa-trophy"></i> Ver Certificado';
+            }
+        }
+
         // Global functions - definir ANTES de carregar os quizzes
         window.showTab = showTab;
         window.startQuiz = startQuiz;
@@ -1626,6 +1816,8 @@
         window.filterQuizzes = filterQuizzes;
         window.closeResults = closeResults;
         window.downloadCertificate = downloadCertificate;
+        window.toggleCertificate = toggleCertificate;
+        window.updateRankings = updateRankings;
 
         // Search on enter
         document.getElementById('searchInput').addEventListener('keypress', function(e) {

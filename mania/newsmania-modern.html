@@ -459,8 +459,7 @@
         </div>
         <nav>
             <a href="/dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
-            <a href="#" onclick="toggleFavorites()"><i class="fas fa-bookmark"></i> Favoritos</a>
-            <a href="/submit-news.html" class="submit-news-btn">
+            <a href="/submit-news-dynamic.html" class="submit-news-btn">
                 <i class="fas fa-plus"></i> Enviar Notícia
             </a>
         </nav>
@@ -669,24 +668,16 @@
         }
 
         async function openModal(newsId) {
-            const news = currentNews.find(n => n.id === newsId);
-            if (!news) return;
-
-            // Increment view count
             try {
-                const newsRef = window.firebaseDB.doc(window.firebaseDB.db, 'news', newsId);
-                await window.firebaseDB.updateDoc(newsRef, {
-                    views: window.firebaseDB.increment(1)
-                });
-                news.views = (news.views || 0) + 1;
+                if (window.openArticle) {
+                    await window.openArticle(newsId, 'news-articles');
+                } else {
+                    console.error('openArticle não está disponível');
+                }
             } catch (error) {
-                console.error('Erro ao atualizar visualizações:', error);
+                console.error('Erro ao abrir notícia:', error);
             }
-
-            // Populate modal
-            document.getElementById('modalImage').style.backgroundImage = `url('${news.imageUrl || '/icon/fatomania.png'}')`;
-            document.getElementById('modalTitle').textContent = news.title;
-            document.getElementById('modalAuthor').textContent = news.author;
+        }
             document.getElementById('modalDate').textContent = formatDate(news.createdAt);
             document.getElementById('modalViews').textContent = news.views || 0;
             document.getElementById('modalLikes').textContent = news.likes || 0;

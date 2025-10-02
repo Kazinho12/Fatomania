@@ -13,7 +13,7 @@ let newsData = [];
 // Remover carregamento do feed
 // O feed foi removido e substituído por notícias dinâmicas acessíveis via seções
 
-// Dados das seções
+// Dados das seções (estatísticas serão carregadas dinamicamente)
 const sectionsData = [
     {
         id: "quizmania",
@@ -21,10 +21,11 @@ const sectionsData = [
         description: "Teste seus conhecimentos científicos com nossos quizzes interativos e desafie seus amigos!",
         icon: "fas fa-question-circle",
         tag: "#Quiz",
-        stats: ["120 Quizzes", "5.2k Jogadores"],
+        stats: ["Carregando...", "5.2k Jogadores"],
         image: "https://images.unsplash.com/photo-1501504905252-473c47e087f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1074&q=80",
         color: "#ff6b6b",
-        url: "/mania/quizmania-modern.html"
+        url: "/mania/quizmania-modern.html",
+        collection: "quizzes"
     },
     {
         id: "sciencemania",
@@ -32,10 +33,11 @@ const sectionsData = [
         description: "As últimas descobertas e avanços científicos que estão moldando o futuro da humanidade.",
         icon: "fas fa-flask",
         tag: "#Ciência",
-        stats: ["45 Artigos", "Atualizado Hoje"],
+        stats: ["Carregando...", "8.5k Acessos"],
         image: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
         color: "#4ecdc4",
-        url: "/mania/sciencemania-modern.html"
+        url: "/mania/sciencemania-modern.html",
+        collection: "science-articles"
     },
     {
         id: "newsmania",
@@ -43,10 +45,11 @@ const sectionsData = [
         description: "Notícias globais com análises científicas sobre eventos importantes ao redor do mundo.",
         icon: "fas fa-globe",
         tag: "#Notícias",
-        stats: ["78 Países", "12 Categorias"],
+        stats: ["Carregando...", "12.3k Acessos"],
         image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
         color: "#ffbe0b",
-        url: "/mania/newsmania-modern.html"
+        url: "/mania/newsmania-modern.html",
+        collection: "news-articles"
     },
     {
         id: "misticmania",
@@ -54,10 +57,11 @@ const sectionsData = [
         description: "Explore mistérios inexplicados, fenômenos paranormais e descobertas que desafiam a ciência convencional.",
         icon: "fas fa-magic",
         tag: "#Mistérios",
-        stats: ["89 Mistérios", "Fenômenos Inexplicados"],
+        stats: ["Carregando...", "6.8k Acessos"],
         image: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
         color: "#9d4edd",
-        url: "/mania/misticmania-modern.html"
+        url: "/mania/misticmania-modern.html",
+        collection: "mystic-articles"
     },
     {
         id: "labmania",
@@ -65,10 +69,11 @@ const sectionsData = [
         description: "Laboratório virtual com experimentos científicos interativos para você explorar em casa.",
         icon: "fas fa-microscope",
         tag: "#Experimentos",
-        stats: ["32 Experimentos", "3 Níveis"],
+        stats: ["Carregando...", "4.2k Acessos"],
         image: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
         color: "#f72585",
-        url: "/mania/labmania-modern.html"
+        url: "/mania/labmania-modern.html",
+        collection: "lab-articles"
     },
     {
         id: "techmania",
@@ -76,10 +81,11 @@ const sectionsData = [
         description: "As inovações tecnológicas mais recentes e como elas estão transformando nosso futuro.",
         icon: "fas fa-robot",
         tag: "#Tecnologia",
-        stats: ["45 Inovações", "Atualizações Semanais"],
+        stats: ["Carregando...", "9.7k Acessos"],
         image: "https://images.unsplash.com/photo-1518770660439-4636190af475?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
         color: "#4895ef",
-        url: "/mania/techmania-modern.html"
+        url: "/mania/techmania-modern.html",
+        collection: "tech-articles"
     },
     {
         id: "spacemania",
@@ -87,10 +93,11 @@ const sectionsData = [
         description: "Explore o cosmos com as últimas descobertas astronômicas e missões espaciais em andamento.",
         icon: "fas fa-rocket",
         tag: "#Espaço",
-        stats: ["120 Exoplanetas", "15 Missões"],
+        stats: ["Carregando...", "11.2k Acessos"],
         image: "https://images.unsplash.com/photo-1454789548928-9efd52dc4031?ixlib=rb-4.0.3&auto=format&fit=crop&w=1180&q=80",
         color: "#7209b7",
-        url: "/mania/spacemania-modern.html"
+        url: "/mania/spacemania-modern.html",
+        collection: "space-articles"
     },
     {
         id: "ecomania",
@@ -98,10 +105,11 @@ const sectionsData = [
         description: "Sustentabilidade e ecologia: descubra como proteger nosso planeta com soluções científicas.",
         icon: "fas fa-leaf",
         tag: "#Ecologia",
-        stats: ["30 Soluções", "15 Projetos"],
+        stats: ["Carregando...", "7.3k Acessos"],
         image: "https://images.unsplash.com/photo-14666611653911-95081537e5b7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
         color: "#2a9d8f",
-        url: "/mania/ecomania-modern.html"
+        url: "/mania/ecomania-modern.html",
+        collection: "eco-articles"
     },
     {
         id: "sportmania",
@@ -109,10 +117,11 @@ const sectionsData = [
         description: "Ciência por trás dos esportes: biomecânica, nutrição e tecnologia no mundo esportivo.",
         icon: "fas fa-running",
         tag: "#Esportes",
-        stats: ["25 Esportes", "Análises"],
+        stats: ["Carregando...", "5.9k Acessos"],
         image: "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1169&q=80",
         color: "#e63946",
-        url: "/mania/sportmania-modern.html"
+        url: "/mania/sportmania-modern.html",
+        collection: "sports-articles"
     },
     {
         id: "medmania",
@@ -120,10 +129,11 @@ const sectionsData = [
         description: "Avanços médicos, saúde preventiva e descobertas na área da medicina e bem-estar.",
         icon: "fas fa-heartbeat",
         tag: "#Medicina",
-        stats: ["18 Especialidades", "Novos Tratamentos"],
+        stats: ["Carregando...", "10.4k Acessos"],
         image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
         color: "#f8edeb",
-        url: "/mania/medmania-modern.html"
+        url: "/mania/medmania-modern.html",
+        collection: "med-articles"
     },
     {
         id: "gamesmania",
@@ -131,10 +141,11 @@ const sectionsData = [
         description: "Tecnologia por trás dos jogos, desenvolvimento e a ciência da diversão digital.",
         icon: "fas fa-gamepad",
         tag: "#Jogos",
-        stats: ["IA em Jogos", "Realidade Virtual"],
+        stats: ["Carregando...", "13.1k Acessos"],
         image: "https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
         color: "#ff9f1c",
-        url: "/mania/gamesmania-modern.html"
+        url: "/mania/gamesmania-modern.html",
+        collection: "games-articles"
     },
     {
         id: "artmania",
@@ -142,10 +153,11 @@ const sectionsData = [
         description: "Arte digital, criatividade tecnológica e a revolução dos NFTs no mundo artístico contemporâneo.",
         icon: "fas fa-palette",
         tag: "#Arte",
-        stats: ["200 Obras", "15k Artistas"],
+        stats: ["Carregando...", "15.6k Acessos"],
         image: "https://images.unsplash.com/photo-1541961017774-2234917?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
         color: "#00b4d8",
-        url: "/mania/artmania-modern.html"
+        url: "/mania/artmania-modern.html",
+        collection: "art-articles"
     },
     {
         id: "historymania",
@@ -153,10 +165,11 @@ const sectionsData = [
         description: "Grandes eventos históricos com análises científicas e contextos pouco conhecidos.",
         icon: "fas fa-landmark",
         tag: "#História",
-        stats: ["35 Períodos", "Civilizações"],
+        stats: ["Carregando...", "9.2k Acessos"],
         image: "https://images.unsplash.com/photo-1505664194779-8beaceb93744?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
         color: "#6a4c93",
-        url: "/mania/historymania-modern.html"
+        url: "/mania/historymania-modern.html",
+        collection: "history-articles"
     }
 ];
 
@@ -396,7 +409,7 @@ async function loadUserStatistics(userId) {
 // Atualiza UI do usuário
 async function updateUserUI(user) {
     if (elements.userName) {
-        userName.textContent = userProfile.name || user.displayName || user.email.split('@')[0];
+        elements.userName.textContent = userProfile.name || user.displayName || user.email.split('@')[0];
     }
 
     // Atualiza avatar principal
@@ -454,6 +467,40 @@ function getInitials(profile, user) {
         .slice(0, 2);
 }
 
+// Carrega estatísticas dinâmicas das seções
+async function loadSectionsStatistics() {
+    try {
+        console.log('📊 Carregando estatísticas das seções...');
+
+        for (const section of sectionsData) {
+            try {
+                const collectionRef = collection(db, section.collection);
+                const q = query(collectionRef, where('status', '==', 'published'));
+                const snapshot = await getDocs(q);
+                const count = snapshot.size;
+
+                // Atualiza as estatísticas da seção
+                if (section.collection === 'quizzes') {
+                    section.stats[0] = `${count} Quizzes`;
+                } else {
+                    section.stats[0] = `${count} Artigos`;
+                }
+
+                console.log(`✅ ${section.title}: ${count} itens`);
+            } catch (error) {
+                console.warn(`⚠️ Erro ao carregar estatísticas de ${section.title}:`, error);
+                section.stats[0] = '0 Artigos';
+            }
+        }
+
+        // Re-renderiza as seções com as estatísticas atualizadas
+        renderSections(sectionsData);
+
+    } catch (error) {
+        console.error('❌ Erro ao carregar estatísticas:', error);
+    }
+}
+
 // Carrega conteúdo principal
 async function loadContent() {
     try {
@@ -469,8 +516,11 @@ async function loadContent() {
         // Carrega notícias da base de dados
         newsData = await loadNewsFromDatabase();
 
-        // Renderiza seções primeiro
+        // Renderiza seções primeiro (com "Carregando...")
         renderSections(sectionsData);
+
+        // Carrega estatísticas dinâmicas das seções
+        await loadSectionsStatistics();
 
         // Inicia carrossel de destaques
         startHighlightCarousel();
@@ -567,13 +617,9 @@ async function loadNewsFromDatabase() {
         let databaseNews = [];
 
         try {
-            // Tenta primeiro com ordenação
-            const newsQuery = query(
-                collection(db, "news"),
-                orderBy("createdAt", "desc"),
-                limit(10)
-            );
-            const querySnapshot = await getDocs(newsQuery);
+            // Tenta consulta simples sem ordenação
+            const simpleQuery = query(collection(db, "news-articles"), limit(10));
+            const querySnapshot = await getDocs(simpleQuery);
 
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
@@ -585,36 +631,19 @@ async function loadNewsFromDatabase() {
                     likedBy: data.likedBy || []
                 });
             });
-        } catch (indexError) {
-            console.warn('Erro com índice composto, tentando consulta simples:', indexError);
 
-            // Se falhar (failed-precondition), tenta consulta simples
-            try {
-                const simpleQuery = query(collection(db, "news"), limit(10));
-                const querySnapshot = await getDocs(simpleQuery);
+            // Ordena no cliente
+            databaseNews.sort((a, b) => {
+                const dateA = a.createdAt?.seconds ? a.createdAt.seconds * 1000 : (a.createdAt ? new Date(a.createdAt).getTime() : 0);
+                const dateB = b.createdAt?.seconds ? b.createdAt.seconds * 1000 : (b.createdAt ? new Date(b.createdAt).getTime() : 0);
+                return dateB - dateA;
+            });
 
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    databaseNews.push({
-                        id: doc.id,
-                        ...data,
-                        likes: data.likes || 0,
-                        comments: data.comments || [],
-                        likedBy: data.likedBy || []
-                    });
-                });
+            console.log('✅ Notícias carregadas:', databaseNews.length);
 
-                // Ordena no cliente
-                databaseNews.sort((a, b) => {
-                    const dateA = a.createdAt?.seconds || a.createdAt?.toDate?.() || new Date(a.createdAt || 0);
-                    const dateB = b.createdAt?.seconds || b.createdAt?.toDate?.() || new Date(b.createdAt || 0);
-                    return new Date(dateB) - new Date(dateA);
-                });
-
-            } catch (simpleError) {
-                console.error('Erro mesmo com consulta simples:', simpleError);
-                throw simpleError;
-            }
+        } catch (queryError) {
+            console.error('Erro ao buscar notícias:', queryError);
+            throw queryError;
         }
 
         if (databaseNews.length === 0) {
@@ -623,7 +652,6 @@ async function loadNewsFromDatabase() {
             return sampleNews;
         }
 
-        console.log('✅ Notícias carregadas:', databaseNews.length);
         return databaseNews;
 
     } catch (error) {
@@ -733,7 +761,7 @@ async function createSampleNews() {
         const createdNews = [];
         for (const news of sampleData) {
             try {
-                const docRef = await addDoc(collection(db, "news"), {
+                const docRef = await addDoc(collection(db, "news-articles"), {
                     ...news,
                     createdAt: new Date(),
                     timestamp: Date.now()
@@ -1399,7 +1427,7 @@ async function handleSearchResultClick(articleId, sectionId) {
 function getCollectionNameFromSection(sectionId) {
     switch (sectionId) {
         case 'quizmania': return 'quizzes';
-        case 'newsmania': return 'news';
+        case 'newsmania': return 'news-articles';
         case 'historymania': return 'history-articles';
         case 'sciencemania': return 'science-articles';
         case 'techmania': return 'tech-articles';
@@ -1411,7 +1439,7 @@ function getCollectionNameFromSection(sectionId) {
         case 'artmania': return 'art-articles';
         case 'misticmania': return 'mystic-articles';
         case 'labmania': return 'lab-articles';
-        default: return 'news'; // Default para casos desconhecidos
+        default: return 'news-articles'; // Default para casos desconhecidos
     }
 }
 
@@ -1605,7 +1633,7 @@ async function addComment(articleId) {
 
         // Primeiro tenta atualizar na base de dados
         try {
-            const articleRef = doc(db, "news", articleId);
+            const articleRef = doc(db, "news-articles", articleId);
             await updateDoc(articleRef, {
                 comments: arrayUnion(newComment)
             });
@@ -1687,7 +1715,7 @@ async function toggleLike(articleId) {
 
     try {
         // Tenta atualizar na base de dados
-        const articleRef = doc(db, "news", articleId);
+        const articleRef = doc(db, "news-articles", articleId);
         await updateDoc(articleRef, {
             likes: newLikes,
             likedBy: newLikedBy
@@ -1821,6 +1849,17 @@ function shareContent() {
         navigator.clipboard.writeText(window.location.href);
         showNotification('Link copiado para a área de transferência!', 'success');
     }
+}
+
+// Função para abrir modal de artigo
+function openArticleModal(article) {
+    if (!article) {
+        console.error('Artigo não fornecido para openArticleModal');
+        return;
+    }
+
+    // Usa showDetailModal como base
+    showDetailModal(article);
 }
 
 

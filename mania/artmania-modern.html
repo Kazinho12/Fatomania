@@ -529,10 +529,10 @@
             <p class="slogan">Inspire-se no universo infinito da criatividade!</p>
         </div>
         <nav>
-            <a href="/dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="../dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
             <a href="#" onclick="toggleFavorites()"><i class="fas fa-bookmark"></i> Favoritos</a>
-            <a href="/submit-art.html" class="submit-art-btn">
-                <i class="fas fa-plus"></i> Enviar Arte
+            <a href="../submit-art.html" class="submit-art-btn">
+                <i class="fas fa-plus"></i> Enviar Conteúdo
             </a>
         </nav>
     </header>
@@ -649,17 +649,40 @@
 
         async function loadArticles() {
             try {
-                const articlesQuery = window.firebaseDB.query(
+                let articlesQuery = window.firebaseDB.query(
                     window.firebaseDB.collection(window.firebaseDB.db, 'art-articles'),
                     window.firebaseDB.where('status', '==', 'published'),
                     window.firebaseDB.orderBy('createdAt', 'desc')
                 );
 
-                const snapshot = await window.firebaseDB.getDocs(articlesQuery);
-                currentArticles = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
+                try {
+                    const snapshot = await window.firebaseDB.getDocs(articlesQuery);
+                    currentArticles = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                } catch (queryError) {
+                    if (queryError.code === 'failed-precondition') {
+                        console.warn('⚠️ Índice composto não disponível, usando query simples');
+                        articlesQuery = window.firebaseDB.query(
+                            window.firebaseDB.collection(window.firebaseDB.db, 'art-articles'),
+                            window.firebaseDB.where('status', '==', 'published')
+                        );
+                        const snapshot = await window.firebaseDB.getDocs(articlesQuery);
+                        currentArticles = snapshot.docs.map(doc => ({
+                            id: doc.id,
+                            ...doc.data()
+                        }));
+                        // Ordena no cliente
+                        currentArticles.sort((a, b) => {
+                            const dateA = a.createdAt?.seconds || 0;
+                            const dateB = b.createdAt?.seconds || 0;
+                            return dateB - dateA;
+                        });
+                    } else {
+                        throw queryError;
+                    }
+                }
 
                 filteredArticles = [...currentArticles];
                 renderArticles();
@@ -728,6 +751,19 @@
         }
 
         async function openModal(articleId) {
+            try {
+                if (window.openArticle) {
+                    await window.openArticle(articleId, 'art-articles');
+                } else {
+                    console.error('openArticle não está disponível');
+                }
+            } catch (error) {
+                console.error('Erro ao abrir artigo:', error);
+            }
+        }
+
+        // Função legada para compatibilidade
+        async function openModalLegacy(articleId) {
             const article = currentArticles.find(a => a.id === articleId);
             if (!article) return;
 
@@ -893,6 +929,10 @@
             renderArticles();
         }
 
+        function toggleFavorites() {
+            alert('Funcionalidade de favoritos em desenvolvimento! Em breve você poderá salvar suas obras favoritas.');
+        }
+
         // Global functions
         window.openModal = openModal;
         window.closeModal = closeModal;
@@ -900,6 +940,7 @@
         window.filterArticles = filterArticles;
         window.sortArticles = sortArticles;
         window.submitComment = submitComment;
+        window.toggleFavorites = toggleFavorites;
 
         // Search on enter
         document.getElementById('searchInput').addEventListener('keypress', function(e) {

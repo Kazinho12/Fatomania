@@ -368,7 +368,7 @@
             position: relative;
         }
 
-        .close-btn {
+        .modal-close {
             position: absolute;
             top: 10px;
             right: 10px;
@@ -447,10 +447,10 @@
             <p class="slogan">O futuro é agora!</p>
         </div>
         <nav>
-            <a href="/dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="../dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
             <a href="#" onclick="toggleFavorites()"><i class="fas fa-bookmark"></i> Favoritos</a>
-            <a href="/submit-tech.html" class="submit-btn">
-                <i class="fas fa-plus"></i> Enviar Tech
+            <a href="../submit-tech.html" class="submit-btn">
+                <i class="fas fa-plus"></i> Enviar Conteúdo
             </a>
         </nav>
     </header>
@@ -523,17 +523,39 @@
 
         async function loadArticles() {
             try {
-                const articlesQuery = window.firebaseDB.query(
+                let articlesQuery = window.firebaseDB.query(
                     window.firebaseDB.collection(window.firebaseDB.db, 'tech-articles'),
                     window.firebaseDB.where('status', '==', 'published'),
                     window.firebaseDB.orderBy('createdAt', 'desc')
                 );
 
-                const snapshot = await window.firebaseDB.getDocs(articlesQuery);
-                currentArticles = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
+                try {
+                    const snapshot = await window.firebaseDB.getDocs(articlesQuery);
+                    currentArticles = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                } catch (queryError) {
+                    if (queryError.code === 'failed-precondition') {
+                        console.warn('⚠️ Índice composto não disponível, usando query simples');
+                        articlesQuery = window.firebaseDB.query(
+                            window.firebaseDB.collection(window.firebaseDB.db, 'tech-articles'),
+                            window.firebaseDB.where('status', '==', 'published')
+                        );
+                        const snapshot = await window.firebaseDB.getDocs(articlesQuery);
+                        currentArticles = snapshot.docs.map(doc => ({
+                            id: doc.id,
+                            ...doc.data()
+                        }));
+                        currentArticles.sort((a, b) => {
+                            const dateA = a.createdAt?.seconds || 0;
+                            const dateB = b.createdAt?.seconds || 0;
+                            return dateB - dateA;
+                        });
+                    } else {
+                        throw queryError;
+                    }
+                }
 
                 filteredArticles = [...currentArticles];
                 renderArticles();
@@ -657,24 +679,11 @@
 
         async function openArticle(articleId) {
             try {
-                const article = currentArticles.find(a => a.id === articleId);
-                if (!article) {
-                    console.error('Artigo não encontrado');
-                    return;
+                if (window.openArticle) {
+                    await window.openArticle(articleId, 'tech-articles');
+                } else {
+                    console.error('openArticle global não está disponível');
                 }
-
-                // Increment view count
-                try {
-                    const articleRef = window.firebaseDB.doc(window.firebaseDB.db, 'tech-articles', articleId);
-                    await window.firebaseDB.updateDoc(articleRef, {
-                        views: window.firebaseDB.increment(1)
-                    });
-                    article.views = (article.views || 0) + 1;
-                } catch (error) {
-                    console.error('Erro ao atualizar visualizações:', error);
-                }
-
-                showArticleModal(article);
             } catch (error) {
                 console.error('Erro ao abrir artigo:', error);
             }

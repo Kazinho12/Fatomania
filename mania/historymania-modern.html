@@ -544,9 +544,9 @@
             <p class="slogan">Explore as fascinantes páginas do passado!</p>
         </div>
         <nav>
-            <a href="/dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="../dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
             <a href="#" onclick="toggleFavorites()"><i class="fas fa-bookmark"></i> Favoritos</a>
-            <a href="/submit-history.html" class="submit-btn">
+            <a href="../submit-history.html" class="submit-btn">
                 <i class="fas fa-plus"></i> Enviar Conteúdo
             </a>
         </nav>
@@ -662,27 +662,58 @@
                 // Importa e usa safeQuery
                 const { safeQuery, createSampleArticles } = await import('/js/firebase-collections-checker.js');
 
-                let currentArticles = await safeQuery('history-articles', {
-                    where: ['status', '==', 'published'],
-                    orderBy: 'createdAt',
-                    direction: 'desc',
-                    limit: 50
-                });
+                let articlesQuery = window.firebaseDB.query(
+                    window.firebaseDB.collection(window.firebaseDB.db, 'history-articles'),
+                    window.firebaseDB.where('status', '==', 'published'),
+                    window.firebaseDB.orderBy('createdAt', 'desc')
+                );
 
-                // Filtra documentos de inicialização
+                let snapshot;
+                try {
+                    snapshot = await window.firebaseDB.getDocs(articlesQuery);
+                    currentArticles = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                } catch (queryError) {
+                    if (queryError.code === 'failed-precondition') {
+                        console.warn('⚠️ Índice composto não disponível, usando query simples e ordenação manual');
+                        articlesQuery = window.firebaseDB.query(
+                            window.firebaseDB.collection(window.firebaseDB.db, 'history-articles'),
+                            window.firebaseDB.where('status', '==', 'published')
+                        );
+                        snapshot = await window.firebaseDB.getDocs(articlesQuery);
+                        currentArticles = snapshot.docs.map(doc => ({
+                            id: doc.id,
+                            ...doc.data()
+                        }));
+                        // Manual sorting if index is missing
+                        currentArticles.sort((a, b) => {
+                            const dateA = a.createdAt?.seconds || 0;
+                            const dateB = b.createdAt?.seconds || 0;
+                            return dateB - dateA; // Descending order
+                        });
+                    } else {
+                        throw queryError; // Re-throw other errors
+                    }
+                }
+
+                // Filtra documentos de inicialização (se aplicável)
                 currentArticles = currentArticles.filter(article => !article._initialized);
 
                 // Se não houver artigos, cria exemplos
                 if (currentArticles.length === 0) {
                     console.log('📝 Criando artigos de exemplo para HISTORYMANIA...');
-                    currentArticles = await createSampleArticles('history', 3);
+                    // Assuming createSampleArticles returns an array of article-like objects
+                    const sampleArticles = await createSampleArticles('history', 3);
+                    currentArticles = sampleArticles;
                 }
 
                 console.log('✅ Artigos históricos carregados:', currentArticles.length);
 
-                window.currentArticles = currentArticles;
-                allArticles = [...currentArticles];
-                filteredArticles = [...currentArticles];
+                window.currentArticles = currentArticles; // Make available globally if needed elsewhere
+                allArticles = [...currentArticles]; // Store all for modal access
+                filteredArticles = [...currentArticles]; // Initialize filteredArticles
                 renderArticles();
 
             } catch (error) {
@@ -704,9 +735,9 @@
 
         function filterByPeriod() {
             if (currentPeriod === 'all') {
-                filteredArticles = [...currentArticles];
+                filteredArticles = [...allArticles]; // Reset to all articles
             } else {
-                filteredArticles = currentArticles.filter(article => 
+                filteredArticles = allArticles.filter(article => 
                     article.historicalPeriod === currentPeriod
                 );
             }
@@ -718,23 +749,34 @@
             const loading = document.getElementById('loading');
             const noResults = document.getElementById('noResults');
 
-            loading.style.display = 'none';
+            loading.style.display = 'none'; // Hide loading indicator
 
             if (filteredArticles.length === 0) {
                 noResults.style.display = 'block';
-                articlesGrid.innerHTML = '<div style="text-align: center; padding: 2rem; color: #d4af37;"><i class="fas fa-plus-circle" style="font-size: 3rem; margin-bottom: 1rem;"></i><h3>Nenhum artigo histórico encontrado</h3><p>Seja o primeiro a compartilhar uma descoberta histórica!</p><a href="/submit-history.html" style="display: inline-block; margin-top: 1rem; padding: 0.8rem 1.5rem; background: linear-gradient(45deg, #d4af37, #cd7f32); color: #2c1810; text-decoration: none; border-radius: 10px; font-weight: bold;">Enviar Artigo</a></div>';
+                articlesGrid.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: var(--destaque);">
+                        <i class="fas fa-plus-circle" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                        <h3>Nenhum artigo histórico encontrado</h3>
+                        <p>Seja o primeiro a compartilhar uma descoberta histórica!</p>
+                        <a href="../submit-history.html" style="display: inline-block; margin-top: 1rem; padding: 0.8rem 1.5rem; background: linear-gradient(45deg, var(--destaque), var(--history-bronze)); color: var(--fundo); text-decoration: none; border-radius: 10px; font-weight: bold;">
+                            Enviar Artigo
+                        </a>
+                    </div>
+                `;
                 return;
             }
 
-            noResults.style.display = 'none';
+            noResults.style.display = 'none'; // Hide no results message if there are articles
 
             articlesGrid.innerHTML = filteredArticles.map(article => {
                 const imageUrl = article.imageUrl || '/icon/fatomania.png'; // Fallback image for all manias
-                const period = article.historicalPeriod || '📜 História';
-                const category = article.category || 'Geral';
-                const author = article.author || 'Anônimo';
-                const title = article.title || 'Artigo sem título';
-                const summary = article.summary || 'Resumo não disponível';
+                const period = article.historicalPeriod 
+                    ? article.historicalPeriod.replace(/-/g, ' ').replace(/\b\w/g, char => char.toUpperCase()) // Capitalize period
+                    : '📜 História'; // Default period text
+                const category = article.category || 'Geral'; // Default category
+                const author = article.author || 'Anônimo'; // Default author
+                const title = article.title || 'Artigo sem título'; // Default title
+                const summary = article.summary || 'Resumo não disponível'; // Default summary
 
                 return `
                     <div class="article-card" onclick="openArticle('${article.id}')">
@@ -762,20 +804,8 @@
             }).join('');
         }
 
-        function formatDate(date) {
-            if (!date) return 'Data desconhecida';
-
-            try {
-                const dateObj = date instanceof Date ? date : new Date(date);
-                return dateObj.toLocaleDateString('pt-BR', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                });
-            } catch {
-                return 'Data inválida';
-            }
-        }
+        // formatDate function is imported from shared-utils.js and used globally.
+        // No need to redefine it here.
 
         // Helper function to get period icon - already defined globally by shared-utils.js
         // function getPeriodIcon(period) {
@@ -791,30 +821,11 @@
 
         async function openArticle(articleId) {
             try {
-                const article = allArticles.find(a => a.id === articleId);
-                if (!article) {
-                    console.error('Artigo não encontrado');
-                    return;
+                if (window.openArticle) {
+                    await window.openArticle(articleId, 'history-articles');
+                } else {
+                    console.error('openArticle não está disponível');
                 }
-
-                // Increment view count
-                try {
-                    const articleRef = window.firebaseDB.doc(window.firebaseDB.db, 'history-articles', articleId);
-                    await window.firebaseDB.updateDoc(articleRef, {
-                        views: window.firebaseDB.increment(1)
-                    });
-                    // Update local copy for immediate display
-                    article.views = (article.views || 0) + 1;
-                    // Re-render to show updated view count if the modal is already open (though not required by prompt)
-                    if (document.getElementById('articleModal')?.classList.contains('active')) {
-                         document.getElementById('modalViews').textContent = article.views;
-                    }
-                } catch (error) {
-                    console.error('Erro ao atualizar visualizações:', error);
-                }
-
-                // Show modal
-                showArticleModal(article);
             } catch (error) {
                 console.error('Erro ao abrir artigo:', error);
             }
@@ -850,17 +861,19 @@
 
             document.getElementById('modalTitle').textContent = article.title || 'Título Indisponível';
             document.getElementById('modalAuthor').textContent = article.author || 'Anônimo';
+            // Ensure formatDate is available (imported from shared-utils.js)
             document.getElementById('modalDate').textContent = formatDate(article.createdAt);
             document.getElementById('modalViews').textContent = article.views || 0;
             document.getElementById('modalLikes').textContent = article.likes || 0;
-            document.getElementById('modalContent').innerHTML = (article.content || 'Conteúdo indisponível').replace(/\n/g, '<br>'); // Preserve line breaks
+            // Use innerHTML to render potential line breaks from content, ensure proper sanitization if content is user-generated and not trusted.
+            document.getElementById('modalContent').innerHTML = (article.content || 'Conteúdo indisponível').replace(/\n/g, '<br>'); 
 
             const modalImage = document.getElementById('modalImage');
             if (article.imageUrl) {
                 modalImage.style.backgroundImage = `url('${article.imageUrl}')`;
                 modalImage.style.display = 'block';
             } else {
-                modalImage.style.display = 'none';
+                modalImage.style.display = 'none'; // Hide if no image URL
             }
 
             const tagsContainer = document.getElementById('modalTags');
@@ -870,11 +883,11 @@
                 ).join('');
                 tagsContainer.style.display = 'flex';
             } else {
-                tagsContainer.innerHTML = '';
+                tagsContainer.innerHTML = ''; // Clear tags if none
                 tagsContainer.style.display = 'none';
             }
 
-            modal.classList.add('active');
+            modal.classList.add('active'); // Show the modal
         }
 
         function closeModal() {
@@ -884,71 +897,86 @@
             }
         }
 
-        // Date formatting function from shared-utils.js is imported and used.
-        // Local definition removed to avoid conflicts and ensure consistency.
-        // function formatDate(timestamp) {
-        //     if (!timestamp) return '';
-        //     try {
-        //         const date = timestamp.seconds ? new Date(timestamp.seconds * 1000) : new Date(timestamp);
-        //         if (isNaN(date.getTime())) {
-        //             return 'Data Inválida';
-        //         }
-        //         return date.toLocaleDateString('pt-BR', {
-        //             day: '2-digit',
-        //             month: '2-digit',
-        //             year: 'numeric'
-        //         });
-        //     } catch (e) {
-        //         console.error("Error formatting date:", timestamp, e);
-        //         return 'Erro na Data';
-        //     }
-        // }
-
-        // Global functions
+        // Global functions exposed to be called from HTML or other scripts
         window.openArticle = openArticle;
         window.closeModal = closeModal;
+
         window.searchArticles = function() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            filteredArticles = allArticles.filter(article =>
+            // Filter based on all articles, then re-apply period/category filters if active
+            let currentFiltered = allArticles.filter(article =>
                 (article.title?.toLowerCase().includes(searchTerm) || '') ||
                 (article.summary?.toLowerCase().includes(searchTerm) || '') ||
                 (article.content?.toLowerCase().includes(searchTerm) || '')
             );
-            renderArticles();
+            // Apply period filter if not 'all'
+            if (currentPeriod !== 'all') {
+                currentFiltered = currentFiltered.filter(article => article.historicalPeriod === currentPeriod);
+            }
+            // Apply category filter if selected
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            if (categoryFilter) {
+                currentFiltered = currentFiltered.filter(article => article.category === categoryFilter);
+            }
+            // Apply sort filter to the final set
+            sortAndRender(currentFiltered);
         };
 
         window.filterArticles = function() {
             const categoryFilter = document.getElementById('categoryFilter').value;
+            // Start with articles filtered by current period
             let articlesToFilter = currentPeriod === 'all' ? [...allArticles] : allArticles.filter(article => article.historicalPeriod === currentPeriod);
 
             if (categoryFilter) {
                 filteredArticles = articlesToFilter.filter(article => article.category === categoryFilter);
             } else {
-                filteredArticles = articlesToFilter;
+                filteredArticles = articlesToFilter; // No category filter, so use all articles for the current period
             }
-            renderArticles();
+            // Apply sort filter to the filtered articles
+            sortAndRender(filteredArticles);
         };
 
-        window.sortArticles = function() {
+        // Helper function to apply sorting and then render
+        function sortAndRender(articles) {
             const sortBy = document.getElementById('sortFilter').value;
             switch(sortBy) {
                 case 'oldest':
-                    filteredArticles.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+                    articles.sort((a, b) => {
+                        const dateA = a.createdAt?.seconds || 0;
+                        const dateB = b.createdAt?.seconds || 0;
+                        return dateA - dateB; // Ascending order for oldest
+                    });
                     break;
                 case 'chronological':
-                    filteredArticles.sort((a, b) => (a.historicalYear || Infinity) - (b.historicalYear || Infinity)); // Use Infinity for articles without year
+                    articles.sort((a, b) => {
+                        // Use a default large number for articles without a year to push them to the end
+                        const yearA = a.historicalYear ?? Infinity;
+                        const yearB = b.historicalYear ?? Infinity;
+                        return yearA - yearB;
+                    });
                     break;
                 case 'popular':
-                    filteredArticles.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+                    articles.sort((a, b) => (b.likes || 0) - (a.likes || 0)); // Descending order for popular
                     break;
-                default: // newest
-                    filteredArticles.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                default: // newest (default)
+                    articles.sort((a, b) => {
+                        const dateA = a.createdAt?.seconds || 0;
+                        const dateB = b.createdAt?.seconds || 0;
+                        return dateB - dateA; // Descending order for newest
+                    });
             }
-            renderArticles();
+            filteredArticles = articles; // Update the global filteredArticles
+            renderArticles(); // Render the sorted and filtered articles
+        }
+
+        window.sortArticles = function() {
+            // Re-apply sorting to the currently filtered articles
+            sortAndRender(filteredArticles);
         };
 
         window.toggleFavorites = function() {
             console.log('Favoritos ainda não implementados.');
+            // Placeholder for future implementation
         };
     </script>
 </body>

@@ -371,24 +371,30 @@
             <p>Tem alguma dúvida ou sugestão? Ficaremos felizes em ouvir de você!</p>
             
             <div class="contact-form">
-                <form action="" method="POST">
+                <div id="form-message" style="display: none;"></div>
+                <form id="contact-form" onsubmit="return enviarWhatsApp(event);">
                     <div class="form-group">
                         <label for="nome"><i class="fas fa-user"></i> Seu Nome</label>
-                        <input type="text" id="nome" name="nome" required>
+                        <input type="text" id="nome" name="nome" required placeholder="Digite seu nome completo">
                     </div>
 
                     <div class="form-group">
-                        <label for="email"><i class="fas fa-envelope"></i> Seu E-mail</label>
-                        <input type="email" id="email" name="email" required>
+                        <label for="email"><i class="fas fa-envelope"></i> Seu E-mail (opcional)</label>
+                        <input type="email" id="email" name="email" placeholder="seu@email.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="assunto"><i class="fas fa-tag"></i> Assunto</label>
+                        <input type="text" id="assunto" name="assunto" required placeholder="Resumo do assunto">
                     </div>
 
                     <div class="form-group">
                         <label for="mensagem"><i class="fas fa-message"></i> Sua Mensagem</label>
-                        <textarea id="mensagem" name="mensagem" rows="6" required></textarea>
+                        <textarea id="mensagem" name="mensagem" rows="6" required placeholder="Escreva sua mensagem aqui..."></textarea>
                     </div>
 
                     <button type="submit" class="submit-btn">
-                        <i class="fas fa-paper-plane"></i> Enviar Mensagem
+                        <i class="fab fa-whatsapp"></i> Enviar via WhatsApp
                     </button>
                 </form>
             </div>
@@ -415,6 +421,67 @@
         }
 
         createParticles();
+
+        // Função para enviar mensagem via WhatsApp
+        function enviarWhatsApp(event) {
+            if (event) event.preventDefault();
+
+            // Obter valores dos campos
+            const nome = document.getElementById('nome').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const assunto = document.getElementById('assunto').value.trim();
+            const mensagem = document.getElementById('mensagem').value.trim();
+
+            // Validação básica
+            if (!nome || !assunto || !mensagem) {
+                mostrarMensagem('Por favor, preencha todos os campos obrigatórios.', 'error');
+                return;
+            }
+
+            // Formatar mensagem para WhatsApp
+            let textoWhatsApp = `*FATOMANIA - Nova Mensagem*\n\n`;
+            textoWhatsApp += `👤 *Nome:* ${nome}\n`;
+            
+            if (email) {
+                textoWhatsApp += `📧 *E-mail:* ${email}\n`;
+            }
+            
+            textoWhatsApp += `📌 *Assunto:* ${assunto}\n\n`;
+            textoWhatsApp += `💬 *Mensagem:*\n${mensagem}`;
+
+            // Codificar mensagem para URL
+            const mensagemCodificada = encodeURIComponent(textoWhatsApp);
+
+            // Número de WhatsApp (formato internacional sem + ou espaços)
+            const numeroWhatsApp = '258825067698';
+
+            // Criar URL do WhatsApp
+            const urlWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${mensagemCodificada}`;
+
+            // Abrir WhatsApp em nova aba
+            window.open(urlWhatsApp, '_blank');
+
+            // Limpar formulário
+            document.getElementById('contact-form').reset();
+
+            // Mostrar mensagem de confirmação
+            mostrarMensagem('✅ WhatsApp aberto! Por favor, confirme o envio da mensagem no aplicativo.', 'success');
+            
+            return false; // Previne submit do formulário
+        }
+
+        // Função para mostrar mensagens
+        function mostrarMensagem(texto, tipo) {
+            const messageDiv = document.getElementById('form-message');
+            messageDiv.textContent = texto;
+            messageDiv.className = `message ${tipo}`;
+            messageDiv.style.display = 'block';
+
+            // Ocultar mensagem após 5 segundos
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
     </script>
 </body>
 </html>

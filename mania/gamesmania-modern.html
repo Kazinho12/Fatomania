@@ -522,7 +522,11 @@
     </header>
 
     <nav>
-        <a href="/dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="../dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="#" onclick="toggleFavorites()"><i class="fas fa-bookmark"></i> Favoritos</a>
+        <a href="../submit-games.html" class="submit-btn">
+            <i class="fas fa-plus"></i> Enviar Artigo
+        </a>
         <a href="/mania/quizmania-modern.html"><i class="fas fa-brain"></i> QuizMANIA</a>
         <a href="/mania/newsmania-modern.html"><i class="fas fa-newspaper"></i> NewsMANIA</a>
         <a href="/mania/sciencemania-modern.html"><i class="fas fa-atom"></i> ScienceMANIA</a>
@@ -609,10 +613,12 @@
         let allGames = [];
         let filteredGames = [];
         let currentArticles = []; // Adicionado para a função openArticle
+        let filteredArticles = []; // Adicionado para a função renderArticles
 
         // Wait for Firebase to be ready
         window.addEventListener('load', async () => {
             await loadGames();
+            await loadArticles(); // Carrega os artigos de outras "manias"
             setupEventListeners();
         });
 
@@ -646,14 +652,14 @@
 
                 allGames = [];
                 filteredGames = [];
-                currentArticles = []; // Limpa currentArticles a cada carregamento
+                // currentArticles = []; // Não limpa currentArticles aqui, pois ele é usado para outros modais
                 let totalViews = 0;
 
                 querySnapshot.forEach((doc) => {
                     const game = { id: doc.id, ...doc.data() };
                     allGames.push(game);
                     filteredGames.push(game); // Inicialmente, filteredGames é igual a allGames
-                    currentArticles.push(game); // Adiciona ao currentArticles
+                    // currentArticles.push(game); // Adicionado ao currentArticles se ele for usado para todos os artigos
                     totalViews += game.views || 0;
                 });
 
@@ -665,6 +671,51 @@
                 showNoResults();
             }
         }
+
+        async function loadArticles() {
+            try {
+                let articlesQuery = window.firebaseDB.query(
+                    window.firebaseDB.collection(window.firebaseDB.db, 'games-articles'),
+                    window.firebaseDB.where('status', '==', 'published'),
+                    window.firebaseDB.orderBy('createdAt', 'desc')
+                );
+
+                try {
+                    const snapshot = await window.firebaseDB.getDocs(articlesQuery);
+                    currentArticles = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                } catch (queryError) {
+                    if (queryError.code === 'failed-precondition') {
+                        console.warn('⚠️ Índice composto não disponível, usando query simples');
+                        articlesQuery = window.firebaseDB.query(
+                            window.firebaseDB.collection(window.firebaseDB.db, 'games-articles'),
+                            window.firebaseDB.where('status', '==', 'published')
+                        );
+                        const snapshot = await window.firebaseDB.getDocs(articlesQuery);
+                        currentArticles = snapshot.docs.map(doc => ({
+                            id: doc.id,
+                            ...doc.data()
+                        }));
+                        currentArticles.sort((a, b) => {
+                            const dateA = a.createdAt?.seconds || 0;
+                            const dateB = b.createdAt?.seconds || 0;
+                            return dateB - dateA;
+                        });
+                    } else {
+                        throw queryError;
+                    }
+                }
+
+                filteredArticles = [...currentArticles];
+                renderArticles(); // Chama renderArticles para exibir os artigos das outras "manias"
+            } catch (error) {
+                console.error('Erro ao carregar artigos:', error);
+                document.getElementById('loading').innerHTML = '<p>Erro ao carregar artigos. Tente novamente.</p>';
+            }
+        }
+
 
         function updateStats(totalGames, totalViews) {
             document.getElementById('totalGames').textContent = totalGames;
@@ -678,7 +729,7 @@
 
             loading.style.display = 'none';
 
-            if (games.length === 0) {
+            if (games.length === 0 && currentArticles.length === 0) { // Verifica ambos os arrays
                 gamesGrid.style.display = 'none';
                 noResults.style.display = 'block';
                 return;
@@ -694,6 +745,15 @@
             });
         }
 
+        function renderArticles() {
+            // Esta função pode ser usada para renderizar artigos de outras "manias"
+            // se necessário, mas atualmente a lógica principal de exibição está em displayGames.
+            // Se você quiser exibir artigos de outras manias em uma seção separada,
+            // precisará de um novo contêiner e lógica de renderização aqui.
+            // Por enquanto, esta função garante que currentArticles e filteredArticles sejam populados.
+            console.log("Artigos de outras 'manias' carregados.");
+        }
+
         function createGameCard(game) {
             const card = document.createElement('div');
             card.className = 'game-card';
@@ -704,11 +764,11 @@
 
             card.innerHTML = `
                 <div class="game-image">
-                    ${game.imageUrl ? 
+                    ${game.imageUrl ?
                         `<img src="${game.imageUrl}" alt="${game.title}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                          <div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: 4rem; color: var(--destaque);">
                              <i class="fas fa-gamepad"></i>
-                         </div>` : 
+                         </div>` :
                         `<i class="fas fa-gamepad"></i>`
                     }
                     <div class="game-category">${categoryEmoji}</div>
@@ -765,6 +825,8 @@
                 return matchesSearch && matchesCategory;
             });
 
+            // Se você quiser mesclar os resultados filtrados de games com os de outros artigos,
+            // precisará de uma lógica mais complexa aqui. Atualmente, apenas games são filtrados.
             displayGames(filteredGames);
         }
 
@@ -836,43 +898,17 @@
         // Função para abrir o modal específico de artigo (NewsMANIA, ScienceMANIA, etc.)
         async function openArticle(articleId) {
             try {
-                const article = currentArticles.find(a => a.id === articleId);
-                if (!article) {
-                    console.error("Artigo não encontrado em currentArticles:", articleId);
-                    // Tenta buscar diretamente no Firebase se não estiver em currentArticles
-                    const docRef = window.firebaseDB.doc(window.firebaseDB.db, 'games-articles', articleId);
-                    const docSnap = await window.firebaseDB.getDoc(docRef);
-                    if (docSnap.exists()) {
-                        const fetchedArticle = { id: docSnap.id, ...docSnap.data() };
-                        showArticleModal(fetchedArticle);
-                        // Opcionalmente, adicione-o a currentArticles se desejar
-                        // currentArticles.push(fetchedArticle);
-                    } else {
-                        console.error("Artigo não encontrado no Firebase.");
-                        return;
-                    }
-                    return;
+                if (window.openArticle) {
+                    await window.openArticle(articleId, 'games-articles');
+                } else {
+                    console.error('openArticle não está disponível');
                 }
-
-                // Increment view count
-                try {
-                    const articleRef = window.firebaseDB.doc(window.firebaseDB.db, 'games-articles', articleId);
-                    await window.firebaseDB.updateDoc(articleRef, {
-                        views: window.firebaseDB.increment(1)
-                    });
-                    article.views = (article.views || 0) + 1; // Atualiza a contagem localmente para exibição imediata
-                } catch (error) {
-                    console.error('Erro ao atualizar visualizações:', error);
-                }
-
-                showArticleModal(article);
             } catch (error) {
                 console.error('Erro ao abrir artigo:', error);
             }
         }
 
         function showArticleModal(article) {
-            // Create modal if it doesn't exist
             let modal = document.getElementById('articleModal');
             if (!modal) {
                 modal = document.createElement('div');
@@ -900,12 +936,11 @@
                 document.body.appendChild(modal);
             }
 
-            // Populate modal
             document.getElementById('modalTitle').textContent = article.title;
-            document.getElementById('modalAuthor').textContent = article.author;
+            document.getElementById('modalAuthor').textContent = article.author || 'Autor desconhecido';
             document.getElementById('modalDate').textContent = formatDate(article.createdAt);
-            document.getElementById('modalViews').textContent = article.views || 0;
-            document.getElementById('modalLikes').textContent = article.likes || 0;
+            document.getElementById('modalViews').textContent = (article.views || 0).toLocaleString();
+            document.getElementById('modalLikes').textContent = (article.likes || 0).toLocaleString();
             document.getElementById('modalContent').innerHTML = article.content;
 
             const modalImage = document.getElementById('modalImage');
@@ -918,24 +953,21 @@
 
             const modalTagsContainer = document.getElementById('modalTags');
             if (article.tags && article.tags.length > 0) {
-                modalTagsContainer.innerHTML = article.tags.map(tag => 
+                modalTagsContainer.innerHTML = article.tags.map(tag =>
                     `<span class="tag">${tag}</span>`
                 ).join('');
-                modalTagsContainer.style.display = 'block'; // Garante que o contêiner de tags seja exibido
+                modalTagsContainer.style.display = 'block';
             } else {
-                modalTagsContainer.style.display = 'none'; // Oculta se não houver tags
+                modalTagsContainer.style.display = 'none';
             }
 
-            // Adiciona a classe 'active' para exibir o modal
             modal.classList.add('active');
-            document.body.style.overflow = 'hidden'; // Impede rolagem do fundo
+            document.body.style.overflow = 'hidden';
         }
 
         function formatDate(timestamp) {
             if (!timestamp) return '';
-            // Verifica se é um timestamp do Firestore e converte para Date
             const date = timestamp.seconds ? new Date(timestamp.seconds * 1000) : new Date(timestamp);
-            // Formata a data para pt-BR
             return date.toLocaleDateString('pt-BR');
         }
 
@@ -946,20 +978,25 @@
                     openModal(game);
                 } else {
                     console.error("Jogo não encontrado no array allGames:", gameId);
+                    // Tentar encontrar em currentArticles caso game não seja encontrado em allGames
+                    const article = currentArticles.find(a => a.id === gameId);
+                    if (article) {
+                        openModal(article); // Reutiliza openModal para exibir detalhes do artigo
+                    } else {
+                        console.error("Artigo também não encontrado em currentArticles:", gameId);
+                    }
                 }
             } catch (error) {
-                console.error('Erro ao abrir jogo:', error);
+                console.error('Erro ao abrir jogo/artigo:', error);
             }
         }
 
         // Global functions
         window.openArticle = openArticle;
         window.closeModal = closeModal;
-        // Placeholder for functions not yet implemented or relevant to this specific edit
-        // window.searchArticles = searchArticles;
-        // window.filterArticles = filterArticles;
-        // window.sortArticles = sortArticles;
 
+        // Placeholder for functions not yet implemented or relevant to this specific edit
+        // window.toggleFavorites = toggleFavorites; // Exemplo: Se precisar adicionar essa função
     </script>
 </body>
 </html>

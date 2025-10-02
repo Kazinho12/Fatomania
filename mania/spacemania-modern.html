@@ -366,6 +366,94 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, var(--roxo-cosmico) 0%, var(--azul-cosmico) 100%);
+            margin: auto;
+            padding: 0;
+            border: 2px solid var(--destaque);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--perigo);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 15px rgba(255, 0, 110, 0.5);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .modal-close:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 0 25px rgba(255, 0, 110, 0.8);
+        }
+
+        .modal-image {
+            width: 100%;
+            height: 300px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            color: var(--destaque);
+            margin-bottom: 1rem;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+        }
+
+        .modal-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--texto-claro);
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-content-text {
+            font-size: 1rem;
+            color: var(--texto-claro);
+            line-height: 1.7;
+        }
     </style>
 </head>
 <body>
@@ -378,10 +466,10 @@
             <p class="slogan">Rumo ao infinito e além!</p>
         </div>
         <nav>
-            <a href="/dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="../dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
             <a href="#" onclick="toggleFavorites()"><i class="fas fa-bookmark"></i> Favoritos</a>
-            <a href="/submit-space.html" class="submit-btn">
-                <i class="fas fa-plus"></i> Enviar Conteúdo
+            <a href="../submit-space.html" class="submit-btn">
+                <i class="fas fa-plus"></i> Enviar Descoberta
             </a>
         </nav>
     </header>
@@ -483,17 +571,39 @@
 
         async function loadArticles() {
             try {
-                const articlesQuery = window.firebaseDB.query(
+                let articlesQuery = window.firebaseDB.query(
                     window.firebaseDB.collection(window.firebaseDB.db, 'space-articles'),
                     window.firebaseDB.where('status', '==', 'published'),
                     window.firebaseDB.orderBy('createdAt', 'desc')
                 );
 
-                const snapshot = await window.firebaseDB.getDocs(articlesQuery);
-                currentArticles = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
+                try {
+                    const snapshot = await window.firebaseDB.getDocs(articlesQuery);
+                    currentArticles = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                } catch (queryError) {
+                    if (queryError.code === 'failed-precondition') {
+                        console.warn('⚠️ Índice composto não disponível, usando query simples');
+                        articlesQuery = window.firebaseDB.query(
+                            window.firebaseDB.collection(window.firebaseDB.db, 'space-articles'),
+                            window.firebaseDB.where('status', '==', 'published')
+                        );
+                        const snapshot = await window.firebaseDB.getDocs(articlesQuery);
+                        currentArticles = snapshot.docs.map(doc => ({
+                            id: doc.id,
+                            ...doc.data()
+                        }));
+                        currentArticles.sort((a, b) => {
+                            const dateA = a.createdAt?.seconds || 0;
+                            const dateB = b.createdAt?.seconds || 0;
+                            return dateB - dateA;
+                        });
+                    } else {
+                        throw queryError;
+                    }
+                }
 
                 filteredArticles = [...currentArticles];
                 renderArticles();
@@ -605,16 +715,28 @@
             renderArticles();
         }
 
-        window.openModal = async function(articleId) {
-            if (window.openArticle) {
-                await window.openArticle(articleId, 'space-articles');
+        async function openArticle(articleId) {
+            try {
+                if (window.openArticle) {
+                    await window.openArticle(articleId, 'space-articles');
+                } else {
+                    console.error('openArticle não está disponível');
+                }
+            } catch (error) {
+                console.error('Erro ao abrir artigo:', error);
             }
-        };
+        }
 
         // Global functions
         window.searchArticles = searchArticles;
         window.filterArticles = filterArticles;
         window.sortArticles = sortArticles;
+        window.toggleFavorites = () => alert('Funcionalidade de favoritos em desenvolvimento!'); // Placeholder
+        window.closeArticleModal = () => { // Placeholder for closing modal
+            const modal = document.getElementById('articleModal');
+            if (modal) modal.style.display = 'none';
+        };
+
 
         // Search on enter
         document.getElementById('searchInput').addEventListener('keypress', function(e) {

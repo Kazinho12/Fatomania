@@ -627,10 +627,10 @@
             <p class="slogan">O futuro da ciência está aqui!</p>
         </div>
         <nav>
-            <a href="/dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="../dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
             <a href="#" onclick="toggleFavorites()"><i class="fas fa-bookmark"></i> Favoritos</a>
-            <a href="/submit-science.html" class="submit-science-btn">
-                <i class="fas fa-plus"></i> Enviar Artigo
+            <a href="../submit-science.html" class="submit-science-btn">
+                <i class="fas fa-plus"></i> Enviar Descoberta
             </a>
         </nav>
     </header>
@@ -711,7 +711,7 @@
 
                 <div style="display: flex; gap: 1rem; margin: 1.5rem 0; padding: 1rem 0; border-top: 2px solid rgba(0, 247, 255, 0.2); border-bottom: 2px solid rgba(0, 247, 255, 0.2);">
                     <div id="likeButtonContainer"></div>
-                    <button 
+                    <button
                         style="background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.3); color: white; padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s;"
                         onmouseover="this.style.borderColor='var(--verde, #00ffaa)'; this.style.background='rgba(0, 255, 170, 0.2)';"
                         onmouseout="this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.background='rgba(255, 255, 255, 0.1)';"
@@ -729,7 +729,7 @@
 
     <script type="module">
         import '/firebase-config.js';
-        import { incrementViews, checkIfLiked, loadComments, renderComments, renderLikeButton, renderCommentsSection } from '/js/interaction-utils.js';
+        import { incrementViews, checkIfLiked, loadComments, renderComments, renderLikeButton, renderCommentsSection, openArticle } from '/js/interaction-utils.js';
 
         const categoriesData = {
             'fisica': { icon: '⚛️', name: 'Física', description: 'Leis fundamentais do universo' },
@@ -741,6 +741,10 @@
             'matematica': { icon: '🔢', name: 'Matemática', description: 'Linguagem do universo' },
             'ambiente': { icon: '🌱', name: 'Meio Ambiente', description: 'Sustentabilidade planetary' }
         };
+
+        // Global variables to hold articles for filtering and sorting
+        let currentArticles = [];
+        let filteredArticles = [];
 
         // Wait for Firebase to be ready
         window.addEventListener('load', async () => {
@@ -761,6 +765,7 @@
         }
 
         async function loadArticles() {
+            const loadingElement = document.getElementById('loading');
             try {
                 let articlesQuery;
                 let snapshot;
@@ -788,15 +793,21 @@
                     ...doc.data()
                 }));
 
-                // Client-side sorting if fallback was used
-                currentArticles.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+                // Client-side sorting if fallback was used or if 'createdAt' is missing for some reason
+                currentArticles.sort((a, b) => {
+                    const dateA = a.createdAt?.seconds ? new Date(a.createdAt.seconds * 1000) : new Date(0);
+                    const dateB = b.createdAt?.seconds ? new Date(b.createdAt.seconds * 1000) : new Date(0);
+                    return dateB - dateA;
+                });
+
 
                 filteredArticles = [...currentArticles];
                 updateCategoryCounts();
                 renderArticles();
+                loadingElement.style.display = 'none'; // Hide loading after articles are rendered
             } catch (error) {
                 console.error('Erro ao carregar artigos:', error);
-                document.getElementById('loading').innerHTML = '<p>Erro ao carregar artigos. Tente novamente.</p>';
+                loadingElement.innerHTML = '<p>Erro ao carregar artigos. Tente novamente.</p>';
             }
         }
 
@@ -812,10 +823,7 @@
 
         function renderArticles() {
             const articlesGrid = document.getElementById('articlesGrid');
-            const loading = document.getElementById('loading');
             const noResults = document.getElementById('noResults');
-
-            loading.style.display = 'none';
 
             if (filteredArticles.length === 0) {
                 noResults.style.display = 'block';
@@ -842,7 +850,7 @@
                         <div class="article-meta">
                             <div class="article-author">
                                 <i class="fas fa-user"></i>
-                                <span>${article.author}</span>
+                                <span>${article.author || 'Autor Desconhecido'}</span>
                             </div>
                             <div class="article-stats">
                                 <span><i class="fas fa-eye"></i> ${article.views || 0}</span>
@@ -864,21 +872,25 @@
 
         function filterByCategory(category) {
             document.getElementById('categoryFilter').value = category;
-            filterArticles();
+            filterAndSort();
         }
 
+        // Function to handle search input and button click
         function searchArticles() {
             filterAndSort();
         }
 
+        // Function to handle category filter change
         function filterArticles() {
             filterAndSort();
         }
 
+        // Function to handle sort filter change
         function sortArticles() {
             filterAndSort();
         }
 
+        // Centralized function for filtering and sorting
         function filterAndSort() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const category = document.getElementById('categoryFilter').value;
@@ -896,10 +908,18 @@
             // Sort
             switch (sortBy) {
                 case 'newest':
-                    filteredArticles.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+                    filteredArticles.sort((a, b) => {
+                        const dateA = a.createdAt?.seconds ? new Date(a.createdAt.seconds * 1000) : new Date(0);
+                        const dateB = b.createdAt?.seconds ? new Date(b.createdAt.seconds * 1000) : new Date(0);
+                        return dateB - dateA;
+                    });
                     break;
                 case 'oldest':
-                    filteredArticles.sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
+                    filteredArticles.sort((a, b) => {
+                        const dateA = a.createdAt?.seconds ? new Date(a.createdAt.seconds * 1000) : new Date(0);
+                        const dateB = b.createdAt?.seconds ? new Date(b.createdAt.seconds * 1000) : new Date(0);
+                        return dateA - dateB;
+                    });
                     break;
                 case 'popular':
                     filteredArticles.sort((a, b) => (b.likes || 0) - (a.likes || 0));
@@ -912,89 +932,40 @@
             renderArticles();
         }
 
-        // Global functions
+        // Helper function to format date
+        function formatDate(date) {
+            return date.toLocaleDateString('pt-BR', { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        // Global functions that will be called from HTML
         window.openArticleDetails = async function(articleId) {
-            const article = currentArticles.find(a => a.id === articleId);
-            if (!article) {
-                console.error('Article not found:', articleId);
-                return;
+            try {
+                await openArticle(articleId, 'science-articles');
+            } catch (error) {
+                console.error('Erro ao abrir artigo:', error);
             }
-
-            const modal = document.getElementById('articleModal');
-            const modalTitle = document.getElementById('modalTitle');
-            const modalCategory = document.getElementById('modalCategory');
-            const modalAuthor = document.getElementById('modalAuthor');
-            const modalDate = document.getElementById('modalDate');
-            const modalContent = document.getElementById('modalContent');
-            const modalImage = document.getElementById('modalImage');
-            const modalViews = document.getElementById('modalViews');
-            const likeButtonContainer = document.getElementById('likeButtonContainer');
-            const commentsSection = document.getElementById('commentsSection');
-
-            modalTitle.textContent = article.title;
-            modalCategory.textContent = getCategoryLabel(article.category); // Use getCategoryLabel for consistency
-            modalAuthor.textContent = article.author || 'Autor Desconhecido';
-            modalDate.textContent = article.createdAt ? formatDate(new Date(article.createdAt.seconds * 1000)) : 'Data não disponível';
-            modalContent.innerHTML = article.content ? article.content.replace(/\n/g, '<br>') : article.summary.replace(/\n/g, '<br>');
-
-            if (article.imageUrl) {
-                modalImage.style.backgroundImage = `url('${article.imageUrl}')`;
-                modalImage.style.display = 'block';
-            } else {
-                modalImage.style.display = 'none';
-            }
-
-            // Increment view count
-            await incrementViews('scienceArticles', article.id);
-            // Fetch the updated article data to get the new view count
-            const updatedArticleSnapshot = await window.firebaseDB.getDoc(window.firebaseDB.doc(window.firebaseDB.db, 'science-articles', article.id));
-            const updatedArticleData = updatedArticleSnapshot.data();
-            modalViews.textContent = updatedArticleData.views || 0;
-
-            // Render like button and comments section only if user is logged in
-            const currentUser = window.firebaseAuth.auth.currentUser;
-            if (currentUser) {
-                const isLiked = await checkIfLiked('scienceArticles', article.id, currentUser.uid);
-                likeButtonContainer.innerHTML = renderLikeButton('scienceArticles', article.id, currentUser.uid, article.likes || 0, isLiked);
-
-                commentsSection.innerHTML = renderCommentsSection('scienceArticles', article.id, currentUser.uid, currentUser.displayName || currentUser.email);
-
-                const comments = await loadComments('scienceArticles', article.id);
-                renderComments(comments, `commentsList-${article.id}`);
-            } else {
-                // Display like count even if not logged in, but disable like button functionality
-                likeButtonContainer.innerHTML = `<button class="like-button" disabled><i class="fas fa-heart"></i></button><span class="like-count">${article.likes || 0}</span>`;
-                commentsSection.innerHTML = '<p style="color: var(--dourado); text-align: center; margin-top: 2rem;">Faça login para curtir e comentar.</p>';
-            }
-
-            modal.classList.add('active');
         };
 
         window.toggleFavorites = function() {
-            console.log('Toggle favorites');
+            alert('Funcionalidade de Favoritos em desenvolvimento!');
             // Implement favorite functionality here
         };
 
-        window.searchArticles = function() {
-            filterAndSort();
-        };
+        // Ensure these functions are globally accessible if called from inline HTML
+        window.searchArticles = searchArticles;
+        window.filterArticles = filterArticles;
+        window.sortArticles = sortArticles;
+        window.filterByCategory = filterByCategory;
+        window.closeModal = closeModal;
 
-        window.filterArticles = function() {
-            filterAndSort();
-        };
-
-        window.sortArticles = function() {
-            filterAndSort();
-        };
-
-        // Search on enter
+        // Event listener for Enter key in search input
         document.getElementById('searchInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 searchArticles();
             }
         });
 
-        // Close modal on click outside
+        // Close modal when clicking outside the content
         document.getElementById('articleModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeModal();
