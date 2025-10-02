@@ -458,6 +458,9 @@
             <div class="admin-title">
                 <h2><i class="fas fa-crown"></i> Painel Administrativo</h2>
                 <p>Controle total do sistema FATOMANIA</p>
+                <button onclick="verifySystemCollections()" style="background: linear-gradient(45deg, #00f7ff, #6a00ff); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 20px; cursor: pointer; font-weight: 600; margin-top: 1rem;">
+                    <i class="fas fa-database"></i> Verificar Coleções Firebase
+                </button>
             </div>
 
             <div class="stats-overview">
@@ -488,49 +491,129 @@
 
             <div class="admin-sections">
                 <div class="admin-card">
-                    <div class="admin-icon"><i class="fas fa-newspaper"></i></div>
-                    <h3>Gerenciar Notícias</h3>
-                    <p>Crie, edite e publique notícias científicas</p>
-                    <a href="/submit-news.html" class="admin-btn">
+                    <div class="admin-icon"><i class="fas fa-fire"></i></div>
+                    <h3>Notícias Dinâmicas</h3>
+                    <p>Feed principal do dashboard</p>
+                    <a href="/submit-news-dynamic.html" class="admin-btn">
                         <i class="fas fa-plus"></i> Nova Notícia
                     </a>
                 </div>
 
                 <div class="admin-card">
-                    <div class="admin-icon"><i class="fas fa-brain"></i></div>
-                    <h3>Gerenciar Quizzes</h3>
-                    <p>Crie desafios científicos e rankings</p>
-                    <a href="/submit-quiz.html" class="admin-btn">
-                        <i class="fas fa-plus"></i> Novo Quiz
+                    <div class="admin-icon"><i class="fas fa-newspaper"></i></div>
+                    <h3>NewsMANIA</h3>
+                    <p>Notícias científicas e mundiais</p>
+                    <a href="/submit-news.html" class="admin-btn">
+                        <i class="fas fa-plus"></i> Publicar
                     </a>
                 </div>
 
                 <div class="admin-card">
-                    <div class="admin-icon"><i class="fas fa-palette"></i></div>
-                    <h3>Artigos de Arte</h3>
-                    <p>Publique conteúdo sobre arte e cultura</p>
-                    <a href="/submit-art.html" class="admin-btn">
-                        <i class="fas fa-plus"></i> Nova Arte
+                    <div class="admin-icon"><i class="fas fa-brain"></i></div>
+                    <h3>QuizMANIA</h3>
+                    <p>Quizzes científicos interativos</p>
+                    <a href="/submit-quiz.html" class="admin-btn">
+                        <i class="fas fa-plus"></i> Criar Quiz
                     </a>
                 </div>
 
                 <div class="admin-card">
                     <div class="admin-icon"><i class="fas fa-atom"></i></div>
-                    <h3>Artigos Científicos</h3>
-                    <p>Publique pesquisas e descobertas</p>
+                    <h3>ScienceMANIA</h3>
+                    <p>Descobertas científicas</p>
                     <a href="/submit-science.html" class="admin-btn">
-                        <i class="fas fa-plus"></i> Novo Artigo
+                        <i class="fas fa-plus"></i> Publicar
+                    </a>
+                </div>
+
+                <div class="admin-card">
+                    <div class="admin-icon"><i class="fas fa-rocket"></i></div>
+                    <h3>SpaceMANIA</h3>
+                    <p>Exploração espacial</p>
+                    <a href="/submit-space.html" class="admin-btn">
+                        <i class="fas fa-plus"></i> Publicar
+                    </a>
+                </div>
+
+                <div class="admin-card">
+                    <div class="admin-icon"><i class="fas fa-microchip"></i></div>
+                    <h3>TechMANIA</h3>
+                    <p>Inovações tecnológicas</p>
+                    <a href="/submit-tech.html" class="admin-btn">
+                        <i class="fas fa-plus"></i> Publicar
+                    </a>
+                </div>
+
+                <div class="admin-card">
+                    <div class="admin-icon"><i class="fas fa-palette"></i></div>
+                    <h3>ArtMANIA</h3>
+                    <p>Arte e cultura</p>
+                    <a href="/submit-art.html" class="admin-btn">
+                        <i class="fas fa-plus"></i> Publicar
+                    </a>
+                </div>
+
+                <div class="admin-card">
+                    <div class="admin-icon"><i class="fas fa-heartbeat"></i></div>
+                    <h3>MedMANIA</h3>
+                    <p>Medicina e saúde</p>
+                    <a href="/submit-med.html" class="admin-btn">
+                        <i class="fas fa-plus"></i> Publicar
+                    </a>
+                </div>
+
+                <div class="admin-card">
+                    <div class="admin-icon"><i class="fas fa-leaf"></i></div>
+                    <h3>EcoMANIA</h3>
+                    <p>Meio ambiente</p>
+                    <a href="/submit-eco.html" class="admin-btn">
+                        <i class="fas fa-plus"></i> Publicar
+                    </a>
+                </div>
+
+                <div class="admin-card">
+                    <div class="admin-icon"><i class="fas fa-scroll"></i></div>
+                    <h3>HistoryMANIA</h3>
+                    <p>História e civilizações</p>
+                    <a href="/submit-history.html" class="admin-btn">
+                        <i class="fas fa-plus"></i> Publicar
+                    </a>
+                </div>
+
+                <div class="admin-card">
+                    <div class="admin-icon"><i class="fas fa-eye"></i></div>
+                    <h3>MysticMANIA</h3>
+                    <p>Mistérios e fenômenos</p>
+                    <a href="/submit-mystic.html" class="admin-btn">
+                        <i class="fas fa-plus"></i> Publicar
+                    </a>
+                </div>
+
+                <div class="admin-card">
+                    <div class="admin-icon"><i class="fas fa-flask"></i></div>
+                    <h3>LabMANIA</h3>
+                    <p>Experimentos virtuais</p>
+                    <a href="/submit-lab.html" class="admin-btn">
+                        <i class="fas fa-plus"></i> Publicar
                     </a>
                 </div>
 
                 <div class="admin-card">
                     <div class="admin-icon"><i class="fas fa-gamepad"></i></div>
-                    <h3>Games & Esportes</h3>
-                    <p>Conteúdo sobre jogos e esportes</p>
-                    <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
-                        <a href="/submit-games.html" class="admin-btn" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Games</a>
-                        <a href="/submit-sports.html" class="admin-btn" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Esportes</a>
-                    </div>
+                    <h3>GamesMANIA</h3>
+                    <p>Gaming e tecnologia</p>
+                    <a href="/submit-games.html" class="admin-btn">
+                        <i class="fas fa-plus"></i> Publicar
+                    </a>
+                </div>
+
+                <div class="admin-card">
+                    <div class="admin-icon"><i class="fas fa-running"></i></div>
+                    <h3>SportMANIA</h3>
+                    <p>Ciência esportiva</p>
+                    <a href="/submit-sports.html" class="admin-btn">
+                        <i class="fas fa-plus"></i> Publicar
+                    </a>
                 </div>
 
                 <div class="admin-card">
@@ -868,8 +951,36 @@
             }
         }
 
-        // Tornar função global
+        // Verificar coleções do sistema
+        async function verifySystemCollections() {
+            try {
+                const { checkAndCreateCollections } = await import('/js/firebase-collections-checker.js');
+                
+                alert('Verificando coleções do Firebase...');
+                const results = await checkAndCreateCollections();
+                
+                let message = `Verificação concluída!\n\n`;
+                message += `✅ Existentes: ${results.existing.length}\n`;
+                message += `📝 Criadas: ${results.created.length}\n`;
+                message += `❌ Erros: ${results.errors.length}`;
+                
+                if (results.errors.length > 0) {
+                    message += `\n\nErros:\n${results.errors.map(e => `- ${e.collection}: ${e.error}`).join('\n')}`;
+                }
+                
+                alert(message);
+                
+                // Recarregar estatísticas
+                await loadStatistics();
+                
+            } catch (error) {
+                alert('Erro ao verificar coleções: ' + error.message);
+            }
+        }
+        
+        // Tornar funções globais
         window.signOutAdmin = signOutAdmin;
+        window.verifySystemCollections = verifySystemCollections;
 
         // Auto-refresh das estatísticas a cada 5 minutos
         setInterval(() => {

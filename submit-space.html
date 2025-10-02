@@ -1,4 +1,4 @@
-replit_final_file>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -363,7 +363,107 @@ replit_final_file>
         </div>
     </div>
 
-    <script type="module" src="/submit-spacemania.js"></script>
+    <script type="module">
+        import '/firebase-config.js';
+        import { uploadToImgbb, showNotification } from '/js/upload-utils.js';
+
+        // Wait for Firebase to be ready
+        window.addEventListener('load', async () => {
+            const user = await window.requireAuth();
+            if (!user) {
+                return; // requireAuth already handles redirect
+            }
+
+            // Set up form submission
+            document.getElementById('spaceForm').addEventListener('submit', handleSubmit);
+            document.getElementById('image').addEventListener('change', handleImageSelect);
+        });
+
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = `<div class="message ${type}">${text}</div>`;
+            setTimeout(() => {
+                messageDiv.innerHTML = '';
+            }, 5000);
+        }
+
+        function handleImageSelect(event) {
+            const file = event.target.files[0];
+            const label = event.target.nextElementSibling;
+
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                    showMessage('A imagem deve ter no máximo 5MB.', 'error');
+                    event.target.value = '';
+                    return;
+                }
+                label.innerHTML = `<i class="fas fa-check-circle"></i><br>Imagem selecionada: ${file.name}`;
+            }
+        }
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<div class="loading"></div> Publicando...';
+            submitBtn.disabled = true;
+
+            try {
+                const user = window.firebaseAuth.auth.currentUser;
+                if (!user) {
+                    throw new Error('Usuário não autenticado');
+                }
+
+                const formData = {
+                    title: document.getElementById('title').value,
+                    category: document.getElementById('category').value,
+                    summary: document.getElementById('summary').value,
+                    content: document.getElementById('content').value,
+                    source: document.getElementById('source').value,
+                    tags: document.getElementById('tags').value.split(',').map(tag => tag.trim()).filter(tag => tag),
+                    author: user.displayName || user.email,
+                    authorId: user.uid,
+                    createdAt: window.firebaseDB.serverTimestamp(),
+                    likes: 0,
+                    views: 0,
+                    status: 'published'
+                };
+
+                // Handle image upload if provided
+                const imageFile = document.getElementById('image').files[0];
+                if (imageFile) {
+                    try {
+                        formData.imageUrl = await uploadToImgbb(imageFile);
+                        showMessage('Imagem enviada com sucesso!', 'success');
+                    } catch (error) {
+                        console.error('Erro ao enviar imagem:', error);
+                        showMessage('Erro ao enviar imagem: ' + error.message, 'error');
+                        throw error;
+                    }
+                }
+
+                // Save to Firestore
+                await window.firebaseDB.addDoc(window.firebaseDB.collection(window.firebaseDB.db, 'space-articles'), formData);
+
+                showMessage('Descoberta espacial publicada com sucesso!', 'success');
+                document.getElementById('spaceForm').reset();
+
+                // Reset file input label
+                document.querySelector('.file-input-label').innerHTML = `
+                    <i class="fas fa-cloud-upload-alt"></i><br>
+                    Clique para selecionar uma imagem<br>
+                    <small>JPG, PNG ou GIF (máx. 5MB)</small>
+                `;
+
+            } catch (error) {
+                console.error('Erro ao publicar descoberta:', error);
+                showMessage('Erro ao publicar descoberta: ' + error.message, 'error');
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+    </script>
 </body>
 </html>
-</replit_final_file>

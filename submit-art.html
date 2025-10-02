@@ -352,6 +352,8 @@
                             <small>JPG, PNG ou GIF (máx. 5MB)</small>
                         </label>
                     </div>
+                    <img id="imagePreview" style="display: none; max-width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-top: 1rem; border: 2px solid var(--destaque);">
+                    <div id="fileName" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: var(--azul);"></div>
                 </div>
 
                 <div class="form-group">
@@ -384,6 +386,8 @@
 
     <script type="module">
         import '/firebase-config.js';
+        import { showImagePreview, showProgress, hideProgress, showMessage, uploadImageByType } from '/js/shared-utils.js';
+        import { uploadToImgbb, showNotification } from '/js/upload-utils.js';
 
         // Wait for Firebase to be ready
         window.addEventListener('load', async () => {
@@ -460,13 +464,20 @@
                 
                 updateProgress(50, 'Processando conteúdo...');
 
-                // Handle image upload if provided
+                // Handle image upload if provided - now using imgbb
                 const imageFile = document.getElementById('image').files[0];
                 if (imageFile) {
-                    updateProgress(70, 'Enviando imagem...');
-                    const imageRef = window.firebaseStorage.ref(window.firebaseStorage.storage, `art-images/${Date.now()}-${imageFile.name}`);
-                    const snapshot = await window.firebaseStorage.uploadBytes(imageRef, imageFile);
-                    formData.imageUrl = await window.firebaseStorage.getDownloadURL(snapshot.ref);
+                    updateProgress(70, 'Enviando imagem para imgbb...');
+                    try {
+                        formData.imageUrl = await uploadToImgbb(imageFile, (progress) => {
+                            updateProgress(70 + (progress * 0.15), 'Enviando imagem...');
+                        });
+                        showMessage('Imagem enviada com sucesso!', 'success');
+                    } catch (error) {
+                        console.error('Erro ao enviar imagem:', error);
+                        showMessage('Erro ao enviar imagem: ' + error.message, 'error');
+                        throw error;
+                    }
                 }
                 
                 updateProgress(85, 'Salvando artigo...');

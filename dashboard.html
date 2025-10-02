@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -277,6 +276,165 @@
             z-index: 1;
         }
 
+        /* Feed Para Você */
+        .feed-section {
+            background: var(--gradiente-card);
+            border-radius: 25px;
+            padding: 3rem;
+            margin-bottom: 4rem;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(0, 247, 255, 0.3);
+            box-shadow: var(--sombra-card);
+            position: relative;
+            z-index: 1;
+        }
+
+        .feed-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .feed-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--texto);
+        }
+
+        .feed-title i {
+            color: var(--rosa);
+        }
+
+        .create-news-btn {
+            background: var(--gradiente-principal);
+            color: var(--texto);
+            padding: 1rem 2rem;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 8px 25px rgba(106, 0, 255, 0.4);
+        }
+
+        .create-news-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(106, 0, 255, 0.6);
+        }
+
+        .feed-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feed-card {
+            background: var(--fundo-card);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 2px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            min-height: 350px;
+            box-shadow: var(--sombra-card);
+        }
+
+        .feed-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: var(--azul);
+        }
+
+        .feed-image {
+            width: 100%;
+            height: 180px;
+            border-radius: 15px;
+            background-size: cover;
+            background-position: center;
+            margin-bottom: 1.5rem;
+            border: 2px solid var(--verde);
+        }
+
+        .feed-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .feed-title-card {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            color: var(--texto);
+            line-height: 1.3;
+        }
+
+        .feed-description-card {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: var(--texto-secundario);
+            margin-bottom: 1.5rem;
+            flex: 1;
+        }
+
+        .feed-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+
+        .feed-author-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--texto-secundario);
+            font-size: 0.9rem;
+        }
+
+        .feed-author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gradiente-principal);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feed-meta {
+            color: var(--texto-secundario);
+            font-size: 0.9rem;
+        }
+
+        .feed-loading {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 4rem;
+            color: var(--texto-secundario);
+            font-size: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .feed-loading i {
+            font-size: 2.5rem;
+            animation: spin 1.5s linear infinite;
+            color: var(--azul);
+        }
+
         /* Featured Card Futurista */
         .featured-card {
             background: var(--gradiente-card);
@@ -528,6 +686,7 @@
             display: flex;
             gap: 1rem;
             margin-top: auto;
+            flex-wrap: wrap;
         }
 
         .stat {
@@ -539,11 +698,16 @@
             color: var(--azul);
             font-weight: 600;
             transition: all 0.3s ease;
+            white-space: nowrap;
         }
 
         .stat:hover {
             background: rgba(0, 247, 255, 0.2);
             transform: scale(1.05);
+        }
+
+        .stat i {
+            margin-right: 0.5rem;
         }
 
         .section-overlay {
@@ -743,11 +907,24 @@
             transition: all 0.3s ease;
             border-radius: 15px;
             margin-bottom: 1rem;
+            background: rgba(255, 255, 255, 0.05);
         }
 
         .search-result-item:hover {
             background: rgba(0, 247, 255, 0.1);
             transform: translateX(10px);
+        }
+
+        .search-result-item h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--azul);
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .search-result-item p {
+            margin: 0;
+            color: var(--texto-secundario);
+            font-size: 0.9rem;
         }
 
         .no-results {
@@ -771,6 +948,20 @@
 
             .search-bar input {
                 width: 250px;
+            }
+
+            .feed-section {
+                padding: 2rem;
+            }
+
+            .feed-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            .feed-title {
+                font-size: 1.5rem;
             }
 
             .featured-card {
@@ -819,6 +1010,10 @@
                 padding: 2rem;
                 margin: 1rem;
             }
+
+            .feed-card {
+                min-height: 300px;
+            }
         }
 
         /* Loading Animation */
@@ -834,6 +1029,39 @@
 
         @keyframes spin {
             to { transform: rotate(360deg); }
+        }
+
+        /* Notificações */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--gradiente-card);
+            border: 2px solid var(--verde);
+            border-radius: 15px;
+            padding: 1rem 1.5rem;
+            color: var(--texto);
+            box-shadow: var(--sombra-card);
+            z-index: 6000;
+            transform: translateX(400px);
+            transition: all 0.3s ease;
+            max-width: 350px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            border-color: var(--rosa);
+        }
+
+        .notification.success {
+            border-color: var(--verde);
+        }
+
+        .notification.warning {
+            border-color: var(--dourado);
         }
 
         /* Scrollbar personalizada */
@@ -858,6 +1086,9 @@
 <body>
     <!-- Partículas de Fundo -->
     <div id="particles"></div>
+
+    <!-- Container para notificações -->
+    <div id="notifications-container"></div>
 
     <div class="dashboard-container">
         <!-- Header -->
@@ -905,7 +1136,25 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Featured Card -->
+            <!-- Feed Para Você -->
+            <div class="feed-section">
+                <div class="feed-header">
+                    <h2 class="feed-title">
+                        <i class="fas fa-fire"></i> Para Você
+                    </h2>
+                    <a href="/submit-news-dynamic.html" class="create-news-btn">
+                        <i class="fas fa-plus"></i> Publicar Notícia
+                    </a>
+                </div>
+                <div class="feed-grid" id="feedGrid">
+                    <div class="feed-loading">
+                        <i class="fas fa-spinner"></i>
+                        <p>Carregando seu feed personalizado...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Featured Card Futurista -->
             <div class="featured-card">
                 <div class="featured-image" id="featuredImage"></div>
                 <div class="featured-content">
@@ -932,17 +1181,21 @@
             <div class="modal-header" id="modalHeader">
                 <h3 class="modal-title" id="modalTitle"></h3>
                 <div class="modal-tag" id="modalTag"></div>
-                <div class="modal-author" id="modalAuthor"></div>
-                <div class="modal-date" id="modalDate"></div>
+                <div class="modal-author" id="modalAuthor" style="margin: 1rem 0; color: var(--texto-secundario); font-size: 1rem;">
+                    <i class="fas fa-user"></i> <span>Autor não informado</span>
+                </div>
+                <div class="modal-date" id="modalDate" style="margin: 0.5rem 0; color: var(--texto-secundario); font-size: 0.9rem;">
+                    <i class="fas fa-calendar"></i> <span>Data não informada</span>
+                </div>
             </div>
-            <div class="modal-content-text" id="modalContent"></div>
+            <div class="modal-content-text" id="modalContent" style="line-height: 1.8; color: var(--texto-secundario); font-size: 1.1rem; margin: 2rem 0;"></div>
 
             <!-- Ações do modal -->
             <div class="modal-actions">
-                <button id="likeBtn" style="background: none; border: 2px solid #ff6b6b; color: var(--texto); padding: 1rem 2rem; border-radius: 25px; cursor: pointer; transition: all 0.3s ease; font-family: inherit; font-weight: 600; display: flex; align-items: center; gap: 0.75rem; font-size: 1rem;">
-                    <i class="fas fa-heart"></i> <span id="likeCount">0</span>
+                <button onclick="likeContent()" style="background: var(--gradiente-principal); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 20px; cursor: pointer; margin-right: 1rem;">
+                    <i class="fas fa-heart"></i> Curtir
                 </button>
-                <button id="shareBtn" style="background: none; border: 2px solid var(--azul); color: var(--texto); padding: 1rem 2rem; border-radius: 25px; cursor: pointer; transition: all 0.3s ease; font-family: inherit; font-weight: 600; display: flex; align-items: center; gap: 0.75rem; font-size: 1rem;">
+                <button onclick="shareContent()" style="background: var(--gradiente-principal); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 20px; cursor: pointer;">
                     <i class="fas fa-share"></i> Compartilhar
                 </button>
             </div>
@@ -1044,6 +1297,33 @@
 
     <!-- Firebase e Script Principal -->
     <script type="module" src="/firebase-config.js"></script>
+    <script type="module">
+        import { checkAndCreateCollections } from '/js/firebase-collections-checker.js';
+        import { showPopupNotification } from '/js/shared-utils.js';
+        
+        // Verificar coleções ao carregar
+        window.addEventListener('load', async () => {
+            try {
+                const results = await checkAndCreateCollections();
+                
+                if (results.created.length > 0) {
+                    showPopupNotification(
+                        `${results.created.length} coleções inicializadas com sucesso`,
+                        'success'
+                    );
+                }
+                
+                if (results.errors.length > 0) {
+                    showPopupNotification(
+                        `Atenção: ${results.errors.length} erros ao verificar coleções`,
+                        'warning'
+                    );
+                }
+            } catch (error) {
+                console.error('Erro ao verificar coleções:', error);
+            }
+        });
+    </script>
     <script type="module" src="/js/dashboard.js"></script>
 
     <script>
@@ -1055,20 +1335,20 @@
             for (let i = 0; i < particleCount; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'particle';
-                
+
                 // Tamanho aleatório
                 const size = Math.random() * 6 + 2;
                 particle.style.width = size + 'px';
                 particle.style.height = size + 'px';
-                
+
                 // Posição aleatória
                 particle.style.left = Math.random() * 100 + '%';
                 particle.style.top = Math.random() * 100 + '%';
-                
+
                 // Duração aleatória da animação
                 particle.style.animationDuration = (Math.random() * 6 + 4) + 's';
                 particle.style.animationDelay = Math.random() * 2 + 's';
-                
+
                 particlesContainer.appendChild(particle);
             }
         }

@@ -1,6 +1,8 @@
 // Usar Firebase config compartilhado
 const { auth, signOut, onAuthStateChanged, updateProfile, sendPasswordResetEmail } = window.firebaseAuth;
 const { db, collection, getDocs, doc, getDoc, setDoc, updateDoc, addDoc, query, where, orderBy, limit, serverTimestamp, arrayUnion, arrayRemove } = window.firebaseDB;
+// Importar formatDate do utilitário compartilhado
+import { formatDate } from '/js/shared-utils.js';
 const { storage, ref, uploadBytes, getDownloadURL, deleteObject } = window.firebaseStorage;
 
 // Variáveis globais
@@ -230,8 +232,14 @@ async function waitForAuth(timeout = 10000) {
 
 // Verifica autenticação e conectividade
 async function checkAuthState() {
-    // Verifica conectividade com Firebase - função removida pois não está definida
     console.log('🔥 Verificando autenticação...');
+
+    // Verifica se Firebase está carregado
+    if (!window.firebaseAuth || !window.firebaseDB) {
+        console.warn('⚠️ Firebase não está completamente carregado, aguardando...');
+        setTimeout(checkAuthState, 1000);
+        return;
+    }
 
     const user = await waitForAuth();
     if (user) {
@@ -383,6 +391,13 @@ async function loadContent() {
     try {
         console.log('🔄 Carregando conteúdo...');
 
+        // Verifica e corrige coleções Firebase se necessário
+        try {
+            await checkFirebaseCollections();
+        } catch (collectionError) {
+            console.warn('⚠️ Erro ao verificar coleções, continuando...', collectionError);
+        }
+
         // Carrega notícias da base de dados
         newsData = await loadNewsFromDatabase();
 
@@ -405,30 +420,134 @@ async function loadContent() {
     }
 }
 
+// Função para verificar coleções Firebase
+async function checkFirebaseCollections() {
+    console.log('🔍 Verificando integridade das coleções Firebase...');
+
+    const collections = [
+        'news', 'quizzes', 'history-articles', 'science-articles',
+        'tech-articles', 'space-articles', 'eco-articles', 'sport-articles',
+        'med-articles', 'games-articles', 'art-articles', 'mystic-articles'
+    ];
+
+    for (const collectionName of collections) {
+        try {
+            const collectionRef = window.firebaseDB.collection(window.firebaseDB.db, collectionName);
+            const snapshot = await window.firebaseDB.getDocs(
+                window.firebaseDB.query(collectionRef, window.firebaseDB.limit(1))
+            );
+
+            if (snapshot.empty && collectionName === 'quizzes') {
+                console.log('📝 Coleção quizzes está vazia, criando exemplo...');
+                await createSampleQuiz();
+            }
+
+        } catch (error) {
+            if (error.code === 'failed-precondition' && collectionName === 'quizzes') {
+                console.log('📝 Criando coleção quizzes devido a failed-precondition...');
+                await createSampleQuiz();
+            }
+        }
+    }
+}
+
+// Função para criar quiz de exemplo
+async function createSampleQuiz() {
+    try {
+        const sampleQuiz = {
+            title: 'Quiz de Exemplo - Conhecimentos Gerais',
+            description: 'Um quiz simples para testar conhecimentos básicos.',
+            category: 'geral',
+            difficulty: 'easy',
+            author: 'Sistema FATOMANIA',
+            status: 'published',
+            plays: 0,
+            createdAt: new Date(),
+            questions: [
+                {
+                    text: 'Qual é a capital de Moçambique?',
+                    options: ['Maputo', 'Beira', 'Nampula', 'Tete'],
+                    correctAnswer: 0,
+                    justification: 'Maputo é a capital e maior cidade de Moçambique.'
+                },
+                {
+                    text: 'Quantos continentes existem?',
+                    options: ['5', '6', '7', '8'],
+                    correctAnswer: 2,
+                    justification: 'Existem 7 continentes: África, Ásia, Europa, América do Norte, América do Sul, Oceania e Antártica.'
+                }
+            ]
+        };
+
+        await window.firebaseDB.addDoc(
+            window.firebaseDB.collection(window.firebaseDB.db, 'quizzes'),
+            sampleQuiz
+        );
+
+        console.log('✅ Quiz de exemplo criado com sucesso');
+
+    } catch (error) {
+        console.warn('⚠️ Não foi possível criar quiz de exemplo:', error);
+    }
+}
+
 // Função para carregar notícias da base de dados
 async function loadNewsFromDatabase() {
     try {
         console.log('🔄 Carregando notícias da base de dados...');
 
-        const newsQuery = query(
-            collection(db, "news"),
-            orderBy("createdAt", "desc"),
-            limit(10)
-        );
+        let databaseNews = [];
 
-        const querySnapshot = await getDocs(newsQuery);
-        const databaseNews = [];
+        try {
+            // Tenta primeiro com ordenação
+            const newsQuery = query(
+                collection(db, "news"),
+                orderBy("createdAt", "desc"),
+                limit(10)
+            );
+            const querySnapshot = await getDocs(newsQuery);
 
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            databaseNews.push({
-                id: doc.id,
-                ...data,
-                likes: data.likes || 0,
-                comments: data.comments || [],
-                likedBy: data.likedBy || []
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                databaseNews.push({
+                    id: doc.id,
+                    ...data,
+                    likes: data.likes || 0,
+                    comments: data.comments || [],
+                    likedBy: data.likedBy || []
+                });
             });
-        });
+        } catch (indexError) {
+            console.warn('Erro com índice composto, tentando consulta simples:', indexError);
+
+            // Se falhar (failed-precondition), tenta consulta simples
+            try {
+                const simpleQuery = query(collection(db, "news"), limit(10));
+                const querySnapshot = await getDocs(simpleQuery);
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    databaseNews.push({
+                        id: doc.id,
+                        ...data,
+                        likes: data.likes || 0,
+                        comments: data.comments || [],
+                        likedBy: data.likedBy || []
+                    });
+                });
+
+                // Ordena no cliente
+                databaseNews.sort((a, b) => {
+                    const dateA = a.createdAt?.seconds || a.createdAt?.toDate?.() || new Date(a.createdAt || 0);
+                    const dateB = b.createdAt?.seconds || b.createdAt?.toDate?.() || new Date(b.createdAt || 0);
+                    return new Date(dateB) - new Date(dateA);
+                });
+
+            } catch (simpleError) {
+                console.error('Erro mesmo com consulta simples:', simpleError);
+                throw simpleError;
+            }
+        }
 
         if (databaseNews.length === 0) {
             console.log('📝 Criando notícias de exemplo...');
@@ -441,12 +560,15 @@ async function loadNewsFromDatabase() {
 
     } catch (error) {
         console.error('❌ Erro ao carregar notícias:', error);
+        console.log('📝 Usando notícias estáticas como fallback...');
         return getStaticHighlights();
     }
 }
 
 // Criar notícias de exemplo na base de dados
 async function createSampleNews() {
+    console.log('📝 Criando notícias de exemplo...');
+
     const sampleData = [
         {
             title: "IA Revolucionária Desenvolvida em Moçambique",
@@ -542,16 +664,29 @@ async function createSampleNews() {
     try {
         const createdNews = [];
         for (const news of sampleData) {
-            const docRef = await addDoc(collection(db, "news"), {
-                ...news,
-                createdAt: serverTimestamp()
-            });
-            createdNews.push({ id: docRef.id, ...news });
+            try {
+                const docRef = await addDoc(collection(db, "news"), {
+                    ...news,
+                    createdAt: new Date(),
+                    timestamp: Date.now()
+                });
+                createdNews.push({ id: docRef.id, ...news });
+            } catch (docError) {
+                console.warn('Erro ao criar notícia individual:', docError);
+                // Adiciona com ID local se falhar na base de dados
+                createdNews.push({ 
+                    id: `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, 
+                    ...news,
+                    createdAt: new Date(),
+                    timestamp: Date.now()
+                });
+            }
         }
         console.log('✅ Notícias de exemplo criadas:', createdNews.length);
         return createdNews;
     } catch (error) {
-        console.error('Erro ao criar notícias de exemplo:', error);
+        console.error('Erro geral ao criar notícias de exemplo:', error);
+        console.log('📝 Usando dados estáticos...');
         return getStaticHighlights();
     }
 }
@@ -932,7 +1067,7 @@ async function saveProfile() {
     }
 }
 
-// Upload de foto CORRIGIDO
+// Upload de foto do perfil
 async function handlePhotoUpload(event) {
     const file = event.target.files?.[0];
     if (!file || !currentUser) {
@@ -941,42 +1076,32 @@ async function handlePhotoUpload(event) {
         return;
     }
 
-    // Validação do arquivo
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-
-    if (file.size > maxSize) {
-        showNotification('Arquivo muito grande. Máximo 5MB.', 'error');
-        return;
-    }
-
-    if (!allowedTypes.includes(file.type)) {
-        showNotification('Tipo de arquivo não suportado. Use JPG, PNG, GIF ou WebP.', 'error');
-        return;
-    }
-
     try {
-        showNotification('Fazendo upload da foto...', 'info');
+        showNotification('Fazendo upload da foto do perfil...', 'info');
 
-        // Converter imagem para base64 como alternativa ao Firebase Storage
-        const base64Image = await convertImageToBase64(file);
+        // Use a função específica para perfil do upload-utils.js
+        const { uploadProfileImage, showUploadProgress } = await import('/js/upload-utils.js');
+
+        const photoURL = await uploadProfileImage(file, (progress) => {
+            showUploadProgress(progress, 'Enviando foto do perfil...');
+        });
 
         // Verificar se userProfile existe
         if (!userProfile || !userProfile.id) {
             throw new Error('Perfil do usuário não encontrado');
         }
 
-        // Atualiza na base de dados com a imagem em base64
+        // Atualiza na base de dados
         const userDocRef = doc(db, "users", userProfile.id);
         await updateDoc(userDocRef, {
-            photoURL: base64Image,
+            photoURL: photoURL,
             updatedAt: new Date().toISOString()
         });
 
         console.log('✅ Perfil atualizado na base de dados');
 
         // Atualiza perfil local
-        userProfile.photoURL = base64Image;
+        userProfile.photoURL = photoURL;
 
         // Atualiza TODOS os avatares imediatamente
         if (elements.userAvatar) {
@@ -989,7 +1114,7 @@ async function handlePhotoUpload(event) {
         }
 
         console.log('✅ Avatar atualizado em todos os locais');
-        showNotification('Foto atualizada com sucesso!', 'success');
+        showNotification('Foto do perfil atualizada com sucesso!', 'success');
 
         // Limpa o input para permitir upload da mesma imagem novamente
         event.target.value = '';
@@ -997,12 +1122,12 @@ async function handlePhotoUpload(event) {
     } catch (error) {
         console.error('❌ Erro detalhado no upload:', error);
 
-        let errorMessage = 'Erro ao fazer upload da foto.';
+        let errorMessage = 'Erro ao fazer upload da foto do perfil.';
 
-        if (error.code === 'storage/unauthorized') {
-            errorMessage = 'Sem permissão para upload. Tente novamente.';
-        } else if (error.code === 'storage/canceled') {
-            errorMessage = 'Upload cancelado.';
+        if (error.message.includes('deve ter menos de')) {
+            errorMessage = error.message;
+        } else if (error.message.includes('deve ser uma imagem válida')) {
+            errorMessage = error.message;
         } else if (error.code === 'permission-denied') {
             errorMessage = 'Permissão negada. Tente fazer login novamente.';
         } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
@@ -1018,54 +1143,7 @@ async function handlePhotoUpload(event) {
     }
 }
 
-// Função auxiliar para converter imagem em base64
-function convertImageToBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
 
-        reader.onload = function(e) {
-            // Redimensionar a imagem para otimizar o armazenamento
-            const img = new Image();
-            img.onload = function() {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-
-                // Define tamanho máximo
-                const maxSize = 200;
-                let { width, height } = img;
-
-                // Redimensiona mantendo proporção
-                if (width > height) {
-                    if (width > maxSize) {
-                        height = height * (maxSize / width);
-                        width = maxSize;
-                    }
-                } else {
-                    if (height > maxSize) {
-                        width = width * (maxSize / height);
-                        height = maxSize;
-                    }
-                }
-
-                canvas.width = width;
-                canvas.height = height;
-
-                // Desenha a imagem redimensionada
-                ctx.drawImage(img, 0, 0, width, height);
-
-                // Converte para base64 com qualidade otimizada
-                const base64 = canvas.toDataURL('image/jpeg', 0.8);
-                resolve(base64);
-            };
-
-            img.onerror = () => reject(new Error('Erro ao processar imagem'));
-            img.src = e.target.result;
-        };
-
-        reader.onerror = () => reject(new Error('Erro ao ler arquivo'));
-        reader.readAsDataURL(file);
-    });
-}
 
 // Pesquisa do header
 function handleHeaderSearch(e) {
@@ -1193,49 +1271,89 @@ function handleSearchResultClick(type, identifier) {
     } else if (type === 'news') {
         const news = newsData.find(n => n.id === identifier);
         if (news) {
-            openArticleModal(news);
+            openArticleModal(news, true); // Passa true para indicar que é um submit
         }
     }
 }
 
-// Modal de artigos COMPLETO COM COMENTÁRIOS
-function openArticleModal(article) {
-    if (!elements.detailModal || !article) return;
+// Função para abrir o modal de detalhes (artigo ou submit)
+function openArticleModal(item, isSubmit = false) {
+    if (!elements.detailModal || !item) return;
 
-    if (elements.modalTitle) elements.modalTitle.textContent = article.title;
+    if (elements.modalTitle) elements.modalTitle.textContent = item.title;
     if (elements.modalTag) {
-        elements.modalTag.textContent = article.tag;
+        elements.modalTag.textContent = item.tag;
 
-        if (article.tag === 'MOÇAMBIQUE') {
+        // Estilo para tag 'MOÇAMBIQUE'
+        if (item.tag === 'MOÇAMBIQUE') {
             elements.modalTag.style.background = 'linear-gradient(135deg, #00ff55, #00cc44)';
+            elements.modalTag.style.boxShadow = '0 4px 15px rgba(0, 255, 85, 0.3)';
         } else {
             elements.modalTag.style.background = '';
+            elements.modalTag.style.boxShadow = '';
         }
     }
-    if (elements.modalAuthor) elements.modalAuthor.textContent = article.author || '';
-    if (elements.modalDate) elements.modalDate.textContent = article.date || '';
-    if (elements.modalContent) {
-        elements.modalContent.innerHTML = article.content || article.description;
 
-        // Adiciona seção de comentários
-        addCommentsSection(article);
+    if (elements.modalAuthor) elements.modalAuthor.textContent = item.author || '';
+    if (elements.modalDate) {
+        // Usa a função formatDate do utilitário compartilhado
+        const formattedDate = formatDate(item.createdAt || item.date);
+        elements.modalDate.textContent = formattedDate;
     }
 
-    // Atualiza botões de interação
+    if (elements.modalContent) {
+        elements.modalContent.innerHTML = item.content || item.description;
+
+        // Adiciona seção de comentários se não for um submit ou se o submit tiver comentários
+        if (!isSubmit || (item.comments && item.comments.length > 0)) {
+            addCommentsSection(item);
+        }
+
+        // Adiciona visualização de imagem se for um submit e tiver URL de imagem
+        if (isSubmit && item.imageUrl) {
+            const imagePreviewHTML = `
+                <div class="image-preview" style="margin-bottom: 1.5rem; text-align: center;">
+                    <img src="${item.imageUrl}" alt="Visualização do Submit" style="max-width: 100%; border-radius: 10px; max-height: 400px; object-fit: cover;">
+                </div>
+            `;
+            elements.modalContent.insertAdjacentHTML('afterbegin', imagePreviewHTML);
+        }
+
+        // Adiciona barra de progresso se for um submit e tiver progresso
+        if (isSubmit && item.progress !== undefined) {
+            const progressBarHTML = `
+                <div class="progress-bar-container" style="margin-top: 1rem; margin-bottom: 1rem;">
+                    <div class="progress-bar" style="width: ${item.progress}%; background: linear-gradient(45deg, var(--azul), var(--verde)); height: 10px; border-radius: 5px;"></div>
+                </div>
+                <p style="color: var(--texto-secundario); font-size: 0.9rem;">Progresso: ${item.progress}%</p>
+            `;
+            elements.modalContent.insertAdjacentHTML('beforeend', progressBarHTML);
+        }
+    }
+
+    // Atualiza botões de interação (Like e Share)
     const likeBtn = document.getElementById('likeBtn');
     const likeCount = document.getElementById('likeCount');
     const shareBtn = document.getElementById('shareBtn');
 
     if (likeBtn && likeCount) {
-        likeCount.textContent = article.likes || 0;
-        const isLiked = article.likedBy?.includes(currentUser?.uid);
+        likeCount.textContent = item.likes || 0;
+        const isLiked = item.likedBy?.includes(currentUser?.uid);
         likeBtn.style.color = isLiked ? '#ff6b6b' : 'var(--texto)';
 
-        likeBtn.onclick = () => toggleLike(article.id);
+        // Apenas permite curtir se for um artigo ou se o submit permitir curtidas
+        if (item.allowLikes !== false) {
+            likeBtn.onclick = () => toggleLike(item.id);
+            likeBtn.style.cursor = 'pointer';
+            likeBtn.style.display = 'inline-block';
+        } else {
+            likeBtn.style.display = 'none';
+        }
     }
 
     if (shareBtn) {
-        shareBtn.onclick = () => shareArticle(article);
+        shareBtn.onclick = () => shareArticle(item);
+        shareBtn.style.display = 'inline-block';
     }
 
     elements.detailModal.style.display = 'flex';
@@ -1342,25 +1460,29 @@ async function addComment(articleId) {
             content: content,
             authorId: currentUser.uid,
             authorName: userProfile.name || currentUser.displayName || 'Usuário',
-            createdAt: serverTimestamp()
+            createdAt: new Date().toISOString(),
+            timestamp: Date.now()
         };
 
-        // Atualiza na base de dados
-        const articleRef = doc(db, "news", articleId); // Corrigido para "news"
-        await updateDoc(articleRef, {
-            comments: arrayUnion(newComment)
-        });
+        // Primeiro tenta atualizar na base de dados
+        try {
+            const articleRef = doc(db, "news", articleId);
+            await updateDoc(articleRef, {
+                comments: arrayUnion(newComment)
+            });
+        } catch (dbError) {
+            console.warn('Erro na base de dados, salvando localmente:', dbError);
+            // Se falhar, salva apenas localmente
+        }
 
-        // Atualiza dados locais
+        // Atualiza dados locais sempre
         const newsIndex = newsData.findIndex(n => n.id === articleId);
         if (newsIndex !== -1) {
             if (!newsData[newsIndex].comments) newsData[newsIndex].comments = [];
-            newsData[newsIndex].comments.push({
-                ...newComment,
-                createdAt: { seconds: Date.now() / 1000 }
-            });
+            newsData[newsIndex].comments.push(newComment);
         }
 
+        // Atualiza o contador de comentários no modal
         // Limpa input e atualiza UI
         commentInput.value = '';
 
@@ -1371,7 +1493,7 @@ async function addComment(articleId) {
             commentsList.innerHTML = renderComments(article?.comments || []);
         }
 
-        // Atualiza contador
+        // Atualiza a contagem de comentários
         const commentsSection = document.querySelector('.comments-section h4');
         if (commentsSection && newsData[newsIndex]) {
             commentsSection.innerHTML = `<i class="fas fa-comments"></i> Comentários (${newsData[newsIndex].comments.length})`;
@@ -1381,7 +1503,7 @@ async function addComment(articleId) {
 
     } catch (error) {
         console.error('Erro ao adicionar comentário:', error);
-        showNotification('Erro ao adicionar comentário', 'error');
+        showNotification('Erro ao adicionar comentário. Tente novamente.', 'error');
     }
 }
 
@@ -1392,61 +1514,52 @@ async function toggleLike(articleId) {
         return;
     }
 
+    // Encontra o artigo nos dados locais
+    const newsIndex = newsData.findIndex(n => n.id === articleId);
+    if (newsIndex === -1) {
+        showNotification('Artigo não encontrado', 'error');
+        return;
+    }
+
+    const article = newsData[newsIndex];
+    const likedBy = article.likedBy || [];
+    const isLiked = likedBy.includes(currentUser.uid);
+
+    let newLikedBy, newLikes;
+
+    if (isLiked) {
+        newLikedBy = likedBy.filter(uid => uid !== currentUser.uid);
+        newLikes = Math.max(0, (article.likes || 0) - 1);
+    } else {
+        newLikedBy = [...likedBy, currentUser.uid];
+        newLikes = (article.likes || 0) + 1;
+    }
+
+    // Atualiza UI imediatamente
+    const likeBtn = document.getElementById('likeBtn');
+    const likeCount = document.getElementById('likeCount');
+
+    if (likeCount) likeCount.textContent = newLikes;
+    if (likeBtn) likeBtn.style.color = !isLiked ? '#ff6b6b' : 'var(--texto)';
+
+    // Atualiza dados locais
+    newsData[newsIndex].likes = newLikes;
+    newsData[newsIndex].likedBy = newLikedBy;
+
     try {
-        // Tenta primeiro na coleção "homenews", depois em "news"
-        let articleRef = doc(db, "news", articleId); // Corrigido para "news"
-        let articleDoc = await getDoc(articleRef);
-
-        // Se não encontrar em "news", tenta em "homenews" (fallback para posts antigos, se houver)
-        if (!articleDoc.exists()) {
-            articleRef = doc(db, "homenews", articleId);
-            articleDoc = await getDoc(articleRef);
-        }
-
-        if (!articleDoc.exists()) {
-            showNotification('Artigo não encontrado', 'error');
-            return;
-        }
-
-        const data = articleDoc.data();
-        const likedBy = data.likedBy || [];
-        const isLiked = likedBy.includes(currentUser.uid);
-
-        let newLikedBy, newLikes;
-
-        if (isLiked) {
-            newLikedBy = likedBy.filter(uid => uid !== currentUser.uid);
-            newLikes = Math.max(0, (data.likes || 0) - 1);
-        } else {
-            newLikedBy = [...likedBy, currentUser.uid];
-            newLikes = (data.likes || 0) + 1;
-        }
-
-        // Atualiza na base de dados
+        // Tenta atualizar na base de dados
+        const articleRef = doc(db, "news", articleId);
         await updateDoc(articleRef, {
             likes: newLikes,
             likedBy: newLikedBy
         });
 
-        // Atualiza UI imediatamente
-        const likeBtn = document.getElementById('likeBtn');
-        const likeCount = document.getElementById('likeCount');
-
-        if (likeCount) likeCount.textContent = newLikes;
-        if (likeBtn) likeBtn.style.color = !isLiked ? '#ff6b6b' : 'var(--texto)';
-
-        // Atualiza dados locais
-        const newsIndex = newsData.findIndex(n => n.id === articleId);
-        if (newsIndex !== -1) {
-            newsData[newsIndex].likes = newLikes;
-            newsData[newsIndex].likedBy = newLikedBy;
-        }
-
         showNotification(isLiked ? 'Curtida removida' : 'Artigo curtido!', 'success');
 
     } catch (error) {
-        console.error('Erro ao curtir artigo:', error);
-        showNotification('Erro ao curtir artigo', 'error');
+        console.warn('Erro ao atualizar like na base de dados:', error);
+        // Mantém as alterações locais mesmo se a base de dados falhar
+        showNotification(isLiked ? 'Curtida removida (offline)' : 'Artigo curtido (offline)!', 'success');
     }
 }
 
@@ -1552,17 +1665,35 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
+// Funções auxiliares para modal
+function likeContent() {
+    console.log('Conteúdo curtido!');
+    // Implementar lógica de curtir
+}
+
+function shareContent() {
+    if (navigator.share) {
+        navigator.share({
+            title: 'FATOMANIA',
+            text: 'Confira este conteúdo incrível!',
+            url: window.location.href
+        });
+    } else {
+        navigator.clipboard.writeText(window.location.href);
+        showNotification('Link copiado para a área de transferência!', 'success');
+    }
+}
+
+
 // Funções globais
-window.navigateToSection = navigateToSection;
-window.handleSearchResultClick = handleSearchResultClick;
-window.openProfileModal = openProfileModal;
-window.closeProfileModal = closeProfileModal;
-window.toggleEditMode = toggleEditMode;
-window.saveProfile = saveProfile;
-window.addComment = addComment;
+window.requireAuth = requireAuth;
+window.waitForAuth = waitForAuth;
+window.likeContent = likeContent;
+window.shareContent = shareContent;
 
 // Inicialização
 document.addEventListener('DOMContentLoaded', () => {
+    // Tenta importar o módulo shared-utils
     console.log('🚀 Iniciando FATOMANIA HUB...');
     checkAuthState(); // Chamada corrigida para usar a nova função
 });

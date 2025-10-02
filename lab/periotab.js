@@ -96,11 +96,11 @@ const elements = [
     {
         number: 10, symbol: 'Ne', name: 'Neônio', mass: 20.180, category: 'noble-gas',
         period: 2, group: 18, phase: 'Gás', meltingPoint: '-248.59°C', boilingPoint: '-246.08°C',
-        density: '0.0008999 g/cm³', atomicRadius: '38 pm', electronegativity: 'Não definida',
+        density: '0.0009002 g/cm³', atomicRadius: '38 pm', electronegativity: 'Não definida',
         ionizationEnergy: '2081 kJ/mol', electronConfig: '[He] 2s² 2p⁶', discoveryDate: '1898',
-        discoveredBy: 'William Ramsay', nameOrigin: 'Do grego "neos"',
-        uses: ['Letreiros luminosos', 'Lasers', 'Criogenia'],
-        funFacts: 'Produz a famosa luz laranja-vermelha dos letreiros!',
+        discoveredBy: 'William Ramsay', nameOrigin: 'Do grego "neos" (novo)',
+        uses: ['Iluminação', 'Lasers', 'Criogenia'],
+        funFacts: 'Usado em letreiros luminosos que brilham laranja-avermelhado!',
         valences: ['0']
     },
 
@@ -576,33 +576,33 @@ const elements = [
 
     // Lantanídeos (57-71)
     {
-        number: 57, symbol: 'La', name: 'Lantânio', mass: 138.91, category: 'lanthanide',
+        number: 57, symbol: 'La', name: 'Lantânio', mass: 138.905, category: 'lanthanide',
         period: 6, group: 3, phase: 'Sólido', meltingPoint: '920°C', boilingPoint: '3464°C',
-        density: '6.15 g/cm³', atomicRadius: '240 pm', electronegativity: '1.1',
+        density: '6.145 g/cm³', atomicRadius: '187 pm', electronegativity: '1.10',
         ionizationEnergy: '538 kJ/mol', electronConfig: '[Xe] 5d¹ 6s²', discoveryDate: '1839',
-        discoveredBy: 'Carl Mosander', nameOrigin: 'Do grego "lanthanein" (ocultar)',
-        uses: ['Catalisadores', 'Óptica', 'Ligas especiais'],
-        funFacts: 'Primeiro dos lantanídeos!',
+        discoveredBy: 'Carl Gustaf Mosander', nameOrigin: 'Do grego "lanthanein"',
+        uses: ['Ligas especiais', 'Catalisadores', 'Baterias'],
+        funFacts: 'Primeiro dos lantanídeos, usado em lentes de câmera!',
         valences: ['+3']
     },
     {
-        number: 58, symbol: 'Ce', name: 'Cério', mass: 140.12, category: 'lanthanide',
+        number: 58, symbol: 'Ce', name: 'Cério', mass: 140.116, category: 'lanthanide',
         period: 6, group: 3, phase: 'Sólido', meltingPoint: '798°C', boilingPoint: '3443°C',
-        density: '6.77 g/cm³', atomicRadius: '235 pm', electronegativity: '1.12',
+        density: '6.770 g/cm³', atomicRadius: '181 pm', electronegativity: '1.12',
         ionizationEnergy: '534 kJ/mol', electronConfig: '[Xe] 4f¹ 5d¹ 6s²', discoveryDate: '1803',
-        discoveredBy: 'Jöns Berzelius', nameOrigin: 'Do asteróide Ceres',
-        uses: ['Catalisadores', 'Isqueiros', 'Vidros especiais'],
+        discoveredBy: 'Jöns Jakob Berzelius', nameOrigin: 'Do asteroide Ceres',
+        uses: ['Catalisadores', 'Vidro', 'Polimento'],
         funFacts: 'Mais abundante das terras raras!',
-        valences: ['+4', '+3']
+        valences: ['+3', '+4']
     },
     {
-        number: 59, symbol: 'Pr', name: 'Praseodímio', mass: 140.91, category: 'lanthanide',
+        number: 59, symbol: 'Pr', name: 'Praseodímio', mass: 140.908, category: 'lanthanide',
         period: 6, group: 3, phase: 'Sólido', meltingPoint: '931°C', boilingPoint: '3520°C',
-        density: '6.77 g/cm³', atomicRadius: '239 pm', electronegativity: '1.13',
+        density: '6.773 g/cm³', atomicRadius: '182 pm', electronegativity: '1.13',
         ionizationEnergy: '527 kJ/mol', electronConfig: '[Xe] 4f³ 6s²', discoveryDate: '1885',
         discoveredBy: 'Carl Auer von Welsbach', nameOrigin: 'Do grego "prasios didymos"',
-        uses: ['Ímãs permanentes', 'Ligas especiais', 'Óculos'],
-        funFacts: 'Produz sais verdes característicos!',
+        uses: ['Magnetos', 'Ligas', 'Vidros especiais'],
+        funFacts: 'Produz cor verde característica em vidros!',
         valences: ['+3']
     },
     {
@@ -902,23 +902,23 @@ const elements = [
 
     // Actinídeos (89-103)
     {
-        number: 89, symbol: 'Ac', name: 'Actínio', mass: 227, category: 'actinide',
+        number: 89, symbol: 'Ac', name: 'Actínio', mass: 227.0, category: 'actinide',
         period: 7, group: 3, phase: 'Sólido', meltingPoint: '1051°C', boilingPoint: '3198°C',
-        density: '10.07 g/cm³', atomicRadius: '260 pm', electronegativity: '1.1',
+        density: '10.07 g/cm³', atomicRadius: '188 pm', electronegativity: '1.1',
         ionizationEnergy: '499 kJ/mol', electronConfig: '[Rn] 6d¹ 7s²', discoveryDate: '1899',
-        discoveredBy: 'André Debierne', nameOrigin: 'Do grego "aktinos" (raio)',
-        uses: ['Fonte de nêutrons', 'Pesquisa'],
-        funFacts: 'Primeiro dos actinídeos!',
+        discoveredBy: 'André-Louis Debierne', nameOrigin: 'Do grego "aktinos" (raio)',
+        uses: ['Pesquisa nuclear', 'Fonte de nêutrons'],
+        funFacts: 'Radioativo, brilha no escuro com luz azul-violeta!',
         valences: ['+3']
     },
     {
-        number: 90, symbol: 'Th', name: 'Tório', mass: 232.04, category: 'actinide',
+        number: 90, symbol: 'Th', name: 'Tório', mass: 232.038, category: 'actinide',
         period: 7, group: 3, phase: 'Sólido', meltingPoint: '1750°C', boilingPoint: '4788°C',
-        density: '11.72 g/cm³', atomicRadius: '237 pm', electronegativity: '1.3',
+        density: '11.72 g/cm³', atomicRadius: '180 pm', electronegativity: '1.3',
         ionizationEnergy: '587 kJ/mol', electronConfig: '[Rn] 6d² 7s²', discoveryDate: '1828',
-        discoveredBy: 'Jöns Berzelius', nameOrigin: 'De Thor, deus nórdico',
-        uses: ['Combustível nuclear', 'Lanternas de gás'],
-        funFacts: 'Combustível nuclear do futuro!',
+        discoveredBy: 'Jöns Jakob Berzelius', nameOrigin: 'Do deus nórdico Thor',
+        uses: ['Combustível nuclear', 'Mantos de lampião'],
+        funFacts: 'Potencial combustível nuclear do futuro!',
         valences: ['+4']
     },
     {
@@ -1144,63 +1144,63 @@ const elements = [
         valences: ['+2']
     },
     {
-        number: 113, symbol: 'Nh', name: 'Nipônio', mass: 284, category: 'post-transition-metal',
-        period: 7, group: 13, phase: 'Sólido', meltingPoint: '430°C', boilingPoint: '1100°C',
-        density: '16 g/cm³', atomicRadius: '136 pm', electronegativity: '1.8',
-        ionizationEnergy: '704 kJ/mol', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p¹', discoveryDate: '2004',
-        discoveredBy: 'Kosuke Morita', nameOrigin: 'Do Japão (Nippon)',
+        number: 113, symbol: 'Nh', name: 'Nihônio', mass: 286.0, category: 'transition-metal',
+        period: 7, group: 13, phase: 'Sólido', meltingPoint: 'Desconhecido', boilingPoint: 'Desconhecido',
+        density: 'Desconhecida', atomicRadius: 'Desconhecido', electronegativity: 'Desconhecida',
+        ionizationEnergy: 'Desconhecida', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p¹', discoveryDate: '2004',
+        discoveredBy: 'RIKEN (Japão)', nameOrigin: 'Do japonês "Nihon"',
         uses: ['Pesquisa científica'],
-        funFacts: 'Primeiro elemento descoberto na Ásia!',
-        valences: ['+3']
+        funFacts: 'Primeiro elemento descoberto no Japão!',
+        valences: ['+1', '+3']
     },
     {
-        number: 114, symbol: 'Fl', name: 'Fleróvio', mass: 289, category: 'post-transition-metal',
-        period: 7, group: 14, phase: 'Sólido', meltingPoint: '200°C', boilingPoint: '380°C',
-        density: '14 g/cm³', atomicRadius: '143 pm', electronegativity: '1.9',
-        ionizationEnergy: '832 kJ/mol', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p²', discoveryDate: '1998',
-        discoveredBy: 'Yuri Oganessian', nameOrigin: 'De Georgiy Flerov',
+        number: 114, symbol: 'Fl', name: 'Fleróvio', mass: 289.0, category: 'transition-metal',
+        period: 7, group: 14, phase: 'Sólido', meltingPoint: 'Desconhecido', boilingPoint: 'Desconhecido',
+        density: 'Desconhecida', atomicRadius: 'Desconhecido', electronegativity: 'Desconhecida',
+        ionizationEnergy: 'Desconhecida', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p²', discoveryDate: '1999',
+        discoveredBy: 'Joint Institute (Rússia)', nameOrigin: 'Homenagem a Flerov',
         uses: ['Pesquisa científica'],
-        funFacts: 'Pode ser relativamente estável!',
-        valences: ['+4', '+2']
+        funFacts: 'Pode ter propriedades similares ao chumbo!',
+        valences: ['+2', '+4']
     },
     {
-        number: 115, symbol: 'Mc', name: 'Moscóvio', mass: 288, category: 'post-transition-metal',
-        period: 7, group: 15, phase: 'Sólido', meltingPoint: '400°C', boilingPoint: '1400°C',
-        density: '13.5 g/cm³', atomicRadius: '162 pm', electronegativity: '1.9',
-        ionizationEnergy: '538 kJ/mol', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p³', discoveryDate: '2003',
-        discoveredBy: 'Yuri Oganessian', nameOrigin: 'De Moscou',
+        number: 115, symbol: 'Mc', name: 'Moscóvio', mass: 290.0, category: 'transition-metal',
+        period: 7, group: 15, phase: 'Sólido', meltingPoint: 'Desconhecido', boilingPoint: 'Desconhecido',
+        density: 'Desconhecida', atomicRadius: 'Desconhecido', electronegativity: 'Desconhecida',
+        ionizationEnergy: 'Desconhecida', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p³', discoveryDate: '2003',
+        discoveredBy: 'Joint Institute (Rússia)', nameOrigin: 'Região de Moscou',
         uses: ['Pesquisa científica'],
-        funFacts: 'Nome homenageia a capital russa!',
-        valences: ['+5', '+3']
+        funFacts: 'Elemento sintético com meia-vida muito curta!',
+        valences: ['+3', '+5']
     },
     {
-        number: 116, symbol: 'Lv', name: 'Livermório', mass: 293, category: 'post-transition-metal',
-        period: 7, group: 16, phase: 'Sólido', meltingPoint: '709°C', boilingPoint: '1085°C',
-        density: '12.9 g/cm³', atomicRadius: '175 pm', electronegativity: '1.96',
-        ionizationEnergy: '663 kJ/mol', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁴', discoveryDate: '2000',
-        discoveredBy: 'Yuri Oganessian', nameOrigin: 'De Lawrence Livermore',
+        number: 116, symbol: 'Lv', name: 'Livermório', mass: 293.0, category: 'transition-metal',
+        period: 7, group: 16, phase: 'Sólido', meltingPoint: 'Desconhecido', boilingPoint: 'Desconhecido',
+        density: 'Desconhecida', atomicRadius: 'Desconhecido', electronegativity: 'Desconhecida',
+        ionizationEnergy: 'Desconhecida', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁴', discoveryDate: '2000',
+        discoveredBy: 'Joint Institute (Rússia)', nameOrigin: 'Lawrence Livermore National Laboratory',
         uses: ['Pesquisa científica'],
-        funFacts: 'Nome do laboratório americano!',
-        valences: ['+6', '+4', '+2']
+        funFacts: 'Previsto para ter propriedades similares ao polônio!',
+        valences: ['+2', '+4', '+6']
     },
     {
-        number: 117, symbol: 'Ts', name: 'Tenesso', mass: 294, category: 'halogen',
-        period: 7, group: 17, phase: 'Sólido', meltingPoint: '723°C', boilingPoint: '883°C',
-        density: '7.2 g/cm³', atomicRadius: '165 pm', electronegativity: '1.9',
-        ionizationEnergy: '742 kJ/mol', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁵', discoveryDate: '2010',
-        discoveredBy: 'Yuri Oganessian', nameOrigin: 'Do Tennessee, EUA',
+        number: 117, symbol: 'Ts', name: 'Tenesso', mass: 294.0, category: 'halogen',
+        period: 7, group: 17, phase: 'Sólido', meltingPoint: 'Desconhecido', boilingPoint: 'Desconhecido',
+        density: 'Desconhecida', atomicRadius: 'Desconhecido', electronegativity: 'Desconhecida',
+        ionizationEnergy: 'Desconhecida', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁵', discoveryDate: '2010',
+        discoveredBy: 'Joint Institute (Rússia)', nameOrigin: 'Estado do Tennessee',
         uses: ['Pesquisa científica'],
-        funFacts: 'Halogênio superpesado!',
-        valences: ['+7', '+5', '+1', '-1']
+        funFacts: 'Halogênio mais pesado conhecido!',
+        valences: ['-1', '+1', '+3', '+5', '+7']
     },
     {
-        number: 118, symbol: 'Og', name: 'Oganessônio', mass: 294, category: 'noble-gas',
-        period: 7, group: 18, phase: 'Sólido', meltingPoint: '52°C', boilingPoint: '177°C',
-        density: '5 g/cm³', atomicRadius: '157 pm', electronegativity: '1.65',
-        ionizationEnergy: '860 kJ/mol', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁶', discoveryDate: '2002',
-        discoveredBy: 'Yuri Oganessian', nameOrigin: 'De Yuri Oganessian',
+        number: 118, symbol: 'Og', name: 'Oganessônio', mass: 294.0, category: 'noble-gas',
+        period: 7, group: 18, phase: 'Sólido', meltingPoint: 'Desconhecido', boilingPoint: 'Desconhecido',
+        density: 'Desconhecida', atomicRadius: 'Desconhecido', electronegativity: 'Desconhecida',
+        ionizationEnergy: 'Desconhecida', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁶', discoveryDate: '2002',
+        discoveredBy: 'Joint Institute (Rússia)', nameOrigin: 'Homenagem a Oganessian',
         uses: ['Pesquisa científica'],
-        funFacts: 'Completa o período 7! Gás nobre mais pesado conhecido!',
+        funFacts: 'Gás nobre mais pesado, completa o período 7!',
         valences: ['0']
     }
 ];

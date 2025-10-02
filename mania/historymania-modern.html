@@ -615,6 +615,7 @@
 
     <script type="module">
         import '/firebase-config.js';
+        import { openArticle, formatDate } from '/js/shared-utils.js';
 
         let currentArticles = [];
         let filteredArticles = [];
@@ -654,30 +655,50 @@
 
         async function loadArticles() {
             try {
-                const articlesCollection = window.firebaseDB.collection(window.firebaseDB.db, 'history-articles');
-                const snapshot = await window.firebaseDB.getDocs(articlesCollection);
+                console.log('🔄 Carregando artigos históricos...');
+                
+                // Importa e usa safeQuery
+                const { safeQuery, createSampleArticles } = await import('/js/firebase-collections-checker.js');
+                
+                let currentArticles = await safeQuery('history-articles', {
+                    where: ['status', '==', 'published'],
+                    orderBy: 'createdAt',
+                    direction: 'desc',
+                    limit: 50
+                });
+                
+                // Filtra documentos de inicialização
+                currentArticles = currentArticles.filter(article => !article._initialized);
+                
+                // Se não houver artigos, cria exemplos
+                if (currentArticles.length === 0) {
+                    console.log('📝 Criando artigos de exemplo para HISTORYMANIA...');
+                    currentArticles = await createSampleArticles('history', 3);
+                }
+                
+                console.log('✅ Artigos históricos carregados:', currentArticles.length);
 
-                currentArticles = snapshot.docs.map(doc => {
-                    const data = doc.data();
-                    return {
-                        id: doc.id,
-                        ...data,
-                        createdAt: data.createdAt?.toDate?.() || data.createdAt || new Date(),
-                        views: data.views || 0,
-                        likes: data.likes || 0
-                    };
-                }).filter(article => article.status === 'published');
-
-                currentArticles.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-                allArticles = [...currentArticles]; // Store all fetched articles
+                window.currentArticles = currentArticles;
+                allArticles = [...currentArticles];
                 filteredArticles = [...currentArticles];
                 renderArticles();
+                
             } catch (error) {
-                console.error('Erro ao carregar artigos:', error);
-                document.getElementById('loading').innerHTML = '<p>Erro ao carregar artigos. Verifique a conexão ou se a coleção existe no Firestore.</p>';
+                console.error('❌ Erro ao carregar artigos históricos:', error);
+                document.getElementById('loading').innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #d4af37;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                        <h3>Erro ao carregar artigos históricos</h3>
+                        <p>Verifique sua conexão e tente novamente.</p>
+                        <button onclick="loadArticles()" style="margin-top: 1rem; padding: 0.8rem 1.5rem; background: var(--destaque); color: var(--fundo); border: none; border-radius: 10px; cursor: pointer;">
+                            Tentar Novamente
+                        </button>
+                    </div>
+                `;
             }
         }
+
+        
 
         function filterByPeriod() {
             if (currentPeriod === 'all') {
@@ -886,7 +907,7 @@
         window.filterArticles = function() {
             const categoryFilter = document.getElementById('categoryFilter').value;
             let articlesToFilter = currentPeriod === 'all' ? [...allArticles] : allArticles.filter(article => article.historicalPeriod === currentPeriod);
-            
+
             if (categoryFilter) {
                 filteredArticles = articlesToFilter.filter(article => article.category === categoryFilter);
             } else {

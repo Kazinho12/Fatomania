@@ -560,17 +560,33 @@
 
         async function loadNews() {
             try {
-                const newsQuery = window.firebaseDB.query(
-                    window.firebaseDB.collection(window.firebaseDB.db, 'news'),
-                    window.firebaseDB.where('status', '==', 'published'),
-                    window.firebaseDB.orderBy('createdAt', 'desc')
-                );
+                let snapshot;
+                
+                try {
+                    // Try with full query (requires composite index)
+                    const newsQuery = window.firebaseDB.query(
+                        window.firebaseDB.collection(window.firebaseDB.db, 'news-articles'),
+                        window.firebaseDB.where('status', '==', 'published'),
+                        window.firebaseDB.orderBy('createdAt', 'desc')
+                    );
+                    snapshot = await window.firebaseDB.getDocs(newsQuery);
+                } catch (indexError) {
+                    console.warn('Composite index not available, using fallback query:', indexError);
+                    // Fallback: just get all documents and filter client-side
+                    const simpleQuery = window.firebaseDB.collection(window.firebaseDB.db, 'news-articles');
+                    snapshot = await window.firebaseDB.getDocs(simpleQuery);
+                }
 
-                const snapshot = await window.firebaseDB.getDocs(newsQuery);
                 currentNews = snapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data()
-                }));
+                }))
+                .filter(news => news.status === 'published')
+                .sort((a, b) => {
+                    const dateA = a.createdAt?.toDate?.() || a.createdAt || new Date(0);
+                    const dateB = b.createdAt?.toDate?.() || b.createdAt || new Date(0);
+                    return dateB - dateA;
+                });
 
                 filteredNews = [...currentNews];
                 renderNews();

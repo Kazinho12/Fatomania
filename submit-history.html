@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -378,6 +377,7 @@
 
     <script type="module">
         import '/firebase-config.js';
+        import { uploadToImgbb, showNotification } from '/js/upload-utils.js';
 
         // Wait for Firebase to be ready
         window.addEventListener('load', async () => {
@@ -405,7 +405,7 @@
             const preview = document.getElementById('imagePreview');
             const previewImg = document.getElementById('previewImg');
             const fileName = document.getElementById('fileName');
-            
+
             if (file) {
                 if (file.size > 5 * 1024 * 1024) { // 5MB limit
                     showMessage('A imagem deve ter no máximo 5MB.', 'error');
@@ -413,9 +413,9 @@
                     preview.style.display = 'none';
                     return;
                 }
-                
+
                 label.innerHTML = `<i class="fas fa-check-circle"></i><br>Imagem selecionada: ${file.name}`;
-                
+
                 // Show preview
                 const reader = new FileReader();
                 reader.onload = function(e) {
@@ -431,7 +431,7 @@
 
         async function handleSubmit(event) {
             event.preventDefault();
-            
+
             const submitBtn = document.getElementById('submitBtn');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<div class="loading"></div> Publicando...';
@@ -459,12 +459,17 @@
                     status: 'published'
                 };
 
-                // Handle image upload if provided
+                // Handle image upload if provided - now using imgbb
                 const imageFile = document.getElementById('image').files[0];
                 if (imageFile) {
-                    const imageRef = window.firebaseStorage.ref(window.firebaseStorage.storage, `history-images/${Date.now()}-${imageFile.name}`);
-                    const snapshot = await window.firebaseStorage.uploadBytes(imageRef, imageFile);
-                    formData.imageUrl = await window.firebaseStorage.getDownloadURL(snapshot.ref);
+                    try {
+                        formData.imageUrl = await uploadToImgbb(imageFile);
+                        showMessage('Imagem enviada com sucesso!', 'success');
+                    } catch (error) {
+                        console.error('Erro ao enviar imagem:', error);
+                        showMessage('Erro ao enviar imagem: ' + error.message, 'error');
+                        throw error;
+                    }
                 }
 
                 // Save to Firestore
@@ -472,7 +477,7 @@
 
                 showMessage('Artigo histórico publicado com sucesso!', 'success');
                 document.getElementById('historyForm').reset();
-                
+
                 setTimeout(() => {
                     window.location.href = '/mania/historymania.html';
                 }, 2000);

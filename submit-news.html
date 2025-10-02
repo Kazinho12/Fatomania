@@ -192,6 +192,14 @@
             border-color: var(--azul);
         }
 
+        #imagePreview {
+            display: none;
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
         .submit-btn {
             width: 100%;
             padding: 1rem;
@@ -355,9 +363,10 @@
                         <label for="image" class="file-input-label">
                             <i class="fas fa-cloud-upload-alt"></i><br>
                             Clique para selecionar uma imagem<br>
-                            <small>JPG, PNG ou GIF (máx. 5MB)</small>
+                            <small>JPG, PNG ou GIF (máx. 32MB)</small>
                         </label>
                     </div>
+                    <img id="imagePreview" src="#" alt="Preview da Imagem">
                 </div>
 
                 <div class="form-group">
@@ -376,6 +385,7 @@
 
     <script type="module">
         import '/firebase-config.js';
+        import { uploadToImgbb, showNotification } from '/js/upload-utils.js';
 
         // Wait for Firebase to be ready
         window.addEventListener('load', async () => {
@@ -397,17 +407,43 @@
             }, 5000);
         }
 
+        // Function to show image preview
+        function showImagePreview(file, elementId) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const previewElement = document.getElementById(elementId);
+                previewElement.src = e.target.result;
+                previewElement.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
         function handleImageSelect(event) {
             const file = event.target.files[0];
-            const label = event.target.nextElementSibling;
+            const fileInputLabel = event.target.nextElementSibling; // The label element
 
             if (file) {
-                if (file.size > 5 * 1024 * 1024) { // 5MB limit
-                    showMessage('A imagem deve ter no máximo 5MB.', 'error');
-                    event.target.value = '';
+                // Check file size before showing preview (optional, but good practice)
+                if (file.size > 32 * 1024 * 1024) { // 32MB limit for imgbb
+                    showMessage('A imagem deve ter no máximo 32MB.', 'error');
+                    event.target.value = ''; // Clear the file input
+                    document.getElementById('imagePreview').style.display = 'none'; // Hide preview if error
                     return;
                 }
-                label.innerHTML = `<i class="fas fa-check-circle"></i><br>Imagem selecionada: ${file.name}`;
+
+                // Update label to show selected file name (optional)
+                fileInputLabel.innerHTML = `<small>${file.name}</small>`;
+
+                // Show preview
+                showImagePreview(file, 'imagePreview');
+            } else {
+                // If no file is selected, reset the label and hide the preview
+                fileInputLabel.innerHTML = `
+                    <i class="fas fa-cloud-upload-alt"></i><br>
+                    Clique para selecionar uma imagem<br>
+                    <small>JPG, PNG ou GIF (máx. 32MB)</small>
+                `;
+                document.getElementById('imagePreview').style.display = 'none';
             }
         }
 
@@ -450,29 +486,39 @@
 
                 updateProgress(50, 'Processando conteúdo...');
 
-                // Handle image upload if provided
+                // Handle image upload if provided - now using imgbb
                 const imageFile = document.getElementById('image').files[0];
                 if (imageFile) {
-                    updateProgress(70, 'Enviando imagem...');
-                    const imageRef = window.firebaseStorage.ref(window.firebaseStorage.storage, `news-images/${Date.now()}-${imageFile.name}`);
-                    const snapshot = await window.firebaseStorage.uploadBytes(imageRef, imageFile);
-                    formData.imageUrl = await window.firebaseStorage.getDownloadURL(snapshot.ref);
+                    updateProgress(70, 'Enviando imagem para imgbb...');
+                    try {
+                        formData.imageUrl = await uploadToImgbb(imageFile, (progress) => {
+                            updateProgress(70 + (progress * 0.15), 'Enviando imagem...');
+                        });
+                        showMessage('Imagem enviada com sucesso!', 'success');
+                    } catch (error) {
+                        console.error('Erro ao enviar imagem:', error);
+                        showMessage('Erro ao enviar imagem: ' + error.message, 'error');
+                        throw error;
+                    }
                 }
 
                 updateProgress(85, 'Salvando artigo...');
 
                 // Save to Firestore
-                await window.firebaseDB.addDoc(window.firebaseDB.collection(window.firebaseDB.db, 'news-articles'), formData);
+                const docRef = await window.firebaseDB.addDoc(
+                    window.firebaseDB.collection(window.firebaseDB.db, 'news-articles'),
+                    formData
+                );
 
                 updateProgress(100, 'Notícia publicada!');
                 showMessage('Notícia publicada com sucesso!', 'success');
                 document.getElementById('newsForm').reset();
 
-                // Reset file input label and preview
+                // Reset file input label and hide preview
                 document.querySelector('.file-input-label').innerHTML = `
                     <i class="fas fa-cloud-upload-alt"></i><br>
                     Clique para selecionar uma imagem<br>
-                    <small>JPG, PNG ou GIF (máx. 5MB)</small>
+                    <small>JPG, PNG ou GIF (máx. 32MB)</small>
                 `;
                 document.getElementById('imagePreview').style.display = 'none';
 

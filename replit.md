@@ -82,9 +82,37 @@ FATOMANIA is a Portuguese-language scientific curiosities website that provides 
 ✅ Cross-browser compatibility maintained
 ✅ Mobile-responsive design preserved
 
+## Recent Critical Fixes (October 1, 2025)
+
+### 1. Image Storage Migration
+- **Migrated from Firebase Storage to imgbb API** for all 12 submit pages
+- Created centralized `js/upload-utils.js` for consistent image upload handling
+- Implemented hardcoded API key: `490019b11f119ad684399138b0226ff5`
+- Added proper error handling and progress tracking
+- **Affected pages**: submit-news, submit-art, submit-history, submit-quiz, submit-eco, submit-games, submit-tech, submit-science, submit-med, submit-mystic, submit-lab, submit-sports
+
+### 2. Firebase Collection Fixes
+- **Fixed critical collection name mismatch**: Changed 'news' to 'news-articles' in newsmania-modern.html
+- Added **fallback query mechanism** for Firestore queries without composite indexes
+- Implemented client-side filtering/sorting when server-side index is unavailable
+- Prevents "failed-precondition" errors in development environments
+
+### 3. Modal Function Fixes
+- **Fixed techmania-modern.html**: Replaced incomplete openArticle with full implementation
+- **Fixed ecomania-modern.html**: Added missing openModal and closeModal functions
+- All mania pages now have proper article viewing functionality
+- Consistent modal behavior across all sections
+
+### 4. Technical Improvements
+- Enhanced error handling in all submission forms
+- Added view count increment on article opens
+- Improved date formatting and display
+- Better image preview functionality
+
 ## Notes
 - The project uses ES6 modules with Firebase CDN
 - All paths use absolute references (starting with /)
 - Portuguese language content maintained
 - Original styling and branding preserved
 - No dependencies beyond Firebase CDN and Python stdlib
+- **Image uploads**: Now using imgbb API instead of Firebase Storage

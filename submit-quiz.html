@@ -507,6 +507,7 @@
 
     <script type="module">
         import '/firebase-config.js';
+        import { uploadQuizImage, showUploadProgress, showNotification, verifyAllCollections } from '/js/upload-utils.js';
 
         let questionCount = 0;
 
@@ -516,6 +517,11 @@
             if (!user) {
                 return; // requireAuth already handles redirect
             }
+
+            // Verify Firebase collections
+            console.log('🔍 Verificando coleções do Firebase...');
+            const collectionsStatus = await verifyAllCollections();
+            console.log('📊 Status das coleções:', collectionsStatus);
 
             // Add first question by default
             addQuestion();
@@ -694,13 +700,19 @@
                 
                 updateProgress(40, 'Preparando quiz...');
 
-                // Handle image upload if provided
+                // Handle image upload if provided - using quiz-specific upload
                 const imageFile = document.getElementById('image').files[0];
                 if (imageFile) {
-                    updateProgress(60, 'Enviando imagem...');
-                    const imageRef = window.firebaseStorage.ref(window.firebaseStorage.storage, `quiz-images/${Date.now()}-${imageFile.name}`);
-                    const snapshot = await window.firebaseStorage.uploadBytes(imageRef, imageFile);
-                    quizData.imageUrl = await window.firebaseStorage.getDownloadURL(imageRef);
+                    try {
+                        quizData.imageUrl = await uploadQuizImage(imageFile, (progress) => {
+                            showUploadProgress(60 + (progress * 0.2), 'Enviando imagem do quiz...');
+                        });
+                        showNotification('Imagem do quiz enviada com sucesso!', 'success');
+                    } catch (error) {
+                        console.error('Erro ao enviar imagem do quiz:', error);
+                        showNotification('Erro ao enviar imagem: ' + error.message, 'error');
+                        throw error;
+                    }
                 }
                 
                 updateProgress(80, 'Salvando quiz...');
