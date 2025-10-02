@@ -20,6 +20,9 @@
             --sucesso: #00ff88;
             --texto-claro: #ffffff;
             --texto-escuro: #333333;
+            --gaming-electric: #ff00c8; /* Para comentários e botões */
+            --gaming-red: #ff3333;
+            --gaming-gold: #ffd700;
         }
 
         * {
@@ -468,6 +471,45 @@
             color: white;
         }
 
+        /* Estilos para botões de interatividade */
+        .interactive-buttons {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .interactive-btn {
+            background: linear-gradient(45deg, var(--neon-azul), var(--neon-roxo));
+            color: white;
+            border: none;
+            padding: 0.8rem 1.8rem;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(179, 0, 255, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .interactive-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(179, 0, 255, 0.5);
+        }
+
+        .interactive-btn.like {
+            background: linear-gradient(45deg, var(--gaming-red), var(--gaming-gold));
+            box-shadow: 0 5px 15px rgba(255, 7, 58, 0.3);
+        }
+
+        .interactive-btn.like:hover {
+            box-shadow: 0 8px 25px rgba(255, 7, 58, 0.5);
+        }
+
 
         @media (max-width: 768px) {
             .logo h1 {
@@ -599,10 +641,19 @@
                     <span><i class="fas fa-user"></i> <span id="modalAuthor"></span></span>
                     <span><i class="fas fa-calendar"></i> <span id="modalDate"></span></span>
                     <span><i class="fas fa-eye"></i> <span id="modalViews"></span> visualizações</span>
-                    <span><i class="fas fa-heart"></i> <span id="modalLikes"></span> curtidas</span>
+                    <span style="display: flex; align-items: center; gap: 0.5rem;"><i class="fas fa-heart" style="color: var(--gaming-red);"></i> <span id="modalLikes"></span> curtidas</span>
                 </div>
                 <div class="modal-content-text" id="modalContent"></div>
                 <div class="modal-tags" id="modalTags"></div>
+                <div id="commentsSection"></div>
+                <div class="interactive-buttons">
+                    <button id="likeBtn" class="interactive-btn like">
+                        <i class="fas fa-heart"></i> Curtir
+                    </button>
+                    <button id="shareBtn" class="interactive-btn" onclick="shareArticle()">
+                        <i class="fas fa-share-alt"></i> Compartilhar
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -614,6 +665,7 @@
         let filteredGames = [];
         let currentArticles = []; // Adicionado para a função openArticle
         let filteredArticles = []; // Adicionado para a função renderArticles
+        let currentArticleId = null; // Para rastrear o ID do artigo atual para comentários
 
         // Wait for Firebase to be ready
         window.addEventListener('load', async () => {
@@ -674,40 +726,33 @@
 
         async function loadArticles() {
             try {
-                let articlesQuery = window.firebaseDB.query(
-                    window.firebaseDB.collection(window.firebaseDB.db, 'games-articles'),
-                    window.firebaseDB.where('status', '==', 'published'),
-                    window.firebaseDB.orderBy('createdAt', 'desc')
-                );
+                const articlesRef = window.firebaseDB.collection(window.firebaseDB.db, 'games-articles');
+                let querySnapshot;
 
                 try {
-                    const snapshot = await window.firebaseDB.getDocs(articlesQuery);
-                    currentArticles = snapshot.docs.map(doc => ({
-                        id: doc.id,
-                        ...doc.data()
-                    }));
-                } catch (queryError) {
-                    if (queryError.code === 'failed-precondition') {
-                        console.warn('⚠️ Índice composto não disponível, usando query simples');
-                        articlesQuery = window.firebaseDB.query(
-                            window.firebaseDB.collection(window.firebaseDB.db, 'games-articles'),
+                    const q = window.firebaseDB.query(
+                        articlesRef,
+                        window.firebaseDB.where('status', '==', 'published'),
+                        window.firebaseDB.orderBy('date', 'desc')
+                    );
+                    querySnapshot = await window.firebaseDB.getDocs(q);
+                } catch (indexError) {
+                    if (indexError.code === 'failed-precondition') {
+                        console.warn('⚠️ Erro com índice composto, tentando consulta simples:', indexError);
+                        const simpleQuery = window.firebaseDB.query(
+                            articlesRef,
                             window.firebaseDB.where('status', '==', 'published')
                         );
-                        const snapshot = await window.firebaseDB.getDocs(articlesQuery);
-                        currentArticles = snapshot.docs.map(doc => ({
-                            id: doc.id,
-                            ...doc.data()
-                        }));
-                        currentArticles.sort((a, b) => {
-                            const dateA = a.createdAt?.seconds || 0;
-                            const dateB = b.createdAt?.seconds || 0;
-                            return dateB - dateA;
-                        });
+                        querySnapshot = await window.firebaseDB.getDocs(simpleQuery);
                     } else {
-                        throw queryError;
+                        throw indexError;
                     }
                 }
 
+                currentArticles = querySnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
                 filteredArticles = [...currentArticles];
                 renderArticles(); // Chama renderArticles para exibir os artigos das outras "manias"
             } catch (error) {
@@ -884,86 +929,187 @@
             }
         }
 
-        function closeModal() {
+        window.closeModal = function() {
             document.getElementById('gameModal').style.display = 'none';
-            document.body.style.overflow = 'auto';
-
-            // Adicionar lógica para fechar o modal de artigos também
             const articleModal = document.getElementById('articleModal');
             if (articleModal) {
                 articleModal.classList.remove('active');
             }
+            document.body.style.overflow = 'auto';
+        };
+
+        async function loadComments(articleId) {
+            const commentsSection = document.getElementById('commentsSection');
+            const user = window.firebaseAuth.auth.currentUser;
+
+            commentsSection.innerHTML = `
+                <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid rgba(255, 7, 58, 0.2);">
+                    <h3 style="color: var(--gaming-electric); margin-bottom: 1rem;"><i class="fas fa-comments"></i> Comentários</h3>
+                    ${user ? `
+                        <div style="margin-bottom: 2rem;">
+                            <textarea id="commentInput" placeholder="Compartilhe sua opinião sobre o jogo..." style="width: 100%; min-height: 100px; padding: 1rem; border-radius: 10px; border: 2px solid rgba(255, 7, 58, 0.3); background: rgba(0, 0, 0, 0.3); color: white; font-family: inherit; resize: vertical;"></textarea>
+                            <button onclick="submitComment()" style="margin-top: 1rem; background: linear-gradient(45deg, var(--gaming-red), var(--gaming-gold)); border: none; color: white; padding: 0.8rem 2rem; border-radius: 25px; cursor: pointer; font-weight: 600;">
+                                <i class="fas fa-paper-plane"></i> Enviar Comentário
+                            </button>
+                        </div>
+                    ` : '<p style="color: var(--gaming-electric); margin-bottom: 1rem;">Faça login para comentar</p>'}
+                    <div id="commentsList"></div>
+                </div>
+            `;
+
+            try {
+                const commentsRef = window.firebaseDB.collection(window.firebaseDB.db, 'comments');
+                const q = window.firebaseDB.query(
+                    commentsRef,
+                    window.firebaseDB.where('articleId', '==', articleId),
+                    window.firebaseDB.orderBy('createdAt', 'desc')
+                );
+                const snapshot = await window.firebaseDB.getDocs(q);
+
+                const commentsList = document.getElementById('commentsList');
+                if (snapshot.empty) {
+                    commentsList.innerHTML = '<p style="color: rgba(255,255,255,0.5); text-align: center;">Nenhum comentário ainda. Seja o primeiro!</p>';
+                } else {
+                    commentsList.innerHTML = snapshot.docs.map(doc => {
+                        const comment = doc.data();
+                        return `
+                            <div style="background: rgba(0, 0, 0, 0.2); padding: 1rem; border-radius: 10px; margin-bottom: 1rem; border-left: 4px solid var(--gaming-electric);">
+                                <div style="font-weight: 600; color: var(--gaming-electric); margin-bottom: 0.5rem;">${comment.userName || 'Gamer'}</div>
+                                <div style="font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-bottom: 0.5rem;">${formatDate(comment.createdAt)}</div>
+                                <div style="color: white;">${comment.text}</div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            } catch (e) { console.error('Erro ao carregar comentários:', e); }
         }
+
+        window.submitComment = async function() {
+            const commentInput = document.getElementById('commentInput');
+            const text = commentInput.value.trim();
+
+            if (!text) {
+                alert('Digite um comentário');
+                return;
+            }
+
+            const user = window.firebaseAuth.auth.currentUser;
+            if (!user) {
+                alert('Faça login para comentar');
+                return;
+            }
+
+            try {
+                await window.firebaseDB.addDoc(
+                    window.firebaseDB.collection(window.firebaseDB.db, 'comments'),
+                    {
+                        articleId: currentArticleId,
+                        userId: user.uid,
+                        userName: user.displayName || user.email,
+                        text: text,
+                        createdAt: new Date()
+                    }
+                );
+
+                commentInput.value = '';
+                await loadComments(currentArticleId);
+            } catch (e) {
+                console.error('Erro ao enviar comentário:', e);
+                alert('Erro ao enviar comentário');
+            }
+        };
+
+        window.shareArticle = function() {
+            const url = window.location.href;
+            if (navigator.share) {
+                navigator.share({
+                    title: document.getElementById('modalTitle').textContent,
+                    url: url
+                });
+            } else {
+                navigator.clipboard.writeText(url);
+                alert('Link copiado!');
+            }
+        };
 
         // Função para abrir o modal específico de artigo (NewsMANIA, ScienceMANIA, etc.)
         async function openArticle(articleId) {
             try {
-                if (window.openArticle) {
-                    await window.openArticle(articleId, 'games-articles');
-                } else {
-                    console.error('openArticle não está disponível');
+                const article = currentArticles.find(a => a.id === articleId); // Busca em currentArticles
+                if (!article) {
+                    console.error('Artigo não encontrado:', articleId);
+                    return;
                 }
+
+                currentArticleId = article.id; // Define o ID do artigo atual
+
+                let modal = document.getElementById('articleModal');
+                if (!modal) {
+                    console.error('Modal "articleModal" não encontrado.');
+                    return;
+                }
+
+                const modalTitleElement = modal.querySelector('#modalTitle');
+                const modalAuthorElement = modal.querySelector('#modalAuthor');
+                const modalDateElement = modal.querySelector('#modalDate');
+                const modalViewsElement = modal.querySelector('#modalViews');
+                const modalLikesElement = modal.querySelector('#modalLikes');
+                const modalContentElement = modal.querySelector('#modalContent');
+                const modalImageElement = modal.querySelector('#modalImage');
+                const modalTagsContainer = modal.querySelector('#modalTags');
+                const likeBtn = document.getElementById('likeBtn');
+                const likeCount = document.getElementById('modalLikes'); // Renomeado para modalLikes para consistência
+
+                modalTitleElement.textContent = article.title;
+                modalAuthorElement.textContent = article.author || 'Autor desconhecido';
+                modalDateElement.textContent = formatDate(article.createdAt);
+                modalViewsElement.textContent = (article.views || 0).toLocaleString();
+                modalLikesElement.textContent = (article.likes || 0).toLocaleString();
+                modalContentElement.innerHTML = article.content;
+
+                if (article.imageUrl) {
+                    modalImageElement.style.backgroundImage = `url('${article.imageUrl}')`;
+                    modalImageElement.style.display = 'block';
+                } else {
+                    modalImageElement.style.display = 'none';
+                }
+
+                if (article.tags && article.tags.length > 0) {
+                    modalTagsContainer.innerHTML = article.tags.map(tag =>
+                        `<span class="tag">#${tag}</span>`
+                    ).join('');
+                    modalTagsContainer.style.display = 'block';
+                } else {
+                    modalTagsContainer.style.display = 'none';
+                }
+
+                // Botões de interatividade (Like)
+                if (likeBtn && likeCount) {
+                    likeCount.textContent = article.likes || 0;
+                    likeBtn.onclick = async () => {
+                        try {
+                            const newLikes = (article.likes || 0) + 1;
+                            await window.firebaseDB.updateDoc(
+                                window.firebaseDB.doc(window.firebaseDB.db, 'games-articles', article.id),
+                                { likes: newLikes }
+                            );
+                            likeCount.textContent = newLikes;
+                            article.likes = newLikes; // Atualiza o objeto article em memória
+                        } catch (e) { console.error('Erro ao curtir:', e); }
+                    };
+                }
+
+                // Carregar comentários
+                await loadComments(article.id);
+
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+
             } catch (error) {
                 console.error('Erro ao abrir artigo:', error);
             }
         }
 
-        function showArticleModal(article) {
-            let modal = document.getElementById('articleModal');
-            if (!modal) {
-                modal = document.createElement('div');
-                modal.id = 'articleModal';
-                modal.className = 'modal';
-                modal.innerHTML = `
-                    <div class="modal-content">
-                        <button class="modal-close" onclick="closeModal()">
-                            <i class="fas fa-times"></i>
-                        </button>
-                        <div class="modal-image" id="modalImage"></div>
-                        <div class="modal-body">
-                            <h2 class="modal-title" id="modalTitle"></h2>
-                            <div class="modal-meta">
-                                <span><i class="fas fa-user"></i> <span id="modalAuthor"></span></span>
-                                <span><i class="fas fa-calendar"></i> <span id="modalDate"></span></span>
-                                <span><i class="fas fa-eye"></i> <span id="modalViews"></span> visualizações</span>
-                                <span><i class="fas fa-heart"></i> <span id="modalLikes"></span> curtidas</span>
-                            </div>
-                            <div class="modal-content-text" id="modalContent"></div>
-                            <div class="modal-tags" id="modalTags"></div>
-                        </div>
-                    </div>
-                `;
-                document.body.appendChild(modal);
-            }
-
-            document.getElementById('modalTitle').textContent = article.title;
-            document.getElementById('modalAuthor').textContent = article.author || 'Autor desconhecido';
-            document.getElementById('modalDate').textContent = formatDate(article.createdAt);
-            document.getElementById('modalViews').textContent = (article.views || 0).toLocaleString();
-            document.getElementById('modalLikes').textContent = (article.likes || 0).toLocaleString();
-            document.getElementById('modalContent').innerHTML = article.content;
-
-            const modalImage = document.getElementById('modalImage');
-            if (article.imageUrl) {
-                modalImage.style.backgroundImage = `url('${article.imageUrl}')`;
-                modalImage.style.display = 'block';
-            } else {
-                modalImage.style.display = 'none';
-            }
-
-            const modalTagsContainer = document.getElementById('modalTags');
-            if (article.tags && article.tags.length > 0) {
-                modalTagsContainer.innerHTML = article.tags.map(tag =>
-                    `<span class="tag">${tag}</span>`
-                ).join('');
-                modalTagsContainer.style.display = 'block';
-            } else {
-                modalTagsContainer.style.display = 'none';
-            }
-
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
 
         function formatDate(timestamp) {
             if (!timestamp) return '';
@@ -981,7 +1127,7 @@
                     // Tentar encontrar em currentArticles caso game não seja encontrado em allGames
                     const article = currentArticles.find(a => a.id === gameId);
                     if (article) {
-                        openModal(article); // Reutiliza openModal para exibir detalhes do artigo
+                        openArticle(article.id); // Chama openArticle para exibir o modal de artigo
                     } else {
                         console.error("Artigo também não encontrado em currentArticles:", gameId);
                     }
@@ -994,6 +1140,9 @@
         // Global functions
         window.openArticle = openArticle;
         window.closeModal = closeModal;
+        window.loadComments = loadComments; // Exporta loadComments globalmente
+        window.submitComment = window.submitComment; // Reafirma a exportação
+        window.shareArticle = window.shareArticle; // Reafirma a exportação
 
         // Placeholder for functions not yet implemented or relevant to this specific edit
         // window.toggleFavorites = toggleFavorites; // Exemplo: Se precisar adicionar essa função

@@ -42,7 +42,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: 
+            background-image:
                 linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
             background-size: 50px 50px;
@@ -411,10 +411,71 @@
             font-size: 0.95rem;
         }
 
+        .modal-body .article-meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .modal-body .article-meta i {
+            color: var(--destaque);
+        }
+
+        .interactivity-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            justify-content: center;
+        }
+
+        .interactivity-buttons button {
+            background: var(--neon-azul);
+            color: var(--cyber-preto);
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .interactivity-buttons button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 255, 255, 0.7);
+        }
+
+        .interactivity-buttons .like-button {
+            background: var(--neon-azul);
+        }
+
+        .interactivity-buttons .comment-button {
+            background: var(--neon-verde);
+        }
+
+        .tag {
+            display: inline-block;
+            background-color: var(--neon-roxo);
+            color: var(--texto-claro);
+            padding: 0.3rem 0.7rem;
+            border-radius: 15px;
+            margin-right: 0.5rem;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+
         @media (max-width: 768px) {
             header {
                 flex-direction: column;
                 gap: 1rem;
+            }
+
+            .logo h1 {
+                font-size: 2rem;
             }
 
             .hero-title {
@@ -436,6 +497,16 @@
             .modal-content {
                 width: 95%;
                 padding: 1.5rem;
+            }
+
+            .interactivity-buttons {
+                flex-direction: column;
+                gap: 0.8rem;
+            }
+
+            .interactivity-buttons button {
+                width: 100%;
+                padding: 0.7rem 1rem;
             }
         }
     </style>
@@ -509,9 +580,39 @@
         </div>
     </div>
 
+    <!-- Modal Structure (initially hidden) -->
+    <div class="modal" id="articleModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-image" id="modalImage"></div>
+            <div class="modal-body">
+                <h2 class="modal-title" id="modalTitle"></h2>
+                <div class="modal-meta">
+                    <span><i class="fas fa-user"></i> <span id="modalAuthor"></span></span>
+                    <span><i class="fas fa-calendar"></i> <span id="modalDate"></span></span>
+                    <span><i class="fas fa-eye"></i> <span id="modalViews"></span> visualizações</span>
+                    <span><i class="fas fa-heart"></i> <span id="modalLikes"></span> curtidas</span>
+                </div>
+                <div class="modal-content-text" id="modalContent"></div>
+                <div class="modal-tags" id="modalTags"></div>
+                <div id="modalSource" style="margin-top: 1rem;"></div>
+                <div class="interactivity-buttons">
+                    <button id="likeBtn" class="like-button">
+                        <i class="fas fa-heart"></i> Curtir <span id="likeCount">0</span>
+                    </button>
+                    <button class="comment-button">
+                        <i class="fas fa-comment"></i> Comentar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import '/firebase-config.js';
-        import { openArticle, formatDate } from '/js/shared-utils.js';
+        import { formatDate } from '/js/shared-utils.js';
 
         let currentArticles = [];
         let filteredArticles = [];
@@ -523,39 +624,36 @@
 
         async function loadArticles() {
             try {
-                let articlesQuery = window.firebaseDB.query(
-                    window.firebaseDB.collection(window.firebaseDB.db, 'tech-articles'),
-                    window.firebaseDB.where('status', '==', 'published'),
-                    window.firebaseDB.orderBy('createdAt', 'desc')
-                );
+                showLoading();
+
+                const articlesRef = window.firebaseDB.collection(window.firebaseDB.db, 'tech-articles');
+                let querySnapshot;
 
                 try {
-                    const snapshot = await window.firebaseDB.getDocs(articlesQuery);
-                    currentArticles = snapshot.docs.map(doc => ({
-                        id: doc.id,
-                        ...doc.data()
-                    }));
-                } catch (queryError) {
-                    if (queryError.code === 'failed-precondition') {
-                        console.warn('⚠️ Índice composto não disponível, usando query simples');
-                        articlesQuery = window.firebaseDB.query(
-                            window.firebaseDB.collection(window.firebaseDB.db, 'tech-articles'),
+                    const q = window.firebaseDB.query(
+                        articlesRef,
+                        window.firebaseDB.where('status', '==', 'published'),
+                        window.firebaseDB.orderBy('date', 'desc')
+                    );
+                    querySnapshot = await window.firebaseDB.getDocs(q);
+                } catch (indexError) {
+                    if (indexError.code === 'failed-precondition') {
+                        console.warn('⚠️ Erro com índice composto, tentando consulta simples:', indexError);
+                        const simpleQuery = window.firebaseDB.query(
+                            articlesRef,
                             window.firebaseDB.where('status', '==', 'published')
                         );
-                        const snapshot = await window.firebaseDB.getDocs(articlesQuery);
-                        currentArticles = snapshot.docs.map(doc => ({
-                            id: doc.id,
-                            ...doc.data()
-                        }));
-                        currentArticles.sort((a, b) => {
-                            const dateA = a.createdAt?.seconds || 0;
-                            const dateB = b.createdAt?.seconds || 0;
-                            return dateB - dateA;
-                        });
+                        querySnapshot = await window.firebaseDB.getDocs(simpleQuery);
                     } else {
-                        throw queryError;
+                        throw indexError;
                     }
                 }
+
+
+                currentArticles = querySnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
 
                 filteredArticles = [...currentArticles];
                 renderArticles();
@@ -581,7 +679,7 @@
             noResults.style.display = 'none';
 
             articlesGrid.innerHTML = filteredArticles.map(article => `
-                <div class="article-card" onclick="openArticle('${article.id}')">
+                <div class="article-card" onclick="openArticleModal('${article.id}')">
                     ${article.imageUrl ? `
                         <div class="article-image" style="background-image: url('${article.imageUrl}')">
                             <span class="article-category">${getCategoryIcon(article.category)} ${article.category}</span>
@@ -667,75 +765,68 @@
             renderArticles();
         }
 
-        function formatDate(timestamp) {
-            if (!timestamp) return 'Data não disponível';
-            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-            return date.toLocaleDateString('pt-BR', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-        }
+        // Removed duplicate formatDate function as it's imported from shared-utils.js
 
-        async function openArticle(articleId) {
+        async function fetchArticleDetails(articleId) {
             try {
-                if (window.openArticle) {
-                    await window.openArticle(articleId, 'tech-articles');
+                const articleRef = window.firebaseDB.doc(window.firebaseDB.db, 'tech-articles', articleId);
+                const docSnap = await window.firebaseDB.getDoc(articleRef);
+                if (docSnap.exists()) {
+                    return { id: docSnap.id, ...docSnap.data() };
                 } else {
-                    console.error('openArticle global não está disponível');
+                    console.error('No such document!');
+                    return null;
                 }
             } catch (error) {
-                console.error('Erro ao abrir artigo:', error);
+                console.error('Error fetching article details:', error);
+                return null;
             }
         }
 
-        function showArticleModal(article) {
+        async function openArticleModal(articleId) {
+            const article = await fetchArticleDetails(articleId);
+            if (!article) return;
+
             let modal = document.getElementById('articleModal');
             if (!modal) {
+                // Create modal if it doesn't exist (this part is already in the HTML, so this is a fallback)
                 modal = document.createElement('div');
                 modal.id = 'articleModal';
                 modal.className = 'modal';
-                modal.innerHTML = `
-                    <div class="modal-content">
-                        <button class="modal-close" onclick="closeModal()">
-                            <i class="fas fa-times"></i>
-                        </button>
-                        <div class="modal-image" id="modalImage"></div>
-                        <div class="modal-body">
-                            <h2 class="modal-title" id="modalTitle"></h2>
-                            <div class="modal-meta">
-                                <span><i class="fas fa-user"></i> <span id="modalAuthor"></span></span>
-                                <span><i class="fas fa-calendar"></i> <span id="modalDate"></span></span>
-                                <span><i class="fas fa-eye"></i> <span id="modalViews"></span> visualizações</span>
-                                <span><i class="fas fa-heart"></i> <span id="modalLikes"></span> curtidas</span>
-                            </div>
-                            <div class="modal-content-text" id="modalContent"></div>
-                            <div class="modal-tags" id="modalTags"></div>
-                            <div id="modalSource" style="margin-top: 1rem;"></div>
-                        </div>
-                    </div>
-                `;
                 document.body.appendChild(modal);
             }
 
-            document.getElementById('modalTitle').textContent = article.title || 'Título Indisponível';
-            document.getElementById('modalAuthor').textContent = article.author || 'Anônimo';
+            document.getElementById('modalTitle').textContent = article.title;
+            document.getElementById('modalAuthor').textContent = article.author;
             document.getElementById('modalDate').textContent = formatDate(article.createdAt);
-            document.getElementById('modalViews').textContent = article.views || 0;
-            document.getElementById('modalLikes').textContent = article.likes || 0;
-            document.getElementById('modalContent').innerHTML = (article.content || 'Conteúdo indisponível').replace(/\n/g, '<br>');
+            document.getElementById('modalImage').style.backgroundImage = `url('${article.imageUrl || article.image || '/icon/quantico.jpg'}')`;
 
-            const modalImage = document.getElementById('modalImage');
-            if (article.imageUrl) {
-                modalImage.style.backgroundImage = `url('${article.imageUrl}')`;
-                modalImage.style.display = 'block';
-            } else {
-                modalImage.style.display = 'none';
+            const modalContentText = document.getElementById('modalContent');
+            if (modalContentText) {
+                modalContentText.innerHTML = article.content || article.summary || '';
+            }
+
+            // Add interactivity buttons
+            const likeBtn = document.getElementById('likeBtn');
+            const likeCount = document.getElementById('likeCount');
+            if (likeBtn && likeCount) {
+                likeCount.textContent = article.likes || 0;
+                likeBtn.onclick = async () => {
+                    try {
+                        const newLikes = (article.likes || 0) + 1;
+                        await window.firebaseDB.updateDoc(
+                            window.firebaseDB.doc(window.firebaseDB.db, 'tech-articles', article.id),
+                            { likes: newLikes }
+                        );
+                        likeCount.textContent = newLikes;
+                        article.likes = newLikes; // Update local state
+                    } catch (e) { console.error('Erro ao curtir:', e); }
+                };
             }
 
             const tagsContainer = document.getElementById('modalTags');
             if (article.tags && article.tags.length > 0) {
-                tagsContainer.innerHTML = article.tags.map(tag => 
+                tagsContainer.innerHTML = article.tags.map(tag =>
                     `<span class="tag">#${tag}</span>`
                 ).join('');
                 tagsContainer.style.display = 'flex';
@@ -764,19 +855,20 @@
 
         window.toggleFavorites = function() {
             console.log('Toggle favorites');
+            // Placeholder for favorite functionality
         };
 
+        // Keep existing search, filter, sort functions
         window.searchArticles = function() {
-            const query = document.getElementById('searchInput').value;
-            console.log('Search:', query);
+            filterAndSort();
         };
 
         window.filterArticles = function() {
-            console.log('Filter articles');
+            filterAndSort();
         };
 
         window.sortArticles = function() {
-            console.log('Sort articles');
+            filterAndSort();
         };
 
         // Search on enter
@@ -785,6 +877,16 @@
                 searchArticles();
             }
         });
+
+        // Expose modal functions globally
+        window.openArticleModal = openArticleModal;
+        window.closeModal = closeModal;
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('articlesGrid').innerHTML = '';
+            document.getElementById('noResults').style.display = 'none';
+        }
     </script>
 </body>
 </html>

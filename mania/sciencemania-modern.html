@@ -693,8 +693,8 @@
         </div>
     </div>
 
-    <!-- Modal para artigo completo -->
-    <div class="modal" id="articleModal">
+    <!-- Modal de Artigo -->
+    <div id="articleModal" class="modal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal()">
                 <i class="fas fa-times"></i>
@@ -705,23 +705,18 @@
                 <div class="modal-meta">
                     <span><i class="fas fa-user"></i> <span id="modalAuthor"></span></span>
                     <span><i class="fas fa-calendar"></i> <span id="modalDate"></span></span>
-                    <span><i class="fas fa-tag"></i> <span id="modalCategory"></span></span>
                     <span><i class="fas fa-eye"></i> <span id="modalViews">0</span> visualizações</span>
                 </div>
-
-                <div style="display: flex; gap: 1rem; margin: 1.5rem 0; padding: 1rem 0; border-top: 2px solid rgba(0, 247, 255, 0.2); border-bottom: 2px solid rgba(0, 247, 255, 0.2);">
-                    <div id="likeButtonContainer"></div>
-                    <button
-                        style="background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.3); color: white; padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s;"
-                        onmouseover="this.style.borderColor='var(--verde, #00ffaa)'; this.style.background='rgba(0, 255, 170, 0.2)';"
-                        onmouseout="this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.background='rgba(255, 255, 255, 0.1)';"
-                    >
-                        <i class="fas fa-share-alt"></i> Compartilhar
+                <div class="modal-content-text" id="modalContent"></div>
+                <div class="modal-actions" style="display: flex; gap: 1rem; margin-top: 2rem; padding-top: 1rem; border-top: 2px solid rgba(0, 247, 255, 0.2);">
+                    <button id="likeBtn" style="background: linear-gradient(45deg, var(--verde), var(--azul)); border: none; color: white; padding: 0.8rem 2rem; border-radius: 25px; cursor: pointer; font-weight: 600; transition: all 0.3s; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-heart"></i>
+                        <span id="likeCount">0</span>
+                    </button>
+                    <button onclick="shareArticle()" style="background: rgba(255, 255, 255, 0.1); border: 2px solid var(--azul); color: white; padding: 0.8rem 2rem; border-radius: 25px; cursor: pointer; font-weight: 600; transition: all 0.3s;">
+                        <i class="fas fa-share"></i> Compartilhar
                     </button>
                 </div>
-
-                <div class="modal-content-text" id="modalContent"></div>
-
                 <div id="commentsSection"></div>
             </div>
         </div>
@@ -729,7 +724,7 @@
 
     <script type="module">
         import '/firebase-config.js';
-        import { incrementViews, checkIfLiked, loadComments, renderComments, renderLikeButton, renderCommentsSection, openArticle } from '/js/interaction-utils.js';
+        import { openArticle } from '/js/shared-utils.js';
 
         const categoriesData = {
             'fisica': { icon: '⚛️', name: 'Física', description: 'Leis fundamentais do universo' },
@@ -745,6 +740,7 @@
         // Global variables to hold articles for filtering and sorting
         let currentArticles = [];
         let filteredArticles = [];
+        let currentArticleId = null;
 
         // Wait for Firebase to be ready
         window.addEventListener('load', async () => {
@@ -822,52 +818,187 @@
         }
 
         function renderArticles() {
-            const articlesGrid = document.getElementById('articlesGrid');
+            const grid = document.getElementById('articlesGrid');
+            const loading = document.getElementById('loading');
             const noResults = document.getElementById('noResults');
 
+            loading.style.display = 'none';
+
             if (filteredArticles.length === 0) {
+                grid.style.display = 'none';
                 noResults.style.display = 'block';
-                articlesGrid.innerHTML = '';
                 return;
             }
 
+            grid.style.display = 'grid';
             noResults.style.display = 'none';
+            grid.innerHTML = '';
 
-            articlesGrid.innerHTML = filteredArticles.map(article => `
-                <div class="article-card" onclick="openArticleDetails('${article.id}')">
-                    ${article.imageUrl ? `
-                        <div class="article-image" style="background-image: url('${article.imageUrl}')">
-                            <span class="article-category">${getCategoryLabel(article.category)}</span>
-                        </div>
-                    ` : `
-                        <div class="article-image" style="background: linear-gradient(135deg, var(--destaque) 0%, var(--verde) 100%);">
-                            <span class="article-category">${getCategoryLabel(article.category)}</span>
-                        </div>
-                    `}
+            filteredArticles.forEach(article => {
+                const card = document.createElement('div');
+                card.className = 'article-card';
+                card.innerHTML = `
+                    <div class="article-image" style="background-image: url('${article.imageUrl || '/icon/atomo.avif'}')">
+                        <div class="article-category">${getCategoryName(article.category)}</div>
+                    </div>
                     <div class="article-content">
                         <h3 class="article-title">${article.title}</h3>
-                        <p class="article-summary">${article.summary}</p>
+                        <span class="article-author">Por ${article.author}</span>
+                        <p class="article-summary">${article.summary || ''}</p>
                         <div class="article-meta">
-                            <div class="article-author">
-                                <i class="fas fa-user"></i>
-                                <span>${article.author || 'Autor Desconhecido'}</span>
-                            </div>
-                            <div class="article-stats">
-                                <span><i class="fas fa-eye"></i> ${article.views || 0}</span>
-                                <span><i class="fas fa-heart"></i> ${article.likes || 0}</span>
-                            </div>
+                            <span><i class="fas fa-calendar"></i> ${formatDate(article.date)}</span>
+                            <span><i class="fas fa-eye"></i> ${article.views || 0}</span>
                         </div>
                     </div>
+                `;
+                card.addEventListener('click', () => openArticleModal(article));
+                grid.appendChild(card);
+            });
+        }
+
+        async function openArticleModal(article) {
+            currentArticleId = article.id;
+            const modal = document.getElementById('articleModal');
+
+            document.getElementById('modalTitle').textContent = article.title;
+            document.getElementById('modalAuthor').textContent = article.author;
+            document.getElementById('modalDate').textContent = formatDate(article.date);
+            document.getElementById('modalViews').textContent = article.views || 0;
+            document.getElementById('modalContent').innerHTML = article.content || article.summary || '';
+            document.getElementById('modalImage').style.backgroundImage = `url('${article.imageUrl || '/icon/atomo.avif'}')`;
+
+            // Incrementa visualizações
+            try {
+                await window.firebaseDB.updateDoc(
+                    window.firebaseDB.doc(window.firebaseDB.db, 'science-articles', article.id),
+                    { views: (article.views || 0) + 1 }
+                );
+            } catch (e) { console.error('Erro ao incrementar views:', e); }
+
+            // Atualiza likes
+            const likeBtn = document.getElementById('likeBtn');
+            const likeCount = document.getElementById('likeCount');
+            likeCount.textContent = article.likes || 0;
+
+            likeBtn.onclick = async () => {
+                try {
+                    const newLikes = (article.likes || 0) + 1;
+                    await window.firebaseDB.updateDoc(
+                        window.firebaseDB.doc(window.firebaseDB.db, 'science-articles', article.id),
+                        { likes: newLikes }
+                    );
+                    likeCount.textContent = newLikes;
+                    article.likes = newLikes;
+                } catch (e) { console.error('Erro ao curtir:', e); }
+            };
+
+            // Adiciona seção de comentários
+            await loadComments(article.id);
+
+            modal.classList.add('active');
+        }
+
+        async function loadComments(articleId) {
+            const commentsSection = document.getElementById('commentsSection');
+            const user = window.firebaseAuth.auth.currentUser;
+
+            commentsSection.innerHTML = `
+                <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid rgba(0, 247, 255, 0.2);">
+                    <h3 style="color: var(--azul); margin-bottom: 1rem;"><i class="fas fa-comments"></i> Comentários</h3>
+                    ${user ? `
+                        <div style="margin-bottom: 2rem;">
+                            <textarea id="commentInput" placeholder="Compartilhe sua opinião..." style="width: 100%; min-height: 100px; padding: 1rem; border-radius: 10px; border: 2px solid rgba(0, 247, 255, 0.3); background: rgba(0, 0, 0, 0.3); color: white; font-family: inherit; resize: vertical;"></textarea>
+                            <button onclick="submitComment()" style="margin-top: 1rem; background: linear-gradient(45deg, var(--verde), var(--azul)); border: none; color: white; padding: 0.8rem 2rem; border-radius: 25px; cursor: pointer; font-weight: 600;">
+                                <i class="fas fa-paper-plane"></i> Enviar Comentário
+                            </button>
+                        </div>
+                    ` : '<p style="color: var(--azul); margin-bottom: 1rem;">Faça login para comentar</p>'}
+                    <div id="commentsList"></div>
                 </div>
-            `).join('');
+            `;
+
+            // Carrega comentários existentes
+            try {
+                const commentsRef = window.firebaseDB.collection(window.firebaseDB.db, 'comments');
+                const q = window.firebaseDB.query(
+                    commentsRef,
+                    window.firebaseDB.where('articleId', '==', articleId),
+                    window.firebaseDB.orderBy('createdAt', 'desc')
+                );
+                const snapshot = await window.firebaseDB.getDocs(q);
+
+                const commentsList = document.getElementById('commentsList');
+                if (snapshot.empty) {
+                    commentsList.innerHTML = '<p style="color: rgba(255,255,255,0.5); text-align: center;">Nenhum comentário ainda. Seja o primeiro!</p>';
+                } else {
+                    commentsList.innerHTML = snapshot.docs.map(doc => {
+                        const comment = doc.data();
+                        return `
+                            <div style="background: rgba(0, 0, 0, 0.2); padding: 1rem; border-radius: 10px; margin-bottom: 1rem; border-left: 4px solid var(--azul);">
+                                <div style="font-weight: 600; color: var(--azul); margin-bottom: 0.5rem;">${comment.userName || 'Usuário'}</div>
+                                <div style="font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-bottom: 0.5rem;">${formatDate(comment.createdAt)}</div>
+                                <div style="color: white;">${comment.text}</div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            } catch (e) { console.error('Erro ao carregar comentários:', e); }
         }
 
-        function getCategoryLabel(category) {
-            return categoriesData[category]?.name || 'Ciência';
-        }
+        window.submitComment = async function() {
+            const commentInput = document.getElementById('commentInput');
+            const text = commentInput.value.trim();
 
-        function closeModal() {
+            if (!text) {
+                alert('Digite um comentário');
+                return;
+            }
+
+            const user = window.firebaseAuth.auth.currentUser;
+            if (!user) {
+                alert('Faça login para comentar');
+                return;
+            }
+
+            try {
+                await window.firebaseDB.addDoc(
+                    window.firebaseDB.collection(window.firebaseDB.db, 'comments'),
+                    {
+                        articleId: currentArticleId,
+                        userId: user.uid,
+                        userName: user.displayName || user.email,
+                        text: text,
+                        createdAt: new Date()
+                    }
+                );
+
+                commentInput.value = '';
+                await loadComments(currentArticleId);
+            } catch (e) {
+                console.error('Erro ao enviar comentário:', e);
+                alert('Erro ao enviar comentário');
+            }
+        };
+
+        window.shareArticle = function() {
+            const url = window.location.href;
+            if (navigator.share) {
+                navigator.share({
+                    title: document.getElementById('modalTitle').textContent,
+                    url: url
+                });
+            } else {
+                navigator.clipboard.writeText(url);
+                alert('Link copiado!');
+            }
+        };
+
+        window.closeModal = function() {
             document.getElementById('articleModal').classList.remove('active');
+        };
+
+        function getCategoryName(category) {
+            return categoriesData[category]?.name || 'Ciência';
         }
 
         function filterByCategory(category) {
@@ -934,22 +1065,10 @@
 
         // Helper function to format date
         function formatDate(date) {
-            return date.toLocaleDateString('pt-BR', { year: 'numeric', month: 'long', day: 'numeric' });
+            if (!date) return '';
+            const d = date.toDate ? date.toDate() : new Date(date); // Handle Firestore Timestamp and JS Date
+            return d.toLocaleDateString('pt-BR', { year: 'numeric', month: 'long', day: 'numeric' });
         }
-
-        // Global functions that will be called from HTML
-        window.openArticleDetails = async function(articleId) {
-            try {
-                await openArticle(articleId, 'science-articles');
-            } catch (error) {
-                console.error('Erro ao abrir artigo:', error);
-            }
-        };
-
-        window.toggleFavorites = function() {
-            alert('Funcionalidade de Favoritos em desenvolvimento!');
-            // Implement favorite functionality here
-        };
 
         // Ensure these functions are globally accessible if called from inline HTML
         window.searchArticles = searchArticles;
@@ -957,6 +1076,9 @@
         window.sortArticles = sortArticles;
         window.filterByCategory = filterByCategory;
         window.closeModal = closeModal;
+        window.shareArticle = shareArticle;
+        window.submitComment = submitComment;
+
 
         // Event listener for Enter key in search input
         document.getElementById('searchInput').addEventListener('keypress', function(e) {

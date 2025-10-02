@@ -392,12 +392,21 @@
             const label = event.target.nextElementSibling;
 
             if (file) {
+                // Validar tipo de arquivo
+                if (!file.type.startsWith('image/')) {
+                    showMessage('Por favor, selecione apenas arquivos de imagem.', 'error');
+                    event.target.value = '';
+                    return;
+                }
+                
+                // Validar tamanho
                 if (file.size > 5 * 1024 * 1024) { // 5MB limit
                     showMessage('A imagem deve ter no máximo 5MB.', 'error');
                     event.target.value = '';
                     return;
                 }
-                label.innerHTML = `<i class="fas fa-check-circle"></i><br>Imagem selecionada: ${file.name}`;
+                
+                label.innerHTML = `<i class="fas fa-check-circle"></i><br>Imagem selecionada: ${file.name}<br><small>${(file.size / 1024 / 1024).toFixed(2)} MB</small>`;
             }
         }
 
@@ -434,31 +443,51 @@
                 const imageFile = document.getElementById('image').files[0];
                 if (imageFile) {
                     try {
-                        formData.imageUrl = await uploadToImgbb(imageFile);
+                        showMessage('Enviando imagem...', 'info');
+                        formData.imageUrl = await uploadToImgbb(imageFile, (progress) => {
+                            console.log('Upload progress:', progress);
+                        });
                         showMessage('Imagem enviada com sucesso!', 'success');
                     } catch (error) {
                         console.error('Erro ao enviar imagem:', error);
-                        showMessage('Erro ao enviar imagem: ' + error.message, 'error');
-                        throw error;
+                        showMessage('Erro ao enviar imagem. Continuando sem imagem...', 'error');
+                        // Continua sem imagem ao invés de falhar completamente
+                        formData.imageUrl = '/icon/fatomania.png'; // Usa imagem padrão
                     }
+                } else {
+                    // Se não houver imagem, usa imagem padrão
+                    formData.imageUrl = '/icon/fatomania.png';
                 }
 
                 // Save to Firestore
                 await window.firebaseDB.addDoc(window.firebaseDB.collection(window.firebaseDB.db, 'space-articles'), formData);
 
                 showMessage('Descoberta espacial publicada com sucesso!', 'success');
-                document.getElementById('spaceForm').reset();
-
-                // Reset file input label
-                document.querySelector('.file-input-label').innerHTML = `
-                    <i class="fas fa-cloud-upload-alt"></i><br>
-                    Clique para selecionar uma imagem<br>
-                    <small>JPG, PNG ou GIF (máx. 5MB)</small>
-                `;
+                
+                // Aguarda um pouco antes de resetar o formulário
+                setTimeout(() => {
+                    document.getElementById('spaceForm').reset();
+                    
+                    // Reset file input label
+                    const fileLabel = document.querySelector('.file-input-label');
+                    if (fileLabel) {
+                        fileLabel.innerHTML = `
+                            <i class="fas fa-cloud-upload-alt"></i><br>
+                            Clique para selecionar uma imagem<br>
+                            <small>JPG, PNG ou GIF (máx. 5MB)</small>
+                        `;
+                    }
+                    
+                    // Redireciona para SPACEMANIA
+                    showMessage('Redirecionando para SPACEMANIA...', 'info');
+                    setTimeout(() => {
+                        window.location.href = '/mania/spacemania-modern.html';
+                    }, 1500);
+                }, 1000);
 
             } catch (error) {
                 console.error('Erro ao publicar descoberta:', error);
-                showMessage('Erro ao publicar descoberta: ' + error.message, 'error');
+                showMessage('Erro ao publicar descoberta: ' + (error.message || 'Erro desconhecido'), 'error');
             } finally {
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;

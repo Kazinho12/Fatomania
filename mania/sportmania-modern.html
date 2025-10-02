@@ -516,39 +516,51 @@
 
         async function loadArticles() {
             try {
-                let articlesQuery = window.firebaseDB.query(
-                    window.firebaseDB.collection(window.firebaseDB.db, 'sports-articles'),
-                    window.firebaseDB.where('status', '==', 'published'),
-                    window.firebaseDB.orderBy('createdAt', 'desc')
-                );
+                showLoading();
+
+                const articlesRef = window.firebaseDB.collection(window.firebaseDB.db, 'sports-articles');
+                let querySnapshot;
 
                 try {
-                    const snapshot = await window.firebaseDB.getDocs(articlesQuery);
-                    currentArticles = snapshot.docs.map(doc => ({
-                        id: doc.id,
-                        ...doc.data()
-                    }));
-                } catch (queryError) {
-                    if (queryError.code === 'failed-precondition') {
-                        console.warn('⚠️ Índice composto não disponível, usando query simples');
-                        articlesQuery = window.firebaseDB.query(
-                            window.firebaseDB.collection(window.firebaseDB.db, 'sports-articles'),
+                    const q = window.firebaseDB.query(
+                        articlesRef,
+                        window.firebaseDB.where('status', '==', 'published'),
+                        window.firebaseDB.orderBy('date', 'desc')
+                    );
+                    querySnapshot = await window.firebaseDB.getDocs(q);
+                } catch (indexError) {
+                    if (indexError.code === 'failed-precondition') {
+                        console.warn('⚠️ Erro com índice composto, tentando consulta simples:', indexError);
+                        const simpleQuery = window.firebaseDB.query(
+                            articlesRef,
                             window.firebaseDB.where('status', '==', 'published')
                         );
-                        const snapshot = await window.firebaseDB.getDocs(articlesQuery);
-                        currentArticles = snapshot.docs.map(doc => ({
-                            id: doc.id,
-                            ...doc.data()
-                        }));
-                        currentArticles.sort((a, b) => {
-                            const dateA = a.createdAt?.seconds || 0;
-                            const dateB = b.createdAt?.seconds || 0;
-                            return dateB - dateA;
-                        });
+                        querySnapshot = await window.firebaseDB.getDocs(simpleQuery);
                     } else {
-                        throw queryError;
+                        throw indexError;
                     }
                 }
+
+                currentArticles = querySnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                // Ensure sorting by date descending if simple query was used and orderBy was not
+                if (querySnapshot.docs.length > 0 && querySnapshot.docs[0].data().date === undefined && !currentArticles.some(a => a.date)) {
+                    currentArticles.sort((a, b) => {
+                        const dateA = a.createdAt?.seconds || 0;
+                        const dateB = b.createdAt?.seconds || 0;
+                        return dateB - dateA;
+                    });
+                } else if (querySnapshot.docs.length > 0 && currentArticles.some(a => a.date)) {
+                    currentArticles.sort((a, b) => {
+                        const dateA = a.date?.seconds || 0;
+                        const dateB = b.date?.seconds || 0;
+                        return dateB - dateA;
+                    });
+                }
+
 
                 filteredArticles = [...currentArticles];
                 renderArticles();
@@ -622,6 +634,54 @@
             }
         }
 
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('articlesGrid').innerHTML = '';
+            document.getElementById('noResults').style.display = 'none';
+        }
+
+        function searchArticles() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            filterArticles(searchTerm);
+        }
+
+        function filterArticles(searchTerm = null) {
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const currentSearchTerm = searchTerm !== null ? searchTerm : document.getElementById('searchInput').value.toLowerCase();
+
+            filteredArticles = currentArticles.filter(article => {
+                const matchesCategory = categoryFilter ? article.category === categoryFilter : true;
+                const matchesSearch = currentSearchTerm ?
+                    article.title.toLowerCase().includes(currentSearchTerm) ||
+                    article.summary.toLowerCase().includes(currentSearchTerm) ||
+                    article.content.toLowerCase().includes(currentSearchTerm)
+                    : true;
+                return matchesCategory && matchesSearch;
+            });
+            renderArticles();
+        }
+
+        function sortArticles() {
+            const sortFilter = document.getElementById('sortFilter').value;
+
+            switch (sortFilter) {
+                case 'newest':
+                    filteredArticles.sort((a, b) => (b.date || b.createdAt?.seconds || 0) - (a.date?.seconds || a.createdAt?.seconds || 0));
+                    break;
+                case 'oldest':
+                    filteredArticles.sort((a, b) => (a.date?.seconds || a.createdAt?.seconds || 0) - (b.date?.seconds || b.createdAt?.seconds || 0));
+                    break;
+                case 'popular':
+                    filteredArticles.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+                    break;
+                case 'mostViewed':
+                    filteredArticles.sort((a, b) => (b.views || 0) - (a.views || 0));
+                    break;
+            }
+            renderArticles();
+        }
+
+
         function showArticleModal(article) {
             // Create modal if it doesn't exist
             let modal = document.getElementById('articleModal');
@@ -667,10 +727,15 @@
                 modalImage.style.display = 'none';
             }
 
+            const modalTagsContainer = document.getElementById('modalTags');
+            modalTagsContainer.innerHTML = ''; // Clear previous tags
             if (article.tags && article.tags.length > 0) {
-                document.getElementById('modalTags').innerHTML = article.tags.map(tag => 
-                    `<span class="tag">${tag}</span>`
-                ).join('');
+                article.tags.forEach(tag => {
+                    const tagElement = document.createElement('span');
+                    tagElement.className = 'tag';
+                    tagElement.textContent = tag;
+                    modalTagsContainer.appendChild(tagElement);
+                });
             }
 
             modal.classList.add('active');
@@ -689,13 +754,35 @@
             return date.toLocaleDateString('pt-BR');
         }
 
+        function toggleFavorites() {
+            // Placeholder for favorite functionality
+            alert('Funcionalidade de favoritos ainda não implementada!');
+        }
+
         // Global functions
-        window.openArticle = openArticle;
+        window.openArticle = async function(articleId, collectionName) {
+            try {
+                const docSnap = await window.firebaseDB.getDoc(window.firebaseDB.doc(window.firebaseDB.db, collectionName, articleId));
+                if (docSnap.exists()) {
+                    const articleData = { id: docSnap.id, ...docSnap.data() };
+                    // Increment view count
+                    await window.firebaseDB.updateDoc(window.firebaseDB.doc(window.firebaseDB.db, collectionName, articleId), {
+                        views: (articleData.views || 0) + 1
+                    });
+                    articleData.views = (articleData.views || 0) + 1; // Update local view count for modal display
+                    showArticleModal(articleData);
+                } else {
+                    console.error("No such document!");
+                }
+            } catch (error) {
+                console.error("Error opening article:", error);
+            }
+        };
         window.closeModal = closeModal;
         window.searchArticles = searchArticles;
         window.filterArticles = filterArticles;
         window.sortArticles = sortArticles;
-        window.toggleFavorites = toggleFavorites; // Keep this from original code
+        window.toggleFavorites = toggleFavorites;
     </script>
 </body>
 </html>

@@ -19,6 +19,8 @@
             --sucesso: #27ae60;
             --texto-claro: #ecf0f1;
             --dourado: #f39c12; /* Adicionado para uso específico */
+            --roxo: #8e44ad; /* Alias para destaque */
+            --misterio: #f39c12; /* Alias para dourado */
         }
 
         * {
@@ -391,6 +393,218 @@
             filter: drop-shadow(0 0 15px var(--destaque));
         }
 
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, var(--fundo-card) 0%, var(--mystic-dark) 100%);
+            margin: 5% auto;
+            padding: 30px;
+            border: 2px solid var(--destaque);
+            border-radius: 20px;
+            width: 80%;
+            max-width: 700px;
+            box-shadow: 0 0 30px rgba(142, 68, 173, 0.4);
+            position: relative;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--destaque);
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            color: var(--destaque);
+            text-shadow: 0 0 10px rgba(142, 68, 173, 0.5);
+        }
+
+        .close-btn {
+            color: var(--texto-claro);
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(231, 76, 60, 0.2);
+            padding: 0.5rem;
+            border-radius: 50%;
+            line-height: 1;
+        }
+
+        .close-btn:hover,
+        .close-btn:focus {
+            color: var(--perigo);
+            background: var(--perigo);
+            transform: scale(1.1);
+        }
+
+        .modal-image {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            border: 2px solid var(--misterio);
+            box-shadow: 0 0 15px rgba(243, 156, 18, 0.3);
+        }
+
+        .modal-content-text {
+            font-size: 1.1rem;
+            color: var(--texto-claro);
+            margin-bottom: 1.5rem;
+            text-align: justify;
+        }
+
+        .modal-tags {
+            margin-top: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .modal-tag {
+            background: var(--destaque);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-weight: 600;
+        }
+
+        /* Dashboard Styles */
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            padding: 2rem;
+            background: rgba(26, 32, 44, 0.5);
+            border-radius: 15px;
+            margin: 2rem auto;
+            max-width: 1000px;
+            border: 1px solid rgba(142, 68, 173, 0.2);
+        }
+
+        .dashboard-card {
+            background: var(--fundo-card);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            border: 1px solid rgba(142, 68, 173, 0.1);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(142, 68, 173, 0.3);
+            border-color: var(--destaque);
+        }
+
+        .dashboard-card i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--destaque);
+        }
+
+        .dashboard-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--texto-claro);
+        }
+
+        .dashboard-card p {
+            font-size: 0.9rem;
+            color: var(--mystic-gold);
+        }
+
+        /* Comments Section */
+        #commentsSection {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 2px solid rgba(142, 68, 173, 0.2);
+        }
+
+        .comment-input {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .comment-input input {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border: 2px solid rgba(142, 68, 173, 0.3);
+            border-radius: 25px;
+            background: rgba(0, 0, 0, 0.5);
+            color: var(--texto-claro);
+            font-size: 1rem;
+        }
+
+        .comment-input input:focus {
+            outline: none;
+            border-color: var(--destaque);
+        }
+
+        .comment-input button {
+            background: var(--destaque);
+            border: none;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .comment-input button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(142, 68, 173, 0.3);
+        }
+
+        .comment {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 3px solid var(--misterio);
+        }
+
+        .comment-author {
+            font-weight: 700;
+            color: var(--destaque);
+            margin-bottom: 0.3rem;
+        }
+
+        .comment-text {
+            color: var(--texto-claro);
+            font-size: 0.95rem;
+        }
+
+
         @media (max-width: 768px) {
             header {
                 flex-direction: column;
@@ -411,6 +625,34 @@
 
             .articles-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 20px auto;
+            }
+
+            .modal-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .modal-title {
+                font-size: 1.5rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .close-btn {
+                font-size: 1.5rem;
+                padding: 0.3rem;
+            }
+
+            .dashboard-container {
+                grid-template-columns: 1fr;
+            }
+
+            .comment-input {
+                flex-direction: column;
             }
         }
     </style>
@@ -487,16 +729,51 @@
         </div>
     </div>
 
+    <!-- Modal Structure -->
+    <div id="articleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle"></h2>
+                <span class="close-btn" id="closeModalBtn">&times;</span>
+            </div>
+            <img id="modalImage" class="modal-image" src="" alt="Article Image">
+            <div class="modal-content-text" id="modalContent"></div>
+            <div class="modal-actions" style="display: flex; gap: 1rem; margin-top: 2rem; padding-top: 1rem; border-top: 2px solid rgba(142, 68, 173, 0.2);">
+                <button id="likeBtn" style="background: linear-gradient(45deg, var(--roxo), var(--misterio)); border: none; color: white; padding: 0.8rem 2rem; border-radius: 25px; cursor: pointer; font-weight: 600; transition: all 0.3s; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-heart"></i>
+                    <span id="likeCount">0</span>
+                </button>
+                <button onclick="shareArticle()" style="background: rgba(255, 255, 255, 0.1); border: 2px solid var(--roxo); color: white; padding: 0.8rem 2rem; border-radius: 25px; cursor: pointer; font-weight: 600; transition: all 0.3s;">
+                    <i class="fas fa-share"></i> Compartilhar
+                </button>
+            </div>
+            <div id="commentsSection"></div>
+            <div class="modal-tags" id="modalTags"></div>
+        </div>
+    </div>
+
+
     <script type="module">
         import '/firebase-config.js';
 
         let currentArticles = [];
         let filteredArticles = [];
+        let currentArticleId = null;
+        const modal = document.getElementById("articleModal");
+        const closeModalBtn = document.getElementById("closeModalBtn");
+        const modalTitle = document.getElementById("modalTitle");
+        const modalImage = document.getElementById("modalImage");
+        const modalContent = document.getElementById("modalContent");
+        const modalTags = document.getElementById("modalTags");
+        const likeBtn = document.getElementById("likeBtn");
+        const likeCount = document.getElementById("likeCount");
+        const commentsSection = document.getElementById("commentsSection");
 
         // Wait for Firebase to be ready
         window.addEventListener('load', async () => {
             createMysticParticles();
             await loadArticles();
+            setupModalInteractions();
         });
 
         function createMysticParticles() {
@@ -511,41 +788,43 @@
             }
         }
 
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('articlesGrid').innerHTML = '';
+            document.getElementById('noResults').style.display = 'none';
+        }
+
         async function loadArticles() {
             try {
-                let articlesQuery = window.firebaseDB.query(
-                    window.firebaseDB.collection(window.firebaseDB.db, 'mystic-articles'),
-                    window.firebaseDB.where('status', '==', 'published'),
-                    window.firebaseDB.orderBy('createdAt', 'desc')
-                );
+                showLoading();
+
+                const articlesRef = window.firebaseDB.collection(window.firebaseDB.db, 'mystic-articles');
+                let querySnapshot;
 
                 try {
-                    const snapshot = await window.firebaseDB.getDocs(articlesQuery);
-                    currentArticles = snapshot.docs.map(doc => ({
-                        id: doc.id,
-                        ...doc.data()
-                    }));
-                } catch (queryError) {
-                    if (queryError.code === 'failed-precondition') {
-                        console.warn('⚠️ Índice composto não disponível, usando query simples');
-                        articlesQuery = window.firebaseDB.query(
-                            window.firebaseDB.collection(window.firebaseDB.db, 'mystic-articles'),
+                    const q = window.firebaseDB.query(
+                        articlesRef,
+                        window.firebaseDB.where('status', '==', 'published'),
+                        window.firebaseDB.orderBy('date', 'desc')
+                    );
+                    querySnapshot = await window.firebaseDB.getDocs(q);
+                } catch (indexError) {
+                    if (indexError.code === 'failed-precondition') {
+                        console.warn('⚠️ Erro com índice composto, tentando consulta simples:', indexError);
+                        const simpleQuery = window.firebaseDB.query(
+                            articlesRef,
                             window.firebaseDB.where('status', '==', 'published')
                         );
-                        const snapshot = await window.firebaseDB.getDocs(articlesQuery);
-                        currentArticles = snapshot.docs.map(doc => ({
-                            id: doc.id,
-                            ...doc.data()
-                        }));
-                        currentArticles.sort((a, b) => {
-                            const dateA = a.createdAt?.seconds || 0;
-                            const dateB = b.createdAt?.seconds || 0;
-                            return dateB - dateA;
-                        });
+                        querySnapshot = await window.firebaseDB.getDocs(simpleQuery);
                     } else {
-                        throw queryError;
+                        throw indexError;
                     }
                 }
+
+                currentArticles = querySnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
 
                 filteredArticles = [...currentArticles];
                 renderArticles();
@@ -619,17 +898,158 @@
             return levels[level] || '⭐ Baixo';
         }
 
+        function setupModalInteractions() {
+            closeModalBtn.onclick = () => modal.style.display = "none";
+            window.onclick = (event) => {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            };
+        }
+
         async function openArticle(articleId) {
             try {
-                if (window.openArticle) {
-                    await window.openArticle(articleId, 'mystic-articles');
-                } else {
-                    console.error('openArticle não está disponível');
+                currentArticleId = articleId;
+                const articleRef = window.firebaseDB.doc(window.firebaseDB.db, 'mystic-articles', articleId);
+                const docSnap = await window.firebaseDB.getDoc(articleRef);
+
+                if (!docSnap.exists()) {
+                    console.error('Artigo não encontrado');
+                    return;
                 }
+
+                const article = { id: docSnap.id, ...docSnap.data() };
+
+                modalTitle.textContent = article.title;
+                modalContent.textContent = article.content;
+                modalTags.innerHTML = '';
+                if (article.tags && article.tags.length > 0) {
+                    article.tags.forEach(tag => {
+                        const tagElement = document.createElement('span');
+                        tagElement.className = 'modal-tag';
+                        tagElement.textContent = tag;
+                        modalTags.appendChild(tagElement);
+                    });
+                }
+
+                if (article.imageUrl) {
+                    modalImage.src = article.imageUrl;
+                    modalImage.style.display = 'block';
+                } else {
+                    modalImage.style.display = 'none';
+                }
+
+                // Likes
+                likeCount.textContent = article.likes || 0;
+                likeBtn.onclick = () => handleLike(articleId, article.likes || 0);
+
+                // Load comments
+                await loadComments(articleId);
+
+                modal.style.display = "flex"; // Use flex to center content
+                modal.style.justifyContent = "center";
+                modal.style.alignItems = "center";
+
+
             } catch (error) {
                 console.error('Erro ao abrir artigo:', error);
+                // Display error message in modal or alert
+                modalTitle.textContent = "Erro";
+                modalContent.textContent = "Não foi possível carregar o artigo. Tente novamente mais tarde.";
+                modalImage.style.display = 'none';
+                modalTags.innerHTML = '';
+                modal.style.display = "flex";
             }
         }
+
+        async function handleLike(articleId, currentLikes) {
+            try {
+                const articleRef = window.firebaseDB.doc(window.firebaseDB.db, 'mystic-articles', articleId);
+                await window.firebaseDB.updateDoc(articleRef, {
+                    likes: currentLikes + 1
+                });
+                likeCount.textContent = currentLikes + 1;
+                likeBtn.disabled = true; // Prevent multiple likes
+                likeBtn.style.cursor = 'not-allowed';
+            } catch (error) {
+                console.error('Erro ao dar like:', error);
+                alert('Erro ao registrar seu like. Tente novamente.');
+            }
+        }
+
+        function shareArticle() {
+            if (!currentArticleId) return;
+            const url = `${window.location.origin}${window.location.pathname}#article=${currentArticleId}`;
+            navigator.clipboard.writeText(url).then(() => {
+                alert('Link copiado! Compartilhe com seus amigos.');
+            }).catch(err => {
+                console.error('Erro ao copiar link:', err);
+                alert('Falha ao copiar o link. Tente manualmente.');
+            });
+        }
+
+        async function loadComments(articleId) {
+            const commentsDiv = document.getElementById('commentsSection');
+            commentsDiv.innerHTML = ''; // Clear previous comments
+
+            const commentsRef = window.firebaseDB.collection(window.firebaseDB.db, 'mystic-articles', articleId, 'comments');
+            const q = window.firebaseDB.query(commentsRef, window.firebaseDB.orderBy('timestamp', 'desc'));
+            const querySnapshot = await window.firebaseDB.getDocs(q);
+
+            if (querySnapshot.empty) {
+                commentsDiv.innerHTML = '<p style="color: var(--mystic-gold);">Seja o primeiro a comentar!</p>';
+                return;
+            }
+
+            querySnapshot.forEach(doc => {
+                const comment = doc.data();
+                const commentElement = document.createElement('div');
+                commentElement.className = 'comment';
+                commentElement.innerHTML = `
+                    <div class="comment-author">${comment.author || 'Anônimo'}</div>
+                    <div class="comment-text">${comment.text}</div>
+                `;
+                commentsDiv.appendChild(commentElement);
+            });
+
+            // Add comment input form
+            commentsDiv.innerHTML += `
+                <div class="comment-input">
+                    <input type="text" id="newCommentAuthor" placeholder="Seu nome (opcional)">
+                    <input type="text" id="newCommentText" placeholder="Deixe seu comentário...">
+                    <button onclick="addComment('${articleId}')">Enviar</button>
+                </div>
+            `;
+        }
+
+        window.addComment = async function(articleId) {
+            const authorInput = document.getElementById('newCommentAuthor');
+            const textInput = document.getElementById('newCommentText');
+
+            const author = authorInput.value.trim() || 'Anônimo';
+            const text = textInput.value.trim();
+
+            if (!text) {
+                alert('Por favor, digite um comentário.');
+                return;
+            }
+
+            try {
+                const commentsRef = window.firebaseDB.collection(window.firebaseDB.db, 'mystic-articles', articleId, 'comments');
+                await window.firebaseDB.addDoc(commentsRef, {
+                    author: author,
+                    text: text,
+                    timestamp: window.firebaseDB.serverTimestamp()
+                });
+
+                authorInput.value = '';
+                textInput.value = '';
+                await loadComments(articleId); // Reload comments to show the new one
+            } catch (error) {
+                console.error('Erro ao adicionar comentário:', error);
+                alert('Erro ao enviar comentário. Tente novamente.');
+            }
+        };
 
         // Global functions
         window.searchArticles = function() {
@@ -637,7 +1057,7 @@
             filteredArticles = currentArticles.filter(article =>
                 article.title.toLowerCase().includes(searchTerm) ||
                 article.summary.toLowerCase().includes(searchTerm) ||
-                article.content.toLowerCase().includes(searchTerm)
+                (article.content && article.content.toLowerCase().includes(searchTerm)) // Ensure content exists
             );
             renderArticles();
         };
@@ -654,7 +1074,11 @@
             const sortBy = document.getElementById('sortFilter').value;
             switch(sortBy) {
                 case 'oldest':
-                    filteredArticles.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+                    filteredArticles.sort((a, b) => {
+                        const dateA = a.date?.seconds || 0;
+                        const dateB = b.date?.seconds || 0;
+                        return dateA - dateB;
+                    });
                     break;
                 case 'popular':
                     filteredArticles.sort((a, b) => (b.likes || 0) - (a.likes || 0));
@@ -662,14 +1086,19 @@
                 case 'mostViewed':
                     filteredArticles.sort((a, b) => (b.views || 0) - (a.views || 0));
                     break;
-                default:
-                    filteredArticles.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                default: // newest
+                    filteredArticles.sort((a, b) => {
+                        const dateA = a.date?.seconds || 0;
+                        const dateB = b.date?.seconds || 0;
+                        return dateB - dateA;
+                    });
             }
             renderArticles();
         };
 
         window.toggleFavorites = function() {
             console.log('Toggle favorites');
+            // Placeholder for future implementation
         };
     </script>
 </body>

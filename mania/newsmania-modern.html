@@ -559,24 +559,34 @@
 
         async function loadNews() {
             try {
-                let snapshot;
+                const newsRef = window.firebaseDB.collection(window.firebaseDB.db, 'news-articles');
+                let querySnapshot;
 
                 try {
-                    // Try with full query (requires composite index)
-                    const newsQuery = window.firebaseDB.query(
-                        window.firebaseDB.collection(window.firebaseDB.db, 'news-articles'),
+                    // Tenta consulta com índice composto
+                    const q = window.firebaseDB.query(
+                        newsRef,
                         window.firebaseDB.where('status', '==', 'published'),
-                        window.firebaseDB.orderBy('createdAt', 'desc')
+                        window.firebaseDB.orderBy('publishedAt', 'desc'),
+                        window.firebaseDB.limit(20)
                     );
-                    snapshot = await window.firebaseDB.getDocs(newsQuery);
+                    querySnapshot = await window.firebaseDB.getDocs(q);
                 } catch (indexError) {
-                    console.warn('Composite index not available, using fallback query:', indexError);
-                    // Fallback: just get all documents and filter client-side
-                    const simpleQuery = window.firebaseDB.collection(window.firebaseDB.db, 'news-articles');
-                    snapshot = await window.firebaseDB.getDocs(simpleQuery);
+                    if (indexError.code === 'failed-precondition') {
+                        console.warn('⚠️ Erro com índice composto, tentando consulta simples:', indexError);
+                        // Fallback: consulta sem orderBy
+                        const simpleQuery = window.firebaseDB.query(
+                            newsRef,
+                            window.firebaseDB.where('status', '==', 'published'),
+                            window.firebaseDB.limit(20)
+                        );
+                        querySnapshot = await window.firebaseDB.getDocs(simpleQuery);
+                    } else {
+                        throw indexError;
+                    }
                 }
 
-                currentNews = snapshot.docs.map(doc => ({
+                currentNews = querySnapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data()
                 }))
@@ -667,43 +677,29 @@
             return labels[category] || '📰 Geral';
         }
 
+        // Define window.openArticle usando shared-utils
+        window.openArticle = async function(articleId) {
+            try {
+                const { openArticle: openArticleUtil } = await import('/js/shared-utils.js');
+                await openArticleUtil(articleId, 'news-articles');
+            } catch (error) {
+                console.error('Erro ao abrir artigo:', error);
+            }
+        };
+
         async function openModal(newsId) {
             try {
-                if (window.openArticle) {
-                    await window.openArticle(newsId, 'news-articles');
-                } else {
-                    console.error('openArticle não está disponível');
-                }
+                await window.openArticle(newsId);
             } catch (error) {
                 console.error('Erro ao abrir notícia:', error);
             }
         }
-            document.getElementById('modalDate').textContent = formatDate(news.createdAt);
-            document.getElementById('modalViews').textContent = news.views || 0;
-            document.getElementById('modalLikes').textContent = news.likes || 0;
-            document.getElementById('modalContent').innerHTML = news.content.replace(/\n/g, '<br>');
-
-            // Tags
-            const tagsContainer = document.getElementById('modalTags');
-            if (news.tags && news.tags.length > 0) {
-                tagsContainer.innerHTML = news.tags.map(tag => `<span class="tag">#${tag}</span>`).join('');
-            } else {
-                tagsContainer.innerHTML = '';
-            }
-
-            // Source
-            const sourceContainer = document.getElementById('modalSource');
-            if (news.source) {
-                sourceContainer.innerHTML = `<p><strong>Fonte:</strong> <a href="${news.source}" target="_blank" style="color: var(--azul);">${news.source}</a></p>`;
-            } else {
-                sourceContainer.innerHTML = '';
-            }
-
-            document.getElementById('newsModal').classList.add('active');
-        }
 
         function closeModal() {
-            document.getElementById('newsModal').classList.remove('active');
+            const modal = document.getElementById('newsModal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
         }
 
         function formatDate(timestamp) {

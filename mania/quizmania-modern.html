@@ -6,6 +6,7 @@
     <title>QuizMANIA - Desafios Científicos</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
             --vermelho: #ff0000;
@@ -919,7 +920,7 @@
     <div class="modal" id="resultsModal">
         <div class="modal-content" style="max-width: 700px; max-height: 90vh; overflow-y: auto; overflow-x: hidden;">
             <!-- Header do Modal -->
-            <div style="text-align: center; margin-bottom: 2rem; position: sticky; top: 0; background: var(--fundo-card); z-index: 10; padding: 1rem 0;">
+            <div id="resultsHeader" style="text-align: center; margin-bottom: 2rem; position: sticky; top: 0; background: var(--fundo-card); z-index: 10; padding: 1rem 0;">
                 <h2 class="results-title" style="margin-bottom: 0.5rem;">
                     <i class="fas fa-medal"></i> Resultado Final
                 </h2>
@@ -958,18 +959,25 @@
         let quizStartTime = null;
         let questionTimer = null;
         let timeRemaining = 0; // Added to manage quiz time
+        let timerInterval = null; // For session timer
 
         // Wait for Firebase to be ready
         window.addEventListener('load', async () => {
             await loadQuizzes();
             await loadRankings();
+            // Initialize session timer if it exists
+            const sessionTimerElement = document.getElementById('sessionTimer');
+            if (sessionTimerElement) {
+                // Hide it initially, it will be shown by startTimer()
+                sessionTimerElement.style.display = 'none';
+            }
         });
 
         async function loadQuizzes() {
             try {
                 console.log('🔄 Carregando quizzes...');
 
-                let currentQuizzes = [];
+                let quizzesData = []; // Renamed from currentQuizzes for clarity within this scope
 
                 try {
                     // Tenta primeiro consulta com filtro e ordenação
@@ -980,12 +988,12 @@
                     );
 
                     const snapshot = await window.firebaseDB.getDocs(quizzesQuery);
-                    currentQuizzes = snapshot.docs.map(doc => ({
+                    quizzesData = snapshot.docs.map(doc => ({
                         id: doc.id,
                         ...doc.data()
                     }));
 
-                    console.log('✅ Quizzes carregados com consulta completa:', currentQuizzes.length);
+                    console.log('✅ Quizzes carregados com consulta completa:', quizzesData.length);
 
                 } catch (indexError) {
                     console.warn('⚠️ Erro com índice composto, tentando consulta simples:', indexError);
@@ -995,19 +1003,19 @@
                         const simpleQuery = window.firebaseDB.collection(window.firebaseDB.db, 'quizzes');
                         const snapshot = await window.firebaseDB.getDocs(simpleQuery);
 
-                        currentQuizzes = snapshot.docs.map(doc => ({
+                        quizzesData = snapshot.docs.map(doc => ({
                             id: doc.id,
                             ...doc.data()
                         })).filter(quiz => quiz.status === 'published');
 
                         // Ordena no cliente
-                        currentQuizzes.sort((a, b) => {
+                        quizzesData.sort((a, b) => {
                             const dateA = a.createdAt?.seconds || new Date(a.createdAt || 0).getTime() / 1000;
                             const dateB = b.createdAt?.seconds || new Date(b.createdAt || 0).getTime() / 1000;
                             return dateB - dateA;
                         });
 
-                        console.log('✅ Quizzes carregados com consulta simples:', currentQuizzes.length);
+                        console.log('✅ Quizzes carregados com consulta simples:', quizzesData.length);
 
                     } catch (simpleError) {
                         console.error('❌ Erro mesmo com consulta simples:', simpleError);
@@ -1015,15 +1023,15 @@
                         // Cria quizzes de exemplo se não conseguir carregar
                         if (simpleError.code === 'failed-precondition' || simpleError.code === 'permission-denied') {
                             console.log('📝 Criando quizzes de exemplo...');
-                            currentQuizzes = await createSampleQuizzes();
+                            quizzesData = await createSampleQuizzes();
                         } else {
                             throw simpleError;
                         }
                     }
                 }
 
-                window.currentQuizzes = currentQuizzes;
-                filteredQuizzes = [...currentQuizzes];
+                window.currentQuizzes = quizzesData; // Assign to the global variable
+                filteredQuizzes = [...quizzesData];
                 renderQuizzes();
 
             } catch (error) {
@@ -1430,6 +1438,8 @@
             if (questionTimer) clearInterval(questionTimer); // Clear any existing timer
             questionTimer = setInterval(updateTimer, 1000);
 
+            // Start session timer if available
+            startTimer();
 
             // Update quiz plays count
             try {
@@ -1524,7 +1534,8 @@
         }
 
         async function finishQuiz() {
-            if (questionTimer) clearInterval(questionTimer); // Stop the timer
+            if (questionTimer) clearInterval(questionTimer); // Stop the quiz timer
+            stopTimer(); // Stop the session timer
 
             if (!currentQuiz) return;
 
@@ -1553,17 +1564,20 @@
             // Generate certificate if good performance (70% or more)
             const certBtn = document.getElementById('certificateBtn');
             const certContainer = document.getElementById('certificateContainer');
+            const resultHeader = document.getElementById('resultsHeader');
 
             console.log('📊 Pontuação:', score, '- Botão certificado deve aparecer:', score >= 70);
 
             if (score >= 70) {
                 certContainer.innerHTML = generateCertificate(score, correct, timeSpent);
                 certBtn.style.display = 'inline-flex';
-                certContainer.style.display = 'none'; // Sempre oculto até clicar no botão
+                certContainer.style.display = 'none'; // Always hidden until button click
                 certBtn.innerHTML = '<i class="fas fa-trophy"></i> Ver Certificado';
+                if (resultHeader) resultHeader.style.display = 'block'; // Ensure header is visible
             } else {
                 certBtn.style.display = 'none';
                 certContainer.style.display = 'none';
+                if (resultHeader) resultHeader.style.display = 'block'; // Ensure header is visible
             }
 
             document.getElementById('resultsModal').classList.add('active');
@@ -1737,11 +1751,49 @@
             `;
         }
 
-        function downloadCertificate() {
+        async function downloadCertificate() {
             const certificate = document.querySelector('.certificate');
+            const downloadBtn = certificate.querySelector('.certificate-download');
 
-            // Por enquanto, apenas uma mensagem
-            alert('🎉 Parabéns! O certificado seria baixado em uma implementação completa.');
+            if (!certificate) {
+                alert('Certificado não encontrado');
+                return;
+            }
+
+            try {
+                // Esconder o botão de download temporariamente
+                if (downloadBtn) downloadBtn.style.display = 'none';
+
+                // Capturar o certificado como imagem
+                const canvas = await html2canvas(certificate, {
+                    backgroundColor: '#ffffff',
+                    scale: 2, // Maior qualidade
+                    logging: false,
+                    useCORS: true
+                });
+
+                // Mostrar o botão novamente
+                if (downloadBtn) downloadBtn.style.display = 'block';
+
+                // Converter para blob e baixar
+                canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `certificado-fatomania-${Date.now()}.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+
+                    // Mostrar mensagem de sucesso
+                    alert('🎉 Certificado baixado com sucesso!');
+                });
+            } catch (error) {
+                console.error('Erro ao baixar certificado:', error);
+                alert('Erro ao baixar certificado. Tente novamente.');
+                if (downloadBtn) downloadBtn.style.display = 'block';
+            }
         }
 
         function closeResults() {
@@ -1795,16 +1847,70 @@
         function toggleCertificate() {
             const certContainer = document.getElementById('certificateContainer');
             const certBtn = document.getElementById('certificateBtn');
+            const resultHeader = document.getElementById('resultsHeader'); // Using the new ID
 
             if (certContainer.style.display === 'none') {
                 certContainer.style.display = 'block';
-                certBtn.innerHTML = '<i class="fas fa-trophy"></i> Ocultar Certificado';
-                certContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                certBtn.innerHTML = '<i class="fas fa-times"></i> Ocultar Certificado'; // Changed icon
+
+                // Hide the result header when the certificate is shown
+                if (resultHeader) {
+                    resultHeader.style.display = 'none';
+                }
+
+                certContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
             } else {
                 certContainer.style.display = 'none';
-                certBtn.innerHTML = '<i class="fas fa-trophy"></i> Ver Certificado';
+                certBtn.innerHTML = '<i class="fas fa-trophy"></i> Ver Certificado'; // Reset to original text
+
+                // Show the result header when the certificate is hidden
+                if (resultHeader) {
+                    resultHeader.style.display = 'block';
+                }
             }
         }
+
+        // Parar timer da sessão
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            const sessionTimer = document.getElementById('sessionTimer');
+            if (sessionTimer) {
+                sessionTimer.style.display = 'none';
+            }
+        }
+
+        // Iniciar timer de 6 minutos
+        function startTimer() {
+            const sessionTimer = document.getElementById('sessionTimer');
+            if (sessionTimer) {
+                sessionTimer.style.display = 'flex';
+            }
+
+            let sessionTimeRemaining = 360; // 6 minutes in seconds
+
+            // Update session timer display every second
+            timerInterval = setInterval(() => {
+                if (sessionTimeRemaining > 0) {
+                    sessionTimeRemaining--;
+                    const minutes = Math.floor(sessionTimeRemaining / 60);
+                    const seconds = sessionTimeRemaining % 60;
+                    // Assuming #sessionTimerValue exists to display the time
+                    const timerValueElement = document.getElementById('sessionTimerValue');
+                    if (timerValueElement) {
+                        timerValueElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                    }
+                } else {
+                    stopTimer();
+                    // Optionally, redirect or show a message if the session expires
+                    alert("Sessão expirada!");
+                    window.location.href = "/"; // Redirect to homepage
+                }
+            }, 1000);
+        }
+
 
         // Global functions - definir ANTES de carregar os quizzes
         window.showTab = showTab;

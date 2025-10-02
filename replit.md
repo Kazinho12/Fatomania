@@ -1,209 +1,222 @@
-# FATOMANIA - Scientific Curiosities Website
+# FATOMANIA - Site de Curiosidades Científicas
 
-## Overview
-FATOMANIA is a Portuguese-language scientific curiosities website that provides interactive content about various scientific topics. The project was imported from GitHub and successfully configured to run in the Replit environment.
+## Visão Geral
+FATOMANIA é um site de curiosidades científicas em português que fornece conteúdo interativo sobre diversos tópicos científicos. O projeto foi importado do GitHub e configurado com sucesso para rodar no ambiente Replit.
 
-## Project Architecture
+## Arquitetura do Projeto
 
-### Technology Stack
-- **Frontend**: HTML5, CSS3, JavaScript (ES6 modules)
-- **Authentication**: Firebase Authentication with Google Sign-in
-- **Server**: Python HTTP server for static file serving
-- **Deployment**: Configured for Replit autoscale deployment
+### Stack Tecnológico
+- **Frontend**: HTML5, CSS3, JavaScript (módulos ES6)
+- **Autenticação**: Firebase Authentication com Google Sign-in
+- **Servidor**: Servidor HTTP Python para servir arquivos estáticos
+- **Implantação**: Configurado para implantação autoscale do Replit
 
-### Key Features
-- Scientific curiosity articles and content
-- Firebase authentication system
-- Interactive dashboard for authenticated users
-- Laboratory simulations and tools
-- News and quiz sections
-- Multi-section educational content (Chemistry, Physics, Biology, etc.)
+### Funcionalidades Principais
+- Artigos e conteúdo de curiosidades científicas
+- Sistema de autenticação Firebase
+- Dashboard interativo para usuários autenticados
+- Simulações e ferramentas laboratoriais
+- Seções de notícias e quizzes
+- Conteúdo educacional multi-seção (Química, Física, Biologia, etc.)
 
-## File Structure
+## Estrutura de Arquivos
 ```
-├── index.html                 # Landing redirect page
-├── paginainicial.html         # Main landing page
-├── logsin.html               # Authentication page
-├── dashboard.html            # User dashboard (requires auth)
-├── firebase-config.js        # Firebase configuration
-├── css/                      # Stylesheets for each section
-├── js/                       # JavaScript modules
-├── icon/                     # Image assets
-├── lab/                      # Laboratory tools and simulations
-├── mania/                    # Subject-specific pages
-└── app.html                  # Application showcase page
+├── index.html                 # Página de redirecionamento inicial
+├── paginainicial.html         # Página inicial principal
+├── logsin.html               # Página de autenticação
+├── dashboard.html            # Dashboard do usuário (requer autenticação)
+├── firebase-config.js        # Configuração do Firebase
+├── css/                      # Folhas de estilo para cada seção
+├── js/                       # Módulos JavaScript
+├── icon/                     # Recursos de imagem
+├── lab/                      # Ferramentas e simulações laboratoriais
+├── mania/                    # Páginas específicas de assuntos
+└── app.html                  # Página de showcase da aplicação
 ```
 
-## Recent Changes (Complete Modernization)
-- **Date**: September 29, 2025
-- **Major Update**: Complete modernization with dynamic Firebase integration
-- **Changes Made**:
-  1. **Infrastructure Setup**: Python 3.11, static HTTP server, autoscale deployment
-  2. **Firebase Integration**: Complete Firestore database integration for dynamic content
-  3. **Modernized Mania Pages** (8 key sections):
-     - newsmania-modern.html - Dynamic scientific news system
-     - quizmania-modern.html - Interactive quiz system with ranking
-     - artmania-modern.html - Dynamic art and culture gallery
-     - sciencemania-modern.html - Scientific discoveries center
-     - ecomania-modern.html - Environmental sustainability content
-     - techmania-modern.html - Technology and innovation hub
-     - medmania-modern.html - Medical and health information
-     - spacemania-modern.html - Space exploration content
-  4. **Content Management System**: 
-     - submit-news.html, submit-quiz.html, submit-art.html - User submission systems
-     - admin-panel.html - Centralized content administration
-  5. **Advanced Features**: Quiz ranking system, user authentication, dynamic filtering
-  6. **User Experience**: Modern responsive design, Portuguese language preservation
+## Mudanças Recentes (Modernização Completa)
+- **Data**: 29 de setembro de 2025
+- **Atualização Major**: Modernização completa com integração dinâmica do Firebase
+- **Mudanças Realizadas**:
+  1. **Configuração de Infraestrutura**: Python 3.11, servidor HTTP estático, implantação autoscale
+  2. **Integração Firebase**: Integração completa do banco de dados Firestore para conteúdo dinâmico
+  3. **Páginas Mania Modernizadas** (8 seções principais):
+     - newsmania-modern.html - Sistema de notícias científicas dinâmicas
+     - quizmania-modern.html - Sistema de quiz interativo com ranking
+     - artmania-modern.html - Galeria dinâmica de arte e cultura
+     - sciencemania-modern.html - Centro de descobertas científicas
+     - ecomania-modern.html - Conteúdo de sustentabilidade ambiental
+     - techmania-modern.html - Hub de tecnologia e inovação
+     - medmania-modern.html - Informações médicas e de saúde
+     - spacemania-modern.html - Conteúdo de exploração espacial
+  4. **Sistema de Gerenciamento de Conteúdo**: 
+     - submit-news.html, submit-quiz.html, submit-art.html - Sistemas de submissão de usuários
+     - admin-panel.html - Administração centralizada de conteúdo
+  5. **Recursos Avançados**: Sistema de ranking de quiz, autenticação de usuários, filtragem dinâmica
+  6. **Experiência do Usuário**: Design responsivo moderno, preservação da língua portuguesa
 
-## Configuration Details
+## Detalhes de Configuração
 
-### Server Setup
-- **Development**: Python HTTP server on port 5000
-- **Production**: Same configuration with autoscale deployment
-- **Binding**: 0.0.0.0 to allow external access through Replit proxy
+### Configuração do Servidor
+- **Desenvolvimento**: Servidor HTTP Python na porta 5000
+- **Produção**: Mesma configuração com implantação autoscale
+- **Binding**: 0.0.0.0 para permitir acesso externo através do proxy Replit
 
-### Firebase Configuration
-- Authentication is pre-configured with API keys
-- Google OAuth provider enabled
-- User state management implemented
-- Automatic redirects between login and dashboard pages
+### Configuração Firebase
+- Autenticação pré-configurada com chaves API
+- Provedor OAuth do Google habilitado
+- Gerenciamento de estado do usuário implementado
+- Redirecionamentos automáticos entre páginas de login e dashboard
 
-## User Workflow
-1. User visits root URL → redirected to main landing page
-2. Clicks "Explorar Agora" → redirected to login page
-3. Authenticates via email/password or Google
-4. Access granted to dashboard and protected content
-5. Can explore various scientific sections and tools
+## Fluxo do Usuário
+1. Usuário visita URL raiz → redirecionado para página inicial principal
+2. Clica em "Explorar Agora" → redirecionado para página de login
+3. Autentica via email/senha ou Google
+4. Acesso concedido ao dashboard e conteúdo protegido
+5. Pode explorar várias seções científicas e ferramentas
 
-## Deployment Status
-✅ Successfully configured and ready for production deployment
-✅ All static assets serving correctly
-✅ Firebase authentication functional
-✅ Cross-browser compatibility maintained
-✅ Mobile-responsive design preserved
+## Status da Implantação
+✅ Configurado com sucesso e pronto para implantação em produção
+✅ Todos os recursos estáticos servindo corretamente
+✅ Autenticação Firebase funcional
+✅ Compatibilidade entre navegadores mantida
+✅ Design responsivo mobile preservado
 
-## Recent Critical Fixes (October 1, 2025)
+## Correções Críticas Recentes (1 de outubro de 2025)
 
-### 1. Image Storage Migration
-- **Migrated from Firebase Storage to imgbb API** for all 12 submit pages
-- Created centralized `js/upload-utils.js` for consistent image upload handling
-- Implemented hardcoded API key: `490019b11f119ad684399138b0226ff5`
-- Added proper error handling and progress tracking
-- **Affected pages**: submit-news, submit-art, submit-history, submit-quiz, submit-eco, submit-games, submit-tech, submit-science, submit-med, submit-mystic, submit-lab, submit-sports
+### 1. Migração de Armazenamento de Imagens
+- **Migrado do Firebase Storage para API imgbb** para todas as 12 páginas de submissão
+- Criado `js/upload-utils.js` centralizado para tratamento consistente de upload de imagens
+- Implementada chave API hardcoded: `490019b11f119ad684399138b0226ff5`
+- Adicionado tratamento de erros adequado e rastreamento de progresso
+- **Páginas afetadas**: submit-news, submit-art, submit-history, submit-quiz, submit-eco, submit-games, submit-tech, submit-science, submit-med, submit-mystic, submit-lab, submit-sports
 
-### 2. Firebase Collection Fixes
-- **Fixed critical collection name mismatch**: Changed 'news' to 'news-articles' in newsmania-modern.html
-- Added **fallback query mechanism** for Firestore queries without composite indexes
-- Implemented client-side filtering/sorting when server-side index is unavailable
-- Prevents "failed-precondition" errors in development environments
+### 2. Correções de Coleção Firebase
+- **Corrigido erro crítico de nome de coleção**: Alterado 'news' para 'news-articles' em newsmania-modern.html
+- Adicionado **mecanismo de consulta fallback** para consultas Firestore sem índices compostos
+- Implementada filtragem/ordenação do lado do cliente quando índice do lado do servidor não está disponível
+- Previne erros "failed-precondition" em ambientes de desenvolvimento
 
-### 3. Modal Function Fixes
-- **Fixed techmania-modern.html**: Replaced incomplete openArticle with full implementation
-- **Fixed ecomania-modern.html**: Added missing openModal and closeModal functions
-- All mania pages now have proper article viewing functionality
-- Consistent modal behavior across all sections
+### 3. Correções de Função Modal
+- **Corrigido techmania-modern.html**: Substituída implementação incompleta de openArticle com implementação completa
+- **Corrigido ecomania-modern.html**: Adicionadas funções openModal e closeModal ausentes
+- Todas as páginas mania agora têm funcionalidade adequada de visualização de artigos
+- Comportamento de modal consistente em todas as seções
 
-### 4. Technical Improvements
-- Enhanced error handling in all submission forms
-- Added view count increment on article opens
-- Improved date formatting and display
-- Better image preview functionality
+### 4. Melhorias Técnicas
+- Tratamento de erros aprimorado em todos os formulários de submissão
+- Adicionado incremento de contagem de visualizações ao abrir artigos
+- Formatação e exibição de data melhoradas
+- Melhor funcionalidade de pré-visualização de imagem
 
-## Replit Environment Setup (October 2, 2025)
+## Configuração do Ambiente Replit (2 de outubro de 2025)
 
-### Configuration Completed
-- **Python Version**: Python 3.11.13 installed and configured
-- **Static Server**: Running on port 5000 with 0.0.0.0 binding
-- **Workflow**: "Static Server" configured with `python -m http.server 5000 --bind 0.0.0.0`
-- **Deployment**: Autoscale deployment configured for production
-- **Git Protection**: .gitignore created to protect Python cache and temporary files
+### Configuração Concluída
+- **Versão Python**: Python 3.11.13 instalado e configurado
+- **Servidor Estático**: Rodando na porta 5000 com binding 0.0.0.0
+- **Workflow**: "Static Server" configurado com `python -m http.server 5000 --bind 0.0.0.0`
+- **Implantação**: Implantação autoscale configurada para produção
+- **Proteção Git**: .gitignore criado para proteger cache Python e arquivos temporários
 
-### Deployment Configuration
-- **Type**: Autoscale (serverless, scales automatically based on traffic)
-- **Run Command**: `python -m http.server 5000 --bind 0.0.0.0`
-- **Port**: 5000 (only port exposed through Replit proxy)
-- **Environment**: Production-ready static file server
+### Configuração de Implantação
+- **Tipo**: Autoscale (serverless, escala automaticamente baseado no tráfego)
+- **Comando de Execução**: `python -m http.server 5000 --bind 0.0.0.0`
+- **Porta**: 5000 (única porta exposta através do proxy Replit)
+- **Ambiente**: Servidor de arquivos estáticos pronto para produção
 
-### Important Notes
-- **imgbb API Key**: The API key for image uploads (`490019b11f119ad684399138b0226ff5`) is exposed in client-side code by design, as this is a frontend-only application making direct uploads from the browser. This is a known limitation of client-side upload solutions.
-- **No Backend**: This application runs entirely in the frontend with Firebase services (Auth, Firestore, Storage) accessed directly from the browser
-- **CORS Friendly**: Python's http.server allows all origins by default, making it suitable for Replit's proxy environment
+### Notas Importantes
+- **Chave API imgbb**: A chave API para uploads de imagem (`490019b11f119ad684399138b0226ff5`) é exposta no código do lado do cliente por design, pois esta é uma aplicação frontend-only que faz uploads diretos do navegador. Esta é uma limitação conhecida de soluções de upload do lado do cliente.
+  - **Consideração de Segurança**: Para uso em produção, é recomendado implementar um serviço de proxy backend para lidar com uploads de imagem de forma segura sem expor chaves API
+  - **Limitação de Taxa**: A chave API exposta pode estar sujeita a limites de taxa ou abuso. Monitore o uso e considere implementar manipulação de upload backend
+  - **Alternativa**: Considere usar Firebase Storage diretamente (já configurado) em vez de imgbb para melhor segurança e integração
+- **Sem Backend**: Esta aplicação roda inteiramente no frontend com serviços Firebase (Auth, Firestore, Storage) acessados diretamente do navegador
+- **Amigável ao CORS**: http.server do Python permite todas as origens por padrão, tornando-o adequado para o ambiente proxy do Replit
 
-## Critical Bug Fixes (October 2, 2025)
+## Correções Críticas de Bugs (2 de outubro de 2025)
 
-### 1. Upload Utils Export Fix
-- **Fixed uploadToImgbb export** in `js/upload-utils.js`
-- Function now properly exported for use in submission pages
-- Resolved import errors across all 12 submit pages
+### 1. Correção de Exportação Upload Utils
+- **Corrigida exportação uploadToImgbb** em `js/upload-utils.js`
+- Função agora exportada corretamente para uso em páginas de submissão
+- Resolvidos erros de importação em todas as 12 páginas de submissão
 
-### 2. formatDate Duplication Resolution
-- **Renamed internal formatDate to formatDateInternal** in `js/upload-utils.js`
-- Removed duplicate export that was causing redeclaration errors
-- Maintains internal formatting while avoiding global conflicts
+### 2. Resolução de Duplicação formatDate
+- **Renomeado formatDate interno para formatDateInternal** em `js/upload-utils.js`
+- Removida exportação duplicada que estava causando erros de redeclaração
+- Mantém formatação interna evitando conflitos globais
 
-### 3. Periodic Table Lanthanide/Actinide Fix
-- **Fixed addToLanthanideSeries and addToActinideSeries** in `lab/periotab.js`
-- Functions now properly store AND return element nodes
-- Lanthanides and actinides now render correctly in dedicated rows
-- Maintains sorting by atomic number
+### 3. Correção de Lantanídeos/Actinídeos da Tabela Periódica
+- **Corrigido addToLanthanideSeries e addToActinideSeries** em `lab/periotab.js`
+- Funções agora armazenam E retornam nós de elementos corretamente
+- Lantanídeos e actinídeos agora renderizam corretamente em linhas dedicadas
+- Mantém ordenação por número atômico
 
-### 4. Dashboard Function Exports
-- **Exported critical functions to window object** in `js/dashboard.js`
-- Functions: openProfileModal, closeProfileModal, toggleEditMode, saveProfile, toggleUserDropdown
-- Resolved "function not defined" errors in dashboard UI
+### 4. Exportações de Funções do Dashboard
+- **Exportadas funções críticas para objeto window** em `js/dashboard.js`
+- Funções: openProfileModal, closeProfileModal, toggleEditMode, saveProfile, toggleUserDropdown
+- Resolvidos erros "function not defined" na UI do dashboard
 
-### 5. Firestore Composite Index Fallback
-- **Implemented query fallback mechanism** in `mania/sciencemania-modern.html`
-- Catches failed-precondition errors from missing composite indexes
-- Falls back to query without orderBy, performs client-side sorting
-- Prevents article loading failures in development environments
+### 5. Fallback de Índice Composto Firestore
+- **Implementado mecanismo de fallback de consulta** em `mania/sciencemania-modern.html`
+- Captura erros failed-precondition de índices compostos ausentes
+- Volta para consulta sem orderBy, realiza ordenação do lado do cliente
+- Previne falhas de carregamento de artigos em ambientes de desenvolvimento
 
-### 6. JavaScript Smooth Scroll Fix (October 2, 2025)
-- **Fixed querySelector error** in `js/paginainicial.js`
-- Added validation to prevent errors from empty anchor hrefs (#)
-- Improved internal link smooth scrolling functionality
-- Resolved browser console error in line 1090
+### 6. Correção de Scroll Suave JavaScript (2 de outubro de 2025)
+- **Corrigido erro querySelector** em `js/paginainicial.js`
+- Adicionada validação para prevenir erros de hrefs âncora vazios (#)
+- Melhorada funcionalidade de scroll suave de links internos
+- Resolvido erro de console do navegador na linha 1090
 
-## GitHub Import Completion (October 2, 2025)
+## Conclusão da Importação do GitHub (2 de outubro de 2025)
 
-### Final Status: ✅ COMPLETE
-The FATOMANIA project has been successfully imported from GitHub and configured for Replit environment.
+### Status Final: ✅ COMPLETO
+O projeto FATOMANIA foi importado com sucesso do GitHub e configurado para ambiente Replit.
 
-### Verification Steps Completed
-1. ✅ **Python 3.11.13** installed and operational
-2. ✅ **Static Server** running on port 5000 with 0.0.0.0 binding
-3. ✅ **Workflow** configured and running without errors
-4. ✅ **Deployment** configured for autoscale production deployment
-5. ✅ **Website** loading correctly with all assets
-6. ✅ **Firebase** authentication and database integration functional
-7. ✅ **Console Errors** resolved (querySelector validation added)
-8. ✅ **Git Protection** .gitignore configured for Python files
+### Etapas de Verificação Concluídas
+1. ✅ **Python 3.11.13** instalado e operacional
+2. ✅ **Servidor Estático** rodando na porta 5000 com binding 0.0.0.0
+3. ✅ **Workflow** configurado e rodando sem erros
+4. ✅ **Implantação** configurada para produção autoscale
+5. ✅ **Website** carregando corretamente com todos os recursos
+6. ✅ **Firebase** autenticação e integração de banco de dados funcional
+7. ✅ **Erros de Console** resolvidos (validação querySelector adicionada)
+8. ✅ **Proteção Git** .gitignore configurado para arquivos Python
 
-### Ready for Use
-- Frontend accessible through Replit webview on port 5000
-- All 12 mania sections (news, quiz, art, science, eco, tech, med, space, etc.) functional
-- User authentication system operational
-- Content submission forms working
-- Laboratory tools and simulations available
-- Admin panel accessible for content management
+### Re-verificação (2 de outubro de 2025 - Clone Fresco)
+Após um clone fresco do GitHub, todas as configurações foram verificadas:
+- ✅ Python 3.11.13 confirmado operacional
+- ✅ Servidor estático rodando na porta 5000 com binding 0.0.0.0
+- ✅ Workflow "Static Server" ativo e respondendo corretamente
+- ✅ Configuração de implantação no arquivo .replit confirmada (autoscale)
+- ✅ Website carrega corretamente - página inicial, página principal, fluxo de autenticação todos funcionais
+- ✅ .gitignore configurado corretamente
+- ✅ Todos os recursos (CSS, JS, imagens) servindo corretamente
 
-## Major Debugging Session (October 2, 2025 - Session 2)
+### Pronto para Uso
+- Frontend acessível através do webview Replit na porta 5000
+- Todas as 12 seções mania (news, quiz, art, science, eco, tech, med, space, etc.) funcionais
+- Sistema de autenticação de usuário operacional
+- Formulários de submissão de conteúdo funcionando
+- Ferramentas e simulações laboratoriais disponíveis
+- Painel admin acessível para gerenciamento de conteúdo
 
-### Issues Addressed
+## Sessão de Depuração Major (2 de outubro de 2025 - Sessão 2)
 
-#### 1. Dashboard Critical Bug Fix
-**Problem**: Dashboard não exibia conteúdo após login - função `openArticleModal` estava indefinida
-**Solution**: 
+### Problemas Resolvidos
+
+#### 1. Correção Crítica de Bug do Dashboard
+**Problema**: Dashboard não exibia conteúdo após login - função `openArticleModal` estava indefinida
+**Solução**: 
 - Adicionada função `openArticleModal` em `js/dashboard.js` (linha 1827)
 - Função exposta ao objeto window para acesso global (linha 1853)
 - Redireciona para `showDetailModal` quando recebe um artigo
 - Previne erros quando artigo não é fornecido
 
-**Files Modified**: `js/dashboard.js`
+**Arquivos Modificados**: `js/dashboard.js`
 
-#### 2. Contact Form WhatsApp Integration
-**Problem**: Formulário em sobre-nos.html precisava enviar mensagens via WhatsApp para +258825067698
-**Solution**:
+#### 2. Integração WhatsApp do Formulário de Contato
+**Problema**: Formulário em sobre-nos.html precisava enviar mensagens via WhatsApp para +258825067698
+**Solução**:
 - Configurado formulário para enviar via WhatsApp (alternativa ao email devido a limitações de serviço)
 - Implementada função `enviarWhatsApp` com validação de campos
 - Formatação automática de mensagem com nome, email e conteúdo
@@ -211,20 +224,20 @@ The FATOMANIA project has been successfully imported from GitHub and configured 
 - Mensagem de confirmação para o usuário
 - Limpeza automática do formulário após envio
 
-**Files Modified**: `sobre-nos.html`
+**Arquivos Modificados**: `sobre-nos.html`
 
-#### 3. Artmania Missing Functions
-**Problem**: Função `toggleFavorites` estava indefinida em artmania-modern.html
-**Solution**:
+#### 3. Funções Ausentes do Artmania
+**Problema**: Função `toggleFavorites` estava indefinida em artmania-modern.html
+**Solução**:
 - Implementada função `toggleFavorites` para gerenciar favoritos
 - Função exposta ao objeto window para acesso via onclick
 - `searchArticles` já existia e foi verificada
 
-**Files Modified**: `mania/artmania-modern.html`
+**Arquivos Modificados**: `mania/artmania-modern.html`
 
-#### 4. Quizmania Modal Reorganization
-**Problem**: Modal de resultados do quiz precisava de reorganização e botão de certificado
-**Solution**:
+#### 4. Reorganização do Modal Quizmania
+**Problema**: Modal de resultados do quiz precisava de reorganização e botão de certificado
+**Solução**:
 - **Reorganização completa do layout do modal de resultados**:
   - Novo design mais limpo e profissional
   - Texto de desempenho personalizado baseado na pontuação
@@ -243,60 +256,60 @@ The FATOMANIA project has been successfully imported from GitHub and configured 
   - Função `toggleCertificate` implementada e exposta globalmente
   - Certificado nunca aparece automaticamente (só via botão)
 
-**Files Modified**: `mania/quizmania-modern.html`
+**Arquivos Modificados**: `mania/quizmania-modern.html`
 
-#### 5. Minor JavaScript Error Fix
-**Problem**: Erro de querySelector em paginainicial.js ao processar links vazios (#)
-**Solution**: 
+#### 5. Correção de Erro JavaScript Menor
+**Problema**: Erro de querySelector em paginainicial.js ao processar links vazios (#)
+**Solução**: 
 - Adicionada validação para prevenir erros em atributos href vazios
 - Melhorada funcionalidade de smooth scrolling para links internos
 
-**Files Modified**: `js/paginainicial.js` (fix já estava implementado de sessão anterior)
+**Arquivos Modificados**: `js/paginainicial.js` (fix já estava implementado de sessão anterior)
 
-### Technical Details
+### Detalhes Técnicos
 
-#### Function Exposure Pattern
+#### Padrão de Exposição de Funções
 Todas as funções chamadas via `onclick` em HTML precisam ser expostas ao objeto `window` devido ao escopo de módulos ES6:
 ```javascript
 window.functionName = functionName;
 ```
 
-#### WhatsApp Integration
+#### Integração WhatsApp
 Formato da URL: `https://wa.me/258825067698?text=`
 - Número internacional sem + ou espaços
 - Mensagem codificada com `encodeURIComponent()`
 - Abre em nova aba via `window.open()`
 
-#### Certificate Button Styling
+#### Estilo do Botão de Certificado
 ```css
 background: linear-gradient(135deg, #FFD700, #FFA500);
 color: #000;
 box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
 ```
 
-### Remaining Tasks (Not Completed)
+### Tarefas Restantes (Não Concluídas)
 
-**High Priority - Repetitive Tasks**:
+**Alta Prioridade - Tarefas Repetitivas**:
 1. Implementar `searchArticles` e `toggleFavorites` em todas as páginas mania (9 páginas restantes)
 2. Implementar sistema de interações (views, likes, comments) em todas as 10 páginas mania
 3. Auditar e corrigir funcionalidade de todos os botões e links
 
-**Medium Priority - Specific Fixes**:
+**Média Prioridade - Correções Específicas**:
 4. Corrigir carregamento de imagens em artmania-modern.html
 5. Corrigir estado de carregamento infinito em techmania-modern.html
 
-**Estimated Effort**: ~4-6 horas para completar todas as tarefas restantes
+**Esforço Estimado**: ~4-6 horas para completar todas as tarefas restantes
 
-### Testing Notes
+### Notas de Teste
 - Servidor reiniciado com sucesso
 - Todas as funções testadas manualmente
 - Sem erros de console nas páginas modificadas
-- Firebase integração funcionando corretamente
+- Integração Firebase funcionando corretamente
 
-## Notes
-- The project uses ES6 modules with Firebase CDN
-- All paths use absolute references (starting with /)
-- Portuguese language content maintained
-- Original styling and branding preserved
-- No dependencies beyond Firebase CDN and Python stdlib
-- **Image uploads**: Now using imgbb API instead of Firebase Storage
+## Notas
+- O projeto usa módulos ES6 com CDN do Firebase
+- Todos os caminhos usam referências absolutas (começando com /)
+- Conteúdo em língua portuguesa mantido
+- Estilo e branding original preservados
+- Sem dependências além do CDN do Firebase e stdlib do Python
+- **Uploads de imagem**: Agora usando API imgbb em vez de Firebase Storage

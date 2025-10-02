@@ -618,7 +618,7 @@ async function loadNewsFromDatabase() {
 
         try {
             // Tenta consulta simples sem ordenação
-            const simpleQuery = query(collection(db, "news-articles"), limit(10));
+            const simpleQuery = query(collection(db, "dynamic-news"), limit(10));
             const querySnapshot = await getDocs(simpleQuery);
 
             querySnapshot.forEach((doc) => {

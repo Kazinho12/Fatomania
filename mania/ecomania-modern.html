@@ -568,41 +568,43 @@
             await loadArticles();
         });
 
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('articlesGrid').innerHTML = '';
+            document.getElementById('noResults').style.display = 'none';
+        }
+
         async function loadArticles() {
             try {
-                let articlesQuery = window.firebaseDB.query(
-                    window.firebaseDB.collection(window.firebaseDB.db, 'eco-articles'),
-                    window.firebaseDB.where('status', '==', 'published'),
-                    window.firebaseDB.orderBy('createdAt', 'desc')
-                );
+                showLoading();
+
+                const articlesRef = window.firebaseDB.collection(window.firebaseDB.db, 'eco-articles');
+                let querySnapshot;
 
                 try {
-                    const snapshot = await window.firebaseDB.getDocs(articlesQuery);
-                    currentArticles = snapshot.docs.map(doc => ({
-                        id: doc.id,
-                        ...doc.data()
-                    }));
-                } catch (queryError) {
-                    if (queryError.code === 'failed-precondition') {
-                        console.warn('⚠️ Índice composto não disponível, usando query simples');
-                        articlesQuery = window.firebaseDB.query(
-                            window.firebaseDB.collection(window.firebaseDB.db, 'eco-articles'),
+                    const q = window.firebaseDB.query(
+                        articlesRef,
+                        window.firebaseDB.where('status', '==', 'published'),
+                        window.firebaseDB.orderBy('createdAt', 'desc')
+                    );
+                    querySnapshot = await window.firebaseDB.getDocs(q);
+                } catch (indexError) {
+                    if (indexError.code === 'failed-precondition') {
+                        console.warn('⚠️ Erro com índice composto, tentando consulta simples:', indexError);
+                        const simpleQuery = window.firebaseDB.query(
+                            articlesRef,
                             window.firebaseDB.where('status', '==', 'published')
                         );
-                        const snapshot = await window.firebaseDB.getDocs(articlesQuery);
-                        currentArticles = snapshot.docs.map(doc => ({
-                            id: doc.id,
-                            ...doc.data()
-                        }));
-                        currentArticles.sort((a, b) => {
-                            const dateA = a.createdAt?.seconds || 0;
-                            const dateB = b.createdAt?.seconds || 0;
-                            return dateB - dateA;
-                        });
+                        querySnapshot = await window.firebaseDB.getDocs(simpleQuery);
                     } else {
-                        throw queryError;
+                        throw indexError;
                     }
                 }
+
+                currentArticles = querySnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
 
                 filteredArticles = [...currentArticles];
                 renderArticles();
@@ -715,13 +717,19 @@
             renderArticles();
         }
 
+        // Define window.openArticle usando shared-utils
+        window.openArticle = async function(articleId) {
+            try {
+                const { openArticle: openArticleUtil } = await import('/js/shared-utils.js');
+                await openArticleUtil(articleId, 'eco-articles');
+            } catch (error) {
+                console.error('Erro ao abrir artigo:', error);
+            }
+        };
+
         async function openModal(articleId) {
             try {
-                if (window.openArticle) {
-                    await window.openArticle(articleId, 'eco-articles');
-                } else {
-                    console.error('openArticle não está disponível');
-                }
+                await window.openArticle(articleId);
             } catch (error) {
                 console.error('Erro ao abrir artigo:', error);
             }
@@ -729,7 +737,7 @@
 
         function showArticleModal(article) {
             let modal = document.getElementById('articleModal');
-            
+
             document.getElementById('modalTitle').textContent = article.title || 'Título Indisponível';
             document.getElementById('modalAuthor').textContent = article.author || 'Anônimo';
             document.getElementById('modalDate').textContent = formatDate(article.createdAt);
@@ -747,7 +755,7 @@
 
             const tagsContainer = document.getElementById('modalTags');
             if (article.tags && article.tags.length > 0) {
-                tagsContainer.innerHTML = article.tags.map(tag => 
+                tagsContainer.innerHTML = article.tags.map(tag =>
                     `<span class="tag">#${tag}</span>`
                 ).join('');
                 tagsContainer.style.display = 'flex';
