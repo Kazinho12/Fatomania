@@ -479,7 +479,7 @@
                     <i class="fas fa-search"></i>
                 </button>
             </div>
-            
+
             <select class="category-filter" id="categoryFilter" onchange="filterNews()">
                 <option value="">Todas as categorias</option>
                 <option value="ciencia">🔬 Ciência</option>
@@ -561,7 +561,7 @@
         async function loadNews() {
             try {
                 let snapshot;
-                
+
                 try {
                     // Try with full query (requires composite index)
                     const newsQuery = window.firebaseDB.query(
@@ -619,9 +619,15 @@
 
             newsGrid.innerHTML = newsToShow.map(news => `
                 <div class="news-card" onclick="openModal('${news.id}')">
-                    <div class="news-image" style="background-image: url('${news.imageUrl || '/icon/fatomania.png'}')">
-                        <div class="news-category">${getCategoryIcon(news.category)} ${news.category}</div>
-                    </div>
+                    ${news.imageUrl ? `
+                        <div class="news-image" style="background-image: url('${news.imageUrl}')">
+                            <span class="news-category">${getCategoryLabel(news.category)}</span>
+                        </div>
+                    ` : `
+                        <div class="news-image" style="background: linear-gradient(135deg, var(--destaque) 0%, #ff8c00 100%);">
+                            <span class="news-category">${getCategoryLabel(news.category)}</span>
+                        </div>
+                    `}
                     <div class="news-content">
                         <h3 class="news-title">${news.title}</h3>
                         <p class="news-summary">${news.summary}</p>
@@ -647,19 +653,19 @@
             }
         }
 
-        function getCategoryIcon(category) {
-            const icons = {
-                'ciencia': '🔬',
-                'tecnologia': '💻',
-                'medicina': '⚕️',
-                'astronomia': '🌌',
-                'fisica': '⚛️',
-                'biologia': '🧬',
-                'quimica': '🧪',
-                'ambiente': '🌱',
-                'descoberta': '💡'
+        function getCategoryLabel(category) {
+            const labels = {
+                'ciencia': '🔬 Ciência',
+                'tecnologia': '💻 Tecnologia',
+                'medicina': '⚕️ Medicina',
+                'astronomia': '🌌 Astronomia',
+                'fisica': '⚛️ Física',
+                'biologia': '🧬 Biologia',
+                'quimica': '🧪 Química',
+                'ambiente': '🌱 Meio Ambiente',
+                'descoberta': '💡 Descobertas'
             };
-            return icons[category] || '📰';
+            return labels[category] || '📰 Geral';
         }
 
         async function openModal(newsId) {
@@ -685,7 +691,7 @@
             document.getElementById('modalViews').textContent = news.views || 0;
             document.getElementById('modalLikes').textContent = news.likes || 0;
             document.getElementById('modalContent').innerHTML = news.content.replace(/\n/g, '<br>');
-            
+
             // Tags
             const tagsContainer = document.getElementById('modalTags');
             if (news.tags && news.tags.length > 0) {

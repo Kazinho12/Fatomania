@@ -447,6 +447,139 @@
             font-size: 0.9rem;
         }
 
+        /* Styles for comments section */
+        #commentsSection {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 2px solid rgba(0, 247, 255, 0.2);
+        }
+
+        .comments-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .comments-header i {
+            font-size: 1.5rem;
+            color: var(--destaque);
+        }
+
+        .comments-header h3 {
+            font-size: 1.5rem;
+            color: var(--destaque);
+        }
+
+        .comment-form {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            align-items: center;
+        }
+
+        .comment-form input[type="text"] {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border: 2px solid rgba(0, 247, 255, 0.3);
+            border-radius: 25px;
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--texto-claro);
+            font-size: 1rem;
+        }
+
+        .comment-form button {
+            background: var(--destaque);
+            border: none;
+            color: var(--fundo);
+            padding: 0.8rem 1.5rem;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .comment-form button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 247, 255, 0.3);
+        }
+
+        .comment-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .comment-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            border-radius: 15px;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(0, 247, 255, 0.1);
+        }
+
+        .comment-author-info {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .comment-author-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: var(--destaque);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: var(--fundo);
+        }
+
+        .comment-author-name {
+            font-weight: 600;
+            color: var(--destaque);
+        }
+
+        .comment-date {
+            font-size: 0.8rem;
+            color: var(--texto-claro);
+            opacity: 0.7;
+        }
+
+        .comment-text {
+            margin-left: 3.8rem; /* Align with comment text */
+            color: var(--texto-claro);
+            line-height: 1.7;
+        }
+
+        .like-button {
+            background: none;
+            border: none;
+            color: var(--dourado);
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: all 0.3s;
+        }
+
+        .like-button.liked {
+            color: var(--perigo);
+            font-weight: bold;
+        }
+
+        .like-button:hover {
+            color: var(--verde);
+        }
+
+        .like-count {
+            font-size: 1rem;
+            color: var(--texto-claro);
+            opacity: 0.9;
+        }
+
         @media (max-width: 768px) {
             header {
                 flex-direction: column;
@@ -475,6 +608,14 @@
 
             .modal-content {
                 margin: 0.5rem;
+            }
+
+            .comment-form {
+                flex-direction: column;
+            }
+
+            .comment-form input[type="text"] {
+                width: 100%;
             }
         }
     </style>
@@ -564,23 +705,33 @@
                 <div class="modal-meta">
                     <span><i class="fas fa-user"></i> <span id="modalAuthor"></span></span>
                     <span><i class="fas fa-calendar"></i> <span id="modalDate"></span></span>
-                    <span><i class="fas fa-eye"></i> <span id="modalViews"></span> visualizações</span>
-                    <span><i class="fas fa-heart"></i> <span id="modalLikes"></span> curtidas</span>
+                    <span><i class="fas fa-tag"></i> <span id="modalCategory"></span></span>
+                    <span><i class="fas fa-eye"></i> <span id="modalViews">0</span> visualizações</span>
                 </div>
+
+                <div style="display: flex; gap: 1rem; margin: 1.5rem 0; padding: 1rem 0; border-top: 2px solid rgba(0, 247, 255, 0.2); border-bottom: 2px solid rgba(0, 247, 255, 0.2);">
+                    <div id="likeButtonContainer"></div>
+                    <button 
+                        style="background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.3); color: white; padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s;"
+                        onmouseover="this.style.borderColor='var(--verde, #00ffaa)'; this.style.background='rgba(0, 255, 170, 0.2)';"
+                        onmouseout="this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.background='rgba(255, 255, 255, 0.1)';"
+                    >
+                        <i class="fas fa-share-alt"></i> Compartilhar
+                    </button>
+                </div>
+
                 <div class="modal-content-text" id="modalContent"></div>
-                <div class="modal-tags" id="modalTags"></div>
-                <div id="modalSource" style="margin-top: 1rem;"></div>
+
+                <div id="commentsSection"></div>
             </div>
         </div>
     </div>
 
     <script type="module">
         import '/firebase-config.js';
-        import { openArticle, formatDate } from '/js/shared-utils.js';
+        import { incrementViews, checkIfLiked, loadComments, renderComments, renderLikeButton, renderCommentsSection } from '/js/interaction-utils.js';
 
-        let currentArticles = [];
-        let filteredArticles = [];
-        const categories = {
+        const categoriesData = {
             'fisica': { icon: '⚛️', name: 'Física', description: 'Leis fundamentais do universo' },
             'quimica': { icon: '🧪', name: 'Química', description: 'Transformações da matéria' },
             'biologia': { icon: '🧬', name: 'Biologia', description: 'Mistérios da vida' },
@@ -599,7 +750,7 @@
 
         function renderCategories() {
             const categoriesGrid = document.getElementById('categoriesGrid');
-            categoriesGrid.innerHTML = Object.entries(categories).map(([key, category]) => `
+            categoriesGrid.innerHTML = Object.entries(categoriesData).map(([key, category]) => `
                 <div class="category-card" onclick="filterByCategory('${key}')">
                     <span class="category-icon">${category.icon}</span>
                     <h3 class="category-title">${category.name}</h3>
@@ -611,17 +762,34 @@
 
         async function loadArticles() {
             try {
-                const articlesQuery = window.firebaseDB.query(
-                    window.firebaseDB.collection(window.firebaseDB.db, 'science-articles'),
-                    window.firebaseDB.where('status', '==', 'published'),
-                    window.firebaseDB.orderBy('createdAt', 'desc')
-                );
+                let articlesQuery;
+                let snapshot;
 
-                const snapshot = await window.firebaseDB.getDocs(articlesQuery);
+                try {
+                    // Try query with composite index
+                    articlesQuery = window.firebaseDB.query(
+                        window.firebaseDB.collection(window.firebaseDB.db, 'science-articles'),
+                        window.firebaseDB.where('status', '==', 'published'),
+                        window.firebaseDB.orderBy('createdAt', 'desc')
+                    );
+                    snapshot = await window.firebaseDB.getDocs(articlesQuery);
+                } catch (indexError) {
+                    console.warn('Índice composto não disponível, usando fallback query:', indexError);
+                    // Fallback: get all published articles and sort client-side
+                    articlesQuery = window.firebaseDB.query(
+                        window.firebaseDB.collection(window.firebaseDB.db, 'science-articles'),
+                        window.firebaseDB.where('status', '==', 'published')
+                    );
+                    snapshot = await window.firebaseDB.getDocs(articlesQuery);
+                }
+
                 currentArticles = snapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data()
                 }));
+
+                // Client-side sorting if fallback was used
+                currentArticles.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 
                 filteredArticles = [...currentArticles];
                 updateCategoryCounts();
@@ -633,7 +801,7 @@
         }
 
         function updateCategoryCounts() {
-            Object.keys(categories).forEach(category => {
+            Object.keys(categoriesData).forEach(category => {
                 const count = currentArticles.filter(article => article.category === category).length;
                 const countElement = document.getElementById(`count-${category}`);
                 if (countElement) {
@@ -658,10 +826,16 @@
             noResults.style.display = 'none';
 
             articlesGrid.innerHTML = filteredArticles.map(article => `
-                <div class="article-card" onclick="openArticle('${article.id}')">
-                    <div class="article-image" style="background-image: url('${article.imageUrl || '/icon/atomo.avif'}')">
-                        <div class="article-category">${getCategoryIcon(article.category)} ${article.category}</div>
-                    </div>
+                <div class="article-card" onclick="openArticleDetails('${article.id}')">
+                    ${article.imageUrl ? `
+                        <div class="article-image" style="background-image: url('${article.imageUrl}')">
+                            <span class="article-category">${getCategoryLabel(article.category)}</span>
+                        </div>
+                    ` : `
+                        <div class="article-image" style="background: linear-gradient(135deg, var(--destaque) 0%, var(--verde) 100%);">
+                            <span class="article-category">${getCategoryLabel(article.category)}</span>
+                        </div>
+                    `}
                     <div class="article-content">
                         <h3 class="article-title">${article.title}</h3>
                         <p class="article-summary">${article.summary}</p>
@@ -680,8 +854,8 @@
             `).join('');
         }
 
-        function getCategoryIcon(category) {
-            return categories[category]?.icon || '🔬';
+        function getCategoryLabel(category) {
+            return categoriesData[category]?.name || 'Ciência';
         }
 
         function closeModal() {
@@ -738,74 +912,79 @@
             renderArticles();
         }
 
-        function formatDate(timestamp) {
-            if (!timestamp) return 'Data não disponível';
-            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-            return date.toLocaleDateString('pt-BR', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-        }
-
         // Global functions
-        window.openArticle = function(articleId) {
+        window.openArticleDetails = async function(articleId) {
             const article = currentArticles.find(a => a.id === articleId);
             if (!article) {
                 console.error('Article not found:', articleId);
                 return;
             }
 
+            const modal = document.getElementById('articleModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalCategory = document.getElementById('modalCategory');
+            const modalAuthor = document.getElementById('modalAuthor');
+            const modalDate = document.getElementById('modalDate');
+            const modalContent = document.getElementById('modalContent');
+            const modalImage = document.getElementById('modalImage');
+            const modalViews = document.getElementById('modalViews');
+            const likeButtonContainer = document.getElementById('likeButtonContainer');
+            const commentsSection = document.getElementById('commentsSection');
+
+            modalTitle.textContent = article.title;
+            modalCategory.textContent = getCategoryLabel(article.category); // Use getCategoryLabel for consistency
+            modalAuthor.textContent = article.author || 'Autor Desconhecido';
+            modalDate.textContent = article.createdAt ? formatDate(new Date(article.createdAt.seconds * 1000)) : 'Data não disponível';
+            modalContent.innerHTML = article.content ? article.content.replace(/\n/g, '<br>') : article.summary.replace(/\n/g, '<br>');
+
+            if (article.imageUrl) {
+                modalImage.style.backgroundImage = `url('${article.imageUrl}')`;
+                modalImage.style.display = 'block';
+            } else {
+                modalImage.style.display = 'none';
+            }
+
             // Increment view count
-            const articleRef = window.firebaseDB.doc(window.firebaseDB.db, 'science-articles', articleId);
-            window.firebaseDB.updateDoc(articleRef, {
-                views: window.firebaseDB.increment(1)
-            }).catch(error => {
-                console.error('Erro ao atualizar visualizações:', error);
-            });
+            await incrementViews('scienceArticles', article.id);
+            // Fetch the updated article data to get the new view count
+            const updatedArticleSnapshot = await window.firebaseDB.getDoc(window.firebaseDB.doc(window.firebaseDB.db, 'science-articles', article.id));
+            const updatedArticleData = updatedArticleSnapshot.data();
+            modalViews.textContent = updatedArticleData.views || 0;
 
-            // Populate modal
-            document.getElementById('modalImage').style.backgroundImage = `url('${article.imageUrl || '/icon/atomo.avif'}')`;
-            document.getElementById('modalTitle').textContent = article.title;
-            document.getElementById('modalAuthor').textContent = article.author;
-            document.getElementById('modalDate').textContent = formatDate(article.createdAt);
-            document.getElementById('modalViews').textContent = (article.views || 0) + 1; // Display updated view count
-            document.getElementById('modalLikes').textContent = article.likes || 0;
-            document.getElementById('modalContent').innerHTML = article.content.replace(/\n/g, '<br>');
+            // Render like button and comments section only if user is logged in
+            const currentUser = window.firebaseAuth.auth.currentUser;
+            if (currentUser) {
+                const isLiked = await checkIfLiked('scienceArticles', article.id, currentUser.uid);
+                likeButtonContainer.innerHTML = renderLikeButton('scienceArticles', article.id, currentUser.uid, article.likes || 0, isLiked);
 
-            // Tags
-            const tagsContainer = document.getElementById('modalTags');
-            if (article.tags && article.tags.length > 0) {
-                tagsContainer.innerHTML = article.tags.map(tag => `<span class="tag">#${tag}</span>`).join('');
+                commentsSection.innerHTML = renderCommentsSection('scienceArticles', article.id, currentUser.uid, currentUser.displayName || currentUser.email);
+
+                const comments = await loadComments('scienceArticles', article.id);
+                renderComments(comments, `commentsList-${article.id}`);
             } else {
-                tagsContainer.innerHTML = '';
+                // Display like count even if not logged in, but disable like button functionality
+                likeButtonContainer.innerHTML = `<button class="like-button" disabled><i class="fas fa-heart"></i></button><span class="like-count">${article.likes || 0}</span>`;
+                commentsSection.innerHTML = '<p style="color: var(--dourado); text-align: center; margin-top: 2rem;">Faça login para curtir e comentar.</p>';
             }
 
-            // Source
-            const sourceContainer = document.getElementById('modalSource');
-            if (article.source) {
-                sourceContainer.innerHTML = `<p><strong>Fonte:</strong> <a href="${article.source}" target="_blank" style="color: var(--destaque);">${article.source}</a></p>`;
-            } else {
-                sourceContainer.innerHTML = '';
-            }
-
-            document.getElementById('articleModal').classList.add('active');
+            modal.classList.add('active');
         };
 
         window.toggleFavorites = function() {
             console.log('Toggle favorites');
+            // Implement favorite functionality here
         };
 
         window.searchArticles = function() {
-            filterAndSort(); // Use the existing filterAndSort logic
+            filterAndSort();
         };
 
         window.filterArticles = function() {
-            filterAndSort(); // Use the existing filterAndSort logic
+            filterAndSort();
         };
 
         window.sortArticles = function() {
-            filterAndSort(); // Use the existing filterAndSort logic
+            filterAndSort();
         };
 
         // Search on enter

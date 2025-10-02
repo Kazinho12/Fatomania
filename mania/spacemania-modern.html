@@ -403,7 +403,7 @@
                     <i class="fas fa-search"></i>
                 </button>
             </div>
-            
+
             <select class="filter-select" id="categoryFilter" onchange="filterArticles()">
                 <option value="">Todas as categorias</option>
                 <option value="astronomia">🌌 Astronomia</option>
@@ -440,8 +440,24 @@
         </div>
     </div>
 
+    <!-- Modal de Artigo -->
+    <div id="articleModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="window.closeArticleModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-image"></div>
+            <div class="modal-body">
+                <h2 class="modal-title"></h2>
+                <div class="modal-meta"></div>
+                <div class="modal-content-text"></div>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import '/firebase-config.js';
+        import '/js/interaction-utils.js';
 
         let currentArticles = [];
         let filteredArticles = [];
@@ -503,10 +519,16 @@
             noResults.style.display = 'none';
 
             articlesGrid.innerHTML = filteredArticles.map(article => `
-                <div class="article-card">
-                    <div class="article-image" style="background-image: url('${article.imageUrl || '/icon/venus.jpg'}')">
-                        <div class="article-category">${getCategoryIcon(article.category)} ${article.category}</div>
-                    </div>
+                <div class="article-card" onclick="openModal('${article.id}')">
+                    ${article.imageUrl ? `
+                        <div class="article-image" style="background-image: url('${article.imageUrl}')">
+                            <span class="article-category">${getCategoryLabel(article.category)}</span>
+                        </div>
+                    ` : `
+                        <div class="article-image" style="background: linear-gradient(135deg, var(--destaque) 0%, var(--azul-cosmico) 100%);">
+                            <span class="article-category">${getCategoryLabel(article.category)}</span>
+                        </div>
+                    `}
                     <div class="article-content">
                         <h3 class="article-title">${article.title}</h3>
                         <p class="article-summary">${article.summary}</p>
@@ -525,18 +547,18 @@
             `).join('');
         }
 
-        function getCategoryIcon(category) {
-            const icons = {
-                'astronomia': '🌌',
-                'planetas': '🪐',
-                'missoes': '🚀',
-                'estrelas': '⭐',
-                'galaxias': '🌠',
-                'cosmologia': '🌌',
-                'tecnologia': '🛰️',
-                'exoplanetas': '🌍'
+        function getCategoryLabel(category) {
+            const labels = {
+                'astronomia': 'Astronomia',
+                'planetas': 'Planetas',
+                'missoes': 'Missões Espaciais',
+                'estrelas': 'Estrelas',
+                'galaxias': 'Galáxias',
+                'cosmologia': 'Cosmologia',
+                'tecnologia': 'Tecnologia Espacial',
+                'exoplanetas': 'Exoplanetas'
             };
-            return icons[category] || '🚀';
+            return labels[category] || category.charAt(0).toUpperCase() + category.slice(1);
         }
 
         function searchArticles() {
@@ -582,6 +604,12 @@
 
             renderArticles();
         }
+
+        window.openModal = async function(articleId) {
+            if (window.openArticle) {
+                await window.openArticle(articleId, 'space-articles');
+            }
+        };
 
         // Global functions
         window.searchArticles = searchArticles;

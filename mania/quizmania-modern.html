@@ -808,7 +808,7 @@
                         <i class="fas fa-search"></i>
                     </button>
                 </div>
-                
+
                 <select class="filter-select" id="categoryFilter" onchange="filterQuizzes()">
                     <option value="">Todas as categorias</option>
                     <option value="ciencia">🔬 Ciência</option>
@@ -900,10 +900,10 @@
             </h2>
             <div class="score-display" id="finalScore"></div>
             <div class="results-details" id="resultsDetails"></div>
-            
+
             <!-- Certificate Container -->
             <div id="certificateContainer" style="display: none; margin-top: 20px;"></div>
-            
+
             <button class="quiz-btn" onclick="closeResults()" style="margin-top: 1rem;">
                 <i class="fas fa-home"></i> Voltar aos Quizzes
             </button>
@@ -920,6 +920,7 @@
         let userAnswers = [];
         let quizStartTime = null;
         let questionTimer = null;
+        let timeRemaining = 0; // Added to manage quiz time
 
         // Wait for Firebase to be ready
         window.addEventListener('load', async () => {
@@ -930,9 +931,9 @@
         async function loadQuizzes() {
             try {
                 console.log('🔄 Carregando quizzes...');
-                
+
                 let currentQuizzes = [];
-                
+
                 try {
                     // Tenta primeiro consulta com filtro e ordenação
                     const quizzesQuery = window.firebaseDB.query(
@@ -946,34 +947,34 @@
                         id: doc.id,
                         ...doc.data()
                     }));
-                    
+
                     console.log('✅ Quizzes carregados com consulta completa:', currentQuizzes.length);
-                    
+
                 } catch (indexError) {
                     console.warn('⚠️ Erro com índice composto, tentando consulta simples:', indexError);
-                    
+
                     // Fallback: consulta simples
                     try {
                         const simpleQuery = window.firebaseDB.collection(window.firebaseDB.db, 'quizzes');
                         const snapshot = await window.firebaseDB.getDocs(simpleQuery);
-                        
+
                         currentQuizzes = snapshot.docs.map(doc => ({
                             id: doc.id,
                             ...doc.data()
                         })).filter(quiz => quiz.status === 'published');
-                        
+
                         // Ordena no cliente
                         currentQuizzes.sort((a, b) => {
                             const dateA = a.createdAt?.seconds || new Date(a.createdAt || 0).getTime() / 1000;
                             const dateB = b.createdAt?.seconds || new Date(b.createdAt || 0).getTime() / 1000;
                             return dateB - dateA;
                         });
-                        
+
                         console.log('✅ Quizzes carregados com consulta simples:', currentQuizzes.length);
-                        
+
                     } catch (simpleError) {
                         console.error('❌ Erro mesmo com consulta simples:', simpleError);
-                        
+
                         // Cria quizzes de exemplo se não conseguir carregar
                         if (simpleError.code === 'failed-precondition' || simpleError.code === 'permission-denied') {
                             console.log('📝 Criando quizzes de exemplo...');
@@ -987,7 +988,7 @@
                 window.currentQuizzes = currentQuizzes;
                 filteredQuizzes = [...currentQuizzes];
                 renderQuizzes();
-                
+
             } catch (error) {
                 console.error('❌ Erro geral ao carregar quizzes:', error);
                 document.getElementById('browseLoading').innerHTML = `
@@ -1074,7 +1075,7 @@
             } catch (error) {
                 console.warn('⚠️ Não foi possível salvar no Firebase, usando dados locais:', error);
             }
-            
+
             return sampleQuizzes;
         }
 
@@ -1096,7 +1097,7 @@
             }
         }
 
-        function renderQuizzes() {
+        async function renderQuizzes() {
             const quizzesGrid = document.getElementById('quizzesGrid');
             const loading = document.getElementById('browseLoading');
             const noResults = document.getElementById('browseNoResults');
@@ -1111,8 +1112,46 @@
 
             noResults.style.display = 'none';
 
-            quizzesGrid.innerHTML = filteredQuizzes.map(quiz => `
-                <div class="quiz-card" onclick="startQuiz('${quiz.id}')">
+            // Verificar quantas vezes o usuário jogou cada quiz
+            const user = window.firebaseAuth.auth.currentUser;
+            const userQuizStats = {};
+
+            if (user) {
+                try {
+                    const resultsQuery = window.firebaseDB.query(
+                        window.firebaseDB.collection(window.firebaseDB.db, 'quiz-results'),
+                        window.firebaseDB.where('userId', '==', user.uid)
+                    );
+                    const resultsSnapshot = await window.firebaseDB.getDocs(resultsQuery);
+
+                    resultsSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        if (!userQuizStats[data.quizId]) {
+                            userQuizStats[data.quizId] = 0;
+                        }
+                        userQuizStats[data.quizId]++;
+                    });
+                } catch (error) {
+                    console.warn('Erro ao carregar estatísticas de quiz:', error);
+                }
+            }
+
+            quizzesGrid.innerHTML = filteredQuizzes.map(quiz => {
+                const timesPlayed = userQuizStats[quiz.id] || 0;
+                const playedBadge = timesPlayed > 0 ? `
+                    <div style="position: absolute; top: 10px; right: 10px; background: linear-gradient(45deg, #00ff88, #00ffaa); color: #000; padding: 0.5rem 1rem; border-radius: 20px; font-weight: bold; font-size: 0.9rem; box-shadow: 0 4px 15px rgba(0, 255, 136, 0.4);">
+                        <i class="fas fa-check-circle"></i> Jogou ${timesPlayed}x
+                    </div>
+                ` : '';
+
+                return `
+                <div class="quiz-card" data-quiz-id="${quiz.id}" style="position: relative;">
+                    ${playedBadge}
+                    ${quiz.imageUrl ? `
+                        <div style="width: 100%; height: 200px; border-radius: 15px 15px 0 0; overflow: hidden; margin: -1.5rem -1.5rem 1rem -1.5rem;">
+                            <img src="${quiz.imageUrl}" alt="${quiz.title}" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                    ` : ''}
                     <h3 class="quiz-title">${quiz.title}</h3>
                     <p class="quiz-description">${quiz.description}</p>
                     <div class="quiz-stats">
@@ -1127,10 +1166,20 @@
                         <span class="quiz-category">${getCategoryIcon(quiz.category)} ${quiz.category}</span>
                     </div>
                     <button class="play-btn">
-                        <i class="fas fa-play"></i> Jogar Agora
+                        <i class="fas fa-play"></i> ${timesPlayed > 0 ? 'Jogar Novamente' : 'Jogar Agora'}
                     </button>
                 </div>
-            `).join('');
+                `;
+            }).join('');
+
+            // Adicionar event listeners aos cards após renderização
+            document.querySelectorAll('.quiz-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const quizId = this.getAttribute('data-quiz-id');
+                    console.log('Clicou no quiz:', quizId);
+                    startQuiz(quizId);
+                });
+            });
         }
 
         function renderRankings(rankings) {
@@ -1193,13 +1242,30 @@
         }
 
         async function startQuiz(quizId) {
-            const quiz = currentQuizzes.find(q => q.id === quizId);
-            if (!quiz) return;
+            console.log('🎮 Iniciando quiz:', quizId);
+            console.log('📚 Quizzes disponíveis:', window.currentQuizzes);
+
+            const quiz = window.currentQuizzes.find(q => q.id === quizId);
+
+            if (!quiz) {
+                console.error('❌ Quiz não encontrado:', quizId);
+                alert('Quiz não encontrado. Por favor, tente novamente.');
+                return;
+            }
+
+            console.log('✅ Quiz encontrado:', quiz);
 
             currentQuiz = quiz;
             currentQuestionIndex = 0;
             userAnswers = [];
             quizStartTime = Date.now();
+            timeRemaining = quiz.timeLimit ? quiz.timeLimit * 60 : Infinity; // Set quiz time limit in seconds
+            document.getElementById('timeRemaining').textContent = '--:--'; // Initialize timer display
+
+            // Start the timer
+            if (questionTimer) clearInterval(questionTimer); // Clear any existing timer
+            questionTimer = setInterval(updateTimer, 1000);
+
 
             // Update quiz plays count
             try {
@@ -1207,27 +1273,33 @@
                 await window.firebaseDB.updateDoc(quizRef, {
                     plays: window.firebaseDB.increment(1)
                 });
+                console.log('✅ Plays atualizado');
             } catch (error) {
-                console.error('Erro ao atualizar plays:', error);
+                console.error('⚠️ Erro ao atualizar plays:', error);
             }
 
+            console.log('🔄 Mostrando tab do player...');
             showTab('quizPlayer');
             displayQuestion();
         }
 
         function displayQuestion() {
+            console.log('📝 Exibindo pergunta:', currentQuestionIndex);
+
             if (!currentQuiz || currentQuestionIndex >= currentQuiz.questions.length) {
+                console.log('🏁 Finalizando quiz');
                 finishQuiz();
                 return;
             }
 
             const question = currentQuiz.questions[currentQuestionIndex];
-            
+            console.log('❓ Pergunta atual:', question);
+
             document.getElementById('quizTitle').textContent = currentQuiz.title;
             document.getElementById('questionCounter').textContent = 
                 `Pergunta ${currentQuestionIndex + 1} de ${currentQuiz.questions.length}`;
             document.getElementById('questionText').textContent = question.text;
-            
+
             // Update progress bar
             const progress = ((currentQuestionIndex + 1) / currentQuiz.questions.length) * 100;
             document.getElementById('progressBar').style.width = progress + '%';
@@ -1249,10 +1321,10 @@
         function selectOption(optionIndex) {
             // Clear previous selections
             document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
-            
+
             // Mark selected option
             document.querySelectorAll('.option')[optionIndex].classList.add('selected');
-            
+
             // Store answer
             userAnswers[currentQuestionIndex] = optionIndex;
         }
@@ -1273,7 +1345,23 @@
             }
         }
 
+        function updateTimer() {
+            if (timeRemaining > 0) {
+                timeRemaining--;
+                const minutes = Math.floor(timeRemaining / 60);
+                const seconds = timeRemaining % 60;
+                const timerElement = document.getElementById('timeRemaining');
+                if (timerElement) {
+                    timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                }
+            } else {
+                finishQuiz();
+            }
+        }
+
         async function finishQuiz() {
+            if (questionTimer) clearInterval(questionTimer); // Stop the timer
+
             if (!currentQuiz) return;
 
             // Calculate score
@@ -1289,11 +1377,11 @@
 
             // Display results with justifications
             document.getElementById('finalScore').textContent = score + '%';
-            
+
             // Generate detailed results with justifications
             const detailedResults = generateDetailedResults(correct, timeSpent, score);
             document.getElementById('resultsDetails').innerHTML = detailedResults;
-            
+
             // Generate certificate if good performance
             if (score >= 70) {
                 document.getElementById('certificateContainer').innerHTML = generateCertificate(score, correct, timeSpent);
@@ -1363,27 +1451,27 @@
             if (score >= 50) return '👍 Bom!';
             return '📚 Continue estudando!';
         }
-        
+
         function generateDetailedResults(correct, timeSpent, score) {
             const user = window.firebaseAuth.auth.currentUser;
             const userName = user ? (user.displayName || user.email) : 'Usuário';
-            
+
             let html = `
                 <div class="results-summary">
                     <p><strong>Questões corretas:</strong> ${correct} de ${currentQuiz.questions.length}</p>
                     <p><strong>Tempo gasto:</strong> ${Math.floor(timeSpent / 60)}:${(timeSpent % 60).toString().padStart(2, '0')}</p>
                     <p><strong>Performance:</strong> ${getPerformanceText(score)}</p>
                 </div>
-                
+
                 <div class="justifications-container">
                     <h3 style="color: #ffff00; margin: 20px 0 10px 0;"><i class="fas fa-lightbulb"></i> Justificativas das Respostas</h3>
             `;
-            
+
             currentQuiz.questions.forEach((question, index) => {
                 const isCorrect = userAnswers[index] === question.correctAnswer;
-                const userAnswerText = question.options[userAnswers[index]] || 'Não respondida';
+                const userAnswerText = userAnswers[index] !== undefined ? question.options[userAnswers[index]] : 'Não respondida';
                 const correctAnswerText = question.options[question.correctAnswer];
-                
+
                 html += `
                     <div class="question-result ${isCorrect ? 'correct' : 'incorrect'}">
                         <div class="question-header">
@@ -1408,17 +1496,17 @@
                     </div>
                 `;
             });
-            
+
             html += '</div>';
             return html;
         }
-        
+
         function generateCertificate(score, correct, timeSpent) {
             const user = window.firebaseAuth.auth.currentUser;
             const userName = user ? (user.displayName || 'Usuário') : 'Usuário';
             const currentDate = new Date().toLocaleDateString('pt-BR');
             const performance = getPerformanceText(score);
-            
+
             return `
                 <div class="certificate">
                     <div class="certificate-header">
@@ -1428,13 +1516,13 @@
                         <h2>CERTIFICADO DE CONCLUSÃO</h2>
                         <div class="certificate-subtitle">QUIZMANIA - DESAFIOS CIENTÍFICOS</div>
                     </div>
-                    
+
                     <div class="certificate-body">
                         <p class="certificate-text">Certificamos que</p>
                         <div class="certificate-name">${userName}</div>
                         <p class="certificate-text">completou com sucesso o quiz</p>
                         <div class="certificate-quiz-title">"${currentQuiz.title}"</div>
-                        
+
                         <div class="certificate-details">
                             <div class="detail-item">
                                 <i class="fas fa-star"></i>
@@ -1453,17 +1541,17 @@
                                 <span>${performance}</span>
                             </div>
                         </div>
-                        
+
                         <div class="certificate-date">
                             Concluído em ${currentDate}
                         </div>
-                        
+
                         <div class="certificate-signature">
                             <div class="signature-line"></div>
                             <div class="signature-text">FATOMANIA - Explorando o Futuro da Ciência</div>
                         </div>
                     </div>
-                    
+
                     <div class="certificate-download">
                         <button class="download-btn" onclick="downloadCertificate()">
                             <i class="fas fa-download"></i> Baixar Certificado
@@ -1472,14 +1560,10 @@
                 </div>
             `;
         }
-        
+
         function downloadCertificate() {
             const certificate = document.querySelector('.certificate');
-            
-            // Simulação de download - em implementação real usaria html2canvas ou similar
-            const link = document.createElement('a');
-            link.download = `certificado-${currentQuiz.title.replace(/[^a-zA-Z0-9]/g, '-')}.png`;
-            
+
             // Por enquanto, apenas uma mensagem
             alert('🎉 Parabéns! O certificado seria baixado em uma implementação completa.');
         }
@@ -1525,14 +1609,14 @@
                                     quiz.description.toLowerCase().includes(searchTerm);
                 const matchesCategory = !category || quiz.category === category;
                 const matchesDifficulty = !difficulty || quiz.difficulty === difficulty;
-                
+
                 return matchesSearch && matchesCategory && matchesDifficulty;
             });
 
             renderQuizzes();
         }
 
-        // Global functions
+        // Global functions - definir ANTES de carregar os quizzes
         window.showTab = showTab;
         window.startQuiz = startQuiz;
         window.selectOption = selectOption;
@@ -1541,6 +1625,7 @@
         window.searchQuizzes = searchQuizzes;
         window.filterQuizzes = filterQuizzes;
         window.closeResults = closeResults;
+        window.downloadCertificate = downloadCertificate;
 
         // Search on enter
         document.getElementById('searchInput').addEventListener('keypress', function(e) {

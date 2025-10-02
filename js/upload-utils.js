@@ -51,7 +51,7 @@ export async function uploadProfileImage(file, progressCallback = null) {
  * @param {string} type - Type of upload (article, news, quiz, profile)
  * @returns {Promise<string>} - The URL of the uploaded image
  */
-async function uploadToImgbb(file, progressCallback = null, type = 'general') {
+export async function uploadToImgbb(file, progressCallback = null, type = 'general') {
     if (!file) {
         throw new Error('Nenhum arquivo fornecido');
     }
@@ -256,11 +256,11 @@ export async function verifyAllCollections() {
 }
 
 /**
- * Format date to PT-BR format
+ * Format date to PT-BR format (internal use only)
  * @param {Date|string|Object} date - The date to format
  * @returns {string} - Formatted date string
  */
-export function formatDate(date) {
+function formatDateInternal(date) {
     if (!date) return new Date().toLocaleDateString('pt-BR');
     
     try {

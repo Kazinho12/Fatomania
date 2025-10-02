@@ -109,6 +109,55 @@ FATOMANIA is a Portuguese-language scientific curiosities website that provides 
 - Improved date formatting and display
 - Better image preview functionality
 
+## Replit Environment Setup (October 2, 2025)
+
+### Configuration Completed
+- **Python Version**: Python 3.11.13 installed and configured
+- **Static Server**: Running on port 5000 with 0.0.0.0 binding
+- **Workflow**: "Static Server" configured with `python -m http.server 5000 --bind 0.0.0.0`
+- **Deployment**: Autoscale deployment configured for production
+- **Git Protection**: .gitignore created to protect Python cache and temporary files
+
+### Deployment Configuration
+- **Type**: Autoscale (serverless, scales automatically based on traffic)
+- **Run Command**: `python -m http.server 5000 --bind 0.0.0.0`
+- **Port**: 5000 (only port exposed through Replit proxy)
+- **Environment**: Production-ready static file server
+
+### Important Notes
+- **imgbb API Key**: The API key for image uploads (`490019b11f119ad684399138b0226ff5`) is exposed in client-side code by design, as this is a frontend-only application making direct uploads from the browser. This is a known limitation of client-side upload solutions.
+- **No Backend**: This application runs entirely in the frontend with Firebase services (Auth, Firestore, Storage) accessed directly from the browser
+- **CORS Friendly**: Python's http.server allows all origins by default, making it suitable for Replit's proxy environment
+
+## Critical Bug Fixes (October 2, 2025)
+
+### 1. Upload Utils Export Fix
+- **Fixed uploadToImgbb export** in `js/upload-utils.js`
+- Function now properly exported for use in submission pages
+- Resolved import errors across all 12 submit pages
+
+### 2. formatDate Duplication Resolution
+- **Renamed internal formatDate to formatDateInternal** in `js/upload-utils.js`
+- Removed duplicate export that was causing redeclaration errors
+- Maintains internal formatting while avoiding global conflicts
+
+### 3. Periodic Table Lanthanide/Actinide Fix
+- **Fixed addToLanthanideSeries and addToActinideSeries** in `lab/periotab.js`
+- Functions now properly store AND return element nodes
+- Lanthanides and actinides now render correctly in dedicated rows
+- Maintains sorting by atomic number
+
+### 4. Dashboard Function Exports
+- **Exported critical functions to window object** in `js/dashboard.js`
+- Functions: openProfileModal, closeProfileModal, toggleEditMode, saveProfile, toggleUserDropdown
+- Resolved "function not defined" errors in dashboard UI
+
+### 5. Firestore Composite Index Fallback
+- **Implemented query fallback mechanism** in `mania/sciencemania-modern.html`
+- Catches failed-precondition errors from missing composite indexes
+- Falls back to query without orderBy, performs client-side sorting
+- Prevents article loading failures in development environments
+
 ## Notes
 - The project uses ES6 modules with Firebase CDN
 - All paths use absolute references (starting with /)

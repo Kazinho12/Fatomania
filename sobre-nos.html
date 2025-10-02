@@ -1,46 +1,3 @@
-<?php
-// Verifica se o formulário foi enviado
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Coleta os dados do formulário
-    $nome = htmlspecialchars($_POST['nome']);
-    $email = htmlspecialchars($_POST['email']);
-    $mensagem = htmlspecialchars($_POST['mensagem']);
-
-    // Verifica se todos os campos foram preenchidos
-    if (!empty($nome) && !empty($email) && !empty($mensagem)) {
-        // Verifica se o e-mail tem um formato válido
-        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            // Defina o destinatário do e-mail (onde as mensagens serão enviadas)
-            $destinatario = "fatomania.mz@gmail.com"; // Alterar para o e-mail real
-
-            // Assunto do e-mail
-            $assunto = "Nova mensagem de contato - FATOMANIA";
-
-            // Corpo do e-mail
-            $corpo = "Você recebeu uma nova mensagem do seu site:\n\n";
-            $corpo .= "Nome: " . $nome . "\n";
-            $corpo .= "E-mail: " . $email . "\n";
-            $corpo .= "Mensagem: \n" . $mensagem;
-
-            // Cabeçalhos do e-mail
-            $cabecalhos = "From: " . $email . "\r\n" .
-                          "Reply-To: " . $email . "\r\n" .
-                          "X-Mailer: PHP/" . phpversion();
-
-            // Envia o e-mail
-            if (mail($destinatario, $assunto, $corpo, $cabecalhos)) {
-                $mensagem_sucesso = "Mensagem enviada com sucesso!";
-            } else {
-                $mensagem_erro = "Houve um erro ao enviar a mensagem. Tente novamente mais tarde.";
-            }
-        } else {
-            $mensagem_erro = "Por favor, insira um e-mail válido.";
-        }
-    } else {
-        $mensagem_erro = "Todos os campos são obrigatórios!";
-    }
-}
-?>
 
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -48,175 +5,416 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sobre Nós | FATOMANIA</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="estilo.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body {
-            background: #0f0c29;
-            color: white;
-            font-family: 'Rajdhani', sans-serif;
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
+        :root {
+            --roxo: #6a00ff;
+            --azul: #00f7ff;
+            --verde: #00ffaa;
+            --rosa: #ff006e;
+            --dourado: #ffd700;
+            --fundo: #0f0c29;
+            --fundo-card: #1a1a2e;
+            --texto: #ffffff;
         }
 
-        header, footer {
-            background: linear-gradient(to right, #0f0c29, #6a00ff);
-            padding: 20px 5%;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--fundo) 0%, #24243e 50%, var(--fundo) 100%);
+            color: var(--texto);
+            font-family: 'Rajdhani', sans-serif;
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        /* Partículas animadas */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--azul);
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite;
+            opacity: 0.6;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-100px) rotate(180deg); }
+        }
+
+        header {
+            background: linear-gradient(to right, rgba(15, 12, 41, 0.95), rgba(106, 0, 255, 0.1));
+            padding: 3rem 5%;
+            text-align: center;
+            border-bottom: 2px solid var(--azul);
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 2;
+        }
+
+        header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            background: linear-gradient(90deg, var(--azul), var(--roxo), var(--rosa));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            animation: gradient-shift 3s ease-in-out infinite;
+        }
+
+        @keyframes gradient-shift {
+            0%, 100% { filter: hue-rotate(0deg); }
+            50% { filter: hue-rotate(90deg); }
+        }
+
+        header p {
+            font-size: 1.3rem;
+            color: var(--verde);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .section {
+            background: var(--fundo-card);
+            border-radius: 25px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            border: 2px solid rgba(0, 247, 255, 0.3);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 247, 255, 0.2);
+            border-color: var(--azul);
+        }
+
+        .section h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--azul);
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section h2 i {
+            color: var(--verde);
+        }
+
+        .section p {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #cccccc;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 1px solid rgba(0, 247, 255, 0.2);
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--verde);
+            background: rgba(0, 255, 170, 0.1);
+        }
+
+        .feature-card i {
+            font-size: 2.5rem;
+            color: var(--verde);
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .feature-card h3 {
+            color: var(--azul);
+            margin-bottom: 0.5rem;
+        }
+
+        .contact-form {
+            background: var(--fundo-card);
+            padding: 3rem;
+            border-radius: 25px;
+            border: 2px solid rgba(0, 247, 255, 0.3);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--azul);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid rgba(0, 247, 255, 0.3);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--texto);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--azul);
+            box-shadow: 0 0 20px rgba(0, 247, 255, 0.3);
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, var(--verde), var(--azul));
+            color: var(--fundo);
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 247, 255, 0.4);
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
             text-align: center;
         }
 
-        h1 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 2.8rem;
-            margin-bottom: 10px;
-            color: #00f7ff;
+        .message.success {
+            background: rgba(0, 255, 170, 0.1);
+            border: 2px solid var(--verde);
+            color: var(--verde);
         }
 
-        section {
-            max-width: 900px;
-            margin: 60px auto;
-            padding: 0 5%;
+        .message.error {
+            background: rgba(255, 0, 110, 0.1);
+            border: 2px solid var(--rosa);
+            color: var(--rosa);
         }
 
-        section h2 {
-            font-family: 'Orbitron', sans-serif;
-            color: #00ffaa;
-            font-size: 2rem;
-            margin-bottom: 15px;
-        }
-
-        section p {
-            font-size: 1.2rem;
-            color: #ddd;
-        }
-
-        form {
-            margin-top: 40px;
-            background: #16213e;
-            padding: 30px;
-            border-radius: 10px;
-            border: 1px solid rgba(0,247,255,0.2);
-        }
-
-        form label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #00f7ff;
-        }
-
-        form input, form textarea {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 20px;
-            border: none;
-            border-radius: 5px;
-            font-size: 1rem;
-        }
-
-        form button {
-            background: #00ffaa;
-            color: black;
-            padding: 12px 25px;
-            font-size: 1.1rem;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        form button:hover {
-            background: #00e6a3;
+        footer {
+            background: linear-gradient(to right, var(--fundo), rgba(106, 0, 255, 0.2));
+            padding: 2rem 5%;
+            text-align: center;
+            border-top: 2px solid var(--azul);
+            margin-top: 5rem;
         }
 
         footer p {
             color: #aaa;
-            font-size: 0.9rem;
         }
 
-        .mensagem-erro {
-            color: #ff4c4c;
-            font-size: 1.2rem;
-            margin-top: 20px;
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(45deg, var(--roxo), var(--azul));
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-bottom: 2rem;
         }
 
-        .mensagem-sucesso {
-            color: #4caf50;
-            font-size: 1.2rem;
-            margin-top: 20px;
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(106, 0, 255, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .section {
+                padding: 2rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="particles" id="particles"></div>
 
-<header>
-    <h1>Sobre o FATOMANIA</h1>
-    <p>Explorando o universo do conhecimento com ciência e curiosidade!</p>
-</header>
+    <header>
+        <h1><i class="fas fa-star"></i> FATOMANIA</h1>
+        <p>Explorando o universo do conhecimento científico</p>
+    </header>
 
-<section>
-    <h2>Nossa Missão</h2>
-    <p>
-        O FATOMANIA foi criado com o objetivo de tornar o conhecimento científico acessível e interessante para todos. Buscamos
-        apresentar o fascinante mundo da ciência de maneira simples, divertida e envolvente, sem perder a precisão. Nosso conteúdo
-        abrange uma variedade de áreas como física, biologia, astronomia, química, tecnologia e muito mais, sempre verificado por
-        especialistas. Queremos que as pessoas compreendam que a ciência não é apenas um campo de estudo restrito a poucos, mas
-        algo que pode ser vivenciado e apreciado por todos, em seu dia a dia.
-    </p>
+    <div class="container">
+        <a href="/" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Voltar ao Início
+        </a>
 
-    <h2>O que oferecemos</h2>
-    <p>
-        Em FATOMANIA, você encontra uma plataforma rica em conteúdo educativo e interativo. Oferecemos:
-    </p>
-    <ul>
-        <li>🔍 Fatos Científicos: Navegue por categorias de conhecimento como física, biologia, química, entre outras.</li>
-        <li>🧠 Quizzes: Teste seus conhecimentos com nossos desafios divertidos e educativos.</li>
-        <li>🎲 Curiosidades Aleatórias: Descubra novas informações a qualquer momento sobre temas diversos.</li>
-        <li>🧬 Inspiração: Encontre novidades sobre os avanços científicos e o que está acontecendo de mais surpreendente no mundo da ciência!</li>
-    </ul>
+        <div class="section">
+            <h2><i class="fas fa-rocket"></i> Nossa Missão</h2>
+            <p>
+                O FATOMANIA foi criado para democratizar o acesso ao conhecimento científico, tornando-o acessível, 
+                interessante e envolvente para todos. Nossa plataforma abrange física, biologia, astronomia, química, 
+                tecnologia e muito mais, sempre com conteúdo verificado por especialistas.
+            </p>
+            <p>
+                Acreditamos que a ciência não deve ser restrita a poucos, mas algo que pode ser vivenciado e 
+                apreciado por todos no dia a dia. Queremos inspirar a próxima geração de cientistas, pensadores e inovadores.
+            </p>
+        </div>
 
-    <h2>Por que o FATOMANIA?</h2>
-    <p>
-        O FATOMANIA é mais que um simples repositório de fatos e curiosidades. Nossa missão é criar uma comunidade que valoriza o
-        aprendizado contínuo e o compartilhamento de conhecimento. Seja você um entusiasta da ciência ou alguém que apenas quer
-        aprender mais, nosso objetivo é fornecer informações que sejam tanto educativas quanto inspiradoras. Acreditamos que o
-        conhecimento deve ser uma experiência compartilhada, acessível a todos, e que nunca é tarde para aprender algo novo.
-    </p>
+        <div class="section">
+            <h2><i class="fas fa-lightbulb"></i> O que oferecemos</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-book"></i>
+                    <h3>Conteúdo Científico</h3>
+                    <p>Artigos verificados sobre física, biologia, química e mais</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-brain"></i>
+                    <h3>Quizzes Interativos</h3>
+                    <p>Teste seus conhecimentos com desafios educativos</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-flask"></i>
+                    <h3>Laboratórios Virtuais</h3>
+                    <p>Experimentos científicos interativos online</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-users"></i>
+                    <h3>Comunidade</h3>
+                    <p>Conecte-se com outros entusiastas da ciência</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-star"></i>
+                    <h3>Descobertas Diárias</h3>
+                    <p>Novidades sobre avanços científicos</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h3>Aprendizado Contínuo</h3>
+                    <p>Conteúdo atualizado constantemente</p>
+                </div>
+            </div>
+        </div>
 
-    <h2>Fale Conosco</h2>
-    <p>
-        Tem alguma dúvida ou sugestão? Ficaremos felizes em ouvir de você! Preencha o formulário abaixo e nossa equipe entrará em
-        contato assim que possível. Estamos sempre abertos a ouvir nossas comunidades e melhorar ainda mais a nossa plataforma.
-    </p>
+        <div class="section">
+            <h2><i class="fas fa-question-circle"></i> Por que FATOMANIA?</h2>
+            <p>
+                Somos mais que um repositório de fatos. Nossa missão é criar uma comunidade que valoriza o 
+                aprendizado contínuo e o compartilhamento de conhecimento. Seja você um entusiasta da ciência 
+                ou alguém que quer aprender mais, fornecemos informações educativas e inspiradoras.
+            </p>
+            <p>
+                Acreditamos que o conhecimento deve ser uma experiência compartilhada, acessível a todos, 
+                e que nunca é tarde para aprender algo novo. Junte-se a nós nessa jornada de descobertas!
+            </p>
+        </div>
 
-    <!-- Exibe mensagem de erro ou sucesso -->
-    <?php if (isset($mensagem_erro)): ?>
-        <div class="mensagem-erro"><?= $mensagem_erro ?></div>
-    <?php endif; ?>
-    
-    <?php if (isset($mensagem_sucesso)): ?>
-        <div class="mensagem-sucesso"><?= $mensagem_sucesso ?></div>
-    <?php endif; ?>
+        <div class="section">
+            <h2><i class="fas fa-envelope"></i> Fale Conosco</h2>
+            <p>Tem alguma dúvida ou sugestão? Ficaremos felizes em ouvir de você!</p>
+            
+            <div class="contact-form">
+                <form action="" method="POST">
+                    <div class="form-group">
+                        <label for="nome"><i class="fas fa-user"></i> Seu Nome</label>
+                        <input type="text" id="nome" name="nome" required>
+                    </div>
 
-    <form action="" method="POST">
-        <label for="nome">Seu Nome</label>
-        <input type="text" id="nome" name="nome" required>
+                    <div class="form-group">
+                        <label for="email"><i class="fas fa-envelope"></i> Seu E-mail</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
 
-        <label for="email">Seu E-mail</label>
-        <input type="email" id="email" name="email" required>
+                    <div class="form-group">
+                        <label for="mensagem"><i class="fas fa-message"></i> Sua Mensagem</label>
+                        <textarea id="mensagem" name="mensagem" rows="6" required></textarea>
+                    </div>
 
-        <label for="mensagem">Sua Mensagem</label>
-        <textarea id="mensagem" name="mensagem" rows="6" required></textarea>
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-paper-plane"></i> Enviar Mensagem
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
 
-        <button type="submit">Enviar Mensagem</button>
-    </form>
-</section>
+    <footer>
+        <p>© 2025 FATOMANIA - Ciência para todos | contato@fatomania.com</p>
+    </footer>
 
-<footer>
-    <p>© 2025 FATOMANIA - Ciência para todos. | contato@fatomania.com</p>
-</footer>
+    <script>
+        // Criar partículas animadas
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 8 + 's';
+                particle.style.animationDuration = (Math.random() * 5 + 5) + 's';
+                container.appendChild(particle);
+            }
+        }
 
+        createParticles();
+    </script>
 </body>
 </html>

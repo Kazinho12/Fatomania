@@ -560,9 +560,15 @@
 
             articlesGrid.innerHTML = filteredArticles.map(article => `
                 <div class="article-card" onclick="openArticle('${article.id}')">
-                    <div class="article-image" style="background-image: url('${article.imageUrl || '/icon/fatomania.png'}')">
-                        <div class="article-category">${getCategoryIcon(article.category)} ${article.category}</div>
-                    </div>
+                    ${article.imageUrl ? `
+                        <div class="article-image" style="background-image: url('${article.imageUrl}')">
+                            <span class="article-category">${getCategoryIcon(article.category)} ${article.category}</span>
+                        </div>
+                    ` : `
+                        <div class="article-image" style="background: linear-gradient(135deg, var(--destaque) 0%, var(--neon-verde) 100%);">
+                            <span class="article-category">${getCategoryIcon(article.category)} ${article.category}</span>
+                        </div>
+                    `}
                     <div class="article-content">
                         <h3 class="article-title">${article.title}</h3>
                         <p class="article-summary">${article.summary}</p>

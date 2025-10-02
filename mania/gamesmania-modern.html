@@ -582,6 +582,27 @@
         </div>
     </div>
 
+    <!-- Modal placeholder for other mania pages -->
+    <div class="modal" id="articleModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-image" id="modalImage"></div>
+            <div class="modal-body">
+                <h2 class="modal-title" id="modalTitle"></h2>
+                <div class="modal-meta">
+                    <span><i class="fas fa-user"></i> <span id="modalAuthor"></span></span>
+                    <span><i class="fas fa-calendar"></i> <span id="modalDate"></span></span>
+                    <span><i class="fas fa-eye"></i> <span id="modalViews"></span> visualizações</span>
+                    <span><i class="fas fa-heart"></i> <span id="modalLikes"></span> curtidas</span>
+                </div>
+                <div class="modal-content-text" id="modalContent"></div>
+                <div class="modal-tags" id="modalTags"></div>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import '/firebase-config.js';
 

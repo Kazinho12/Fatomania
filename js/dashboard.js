@@ -10,6 +10,9 @@ let currentUser = null;
 let userProfile = null;
 let newsData = [];
 
+// Remover carregamento do feed
+// O feed foi removido e substituído por notícias dinâmicas acessíveis via seções
+
 // Dados das seções
 const sectionsData = [
     {
@@ -140,7 +143,7 @@ const sectionsData = [
         icon: "fas fa-palette",
         tag: "#Arte",
         stats: ["200 Obras", "15k Artistas"],
-        image: "https://images.unsplash.com/photo-1541961017774-22349e4a1262?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
+        image: "https://images.unsplash.com/photo-1541961017774-2234917?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
         color: "#00b4d8",
         url: "/mania/artmania-modern.html"
     },
@@ -248,6 +251,7 @@ async function checkAuthState() {
         await updateUserUI(user);
         loadContent();
         startAvatarAnimation();
+        // Feed removido - notícias dinâmicas agora em NewsMANIA
     } else {
         showAuthRequiredMessage();
     }
@@ -320,15 +324,79 @@ async function loadUserProfile(user) {
 
             await setDoc(doc(db, "users", user.uid), userProfile);
         }
+
+        // Carregar estatísticas dinâmicas
+        await loadUserStatistics(user.uid);
     } catch (error) {
         console.error('Erro ao carregar perfil:', error);
+    }
+}
+
+// Função para carregar estatísticas do usuário
+async function loadUserStatistics(userId) {
+    try {
+        // Contar quizzes jogados
+        const quizResultsQuery = query(
+            collection(db, 'quiz-results'),
+            where('userId', '==', userId)
+        );
+        const quizResultsSnapshot = await getDocs(quizResultsQuery);
+        const quizzesPlayed = quizResultsSnapshot.size;
+
+        // Contar artigos publicados (verificar em todas as coleções de artigos)
+        const articleCollections = [
+            'news-articles', 'dynamic-news', 'history-articles', 'science-articles',
+            'tech-articles', 'space-articles', 'eco-articles', 'sports-articles',
+            'med-articles', 'games-articles', 'art-articles', 'mystic-articles', 'lab-articles'
+        ];
+
+        let totalArticles = 0;
+        for (const collectionName of articleCollections) {
+            try {
+                const articlesQuery = query(
+                    collection(db, collectionName),
+                    where('authorId', '==', userId)
+                );
+                const articlesSnapshot = await getDocs(articlesQuery);
+                totalArticles += articlesSnapshot.size;
+            } catch (error) {
+                console.warn(`Erro ao contar artigos em ${collectionName}:`, error);
+            }
+        }
+
+        // Calcular pontuação total
+        let totalScore = 0;
+        quizResultsSnapshot.forEach(doc => {
+            const data = doc.data();
+            totalScore += data.score || 0;
+        });
+
+        // Atualizar userProfile com estatísticas
+        userProfile.quizzes = quizzesPlayed;
+        userProfile.articles = totalArticles;
+        userProfile.points = totalScore;
+        userProfile.streak = userProfile.streak || 0;
+
+        console.log('📊 Estatísticas carregadas:', {
+            quizzes: quizzesPlayed,
+            articles: totalArticles,
+            points: totalScore
+        });
+
+    } catch (error) {
+        console.error('❌ Erro ao carregar estatísticas:', error);
+        // Definir valores padrão em caso de erro
+        userProfile.quizzes = 0;
+        userProfile.articles = 0;
+        userProfile.points = 0;
+        userProfile.streak = 0;
     }
 }
 
 // Atualiza UI do usuário
 async function updateUserUI(user) {
     if (elements.userName) {
-        elements.userName.textContent = userProfile.name || user.displayName || user.email.split('@')[0];
+        userName.textContent = userProfile.name || user.displayName || user.email.split('@')[0];
     }
 
     // Atualiza avatar principal
@@ -972,26 +1040,71 @@ function openProfileModal() {
         return;
     }
 
-    // Atualiza dados do perfil
+    // Atualiza dados do perfil básicos
     const profileName = document.getElementById('profile-name');
     const profileEmail = document.getElementById('profile-email');
     const profileProfession = document.getElementById('profile-profession');
     const profileFavorite = document.getElementById('profile-favorite');
-    const profileJoined = document.getElementById('profile-joined');
+    const profileJoinedDate = document.getElementById('profile-joined-date');
     const profileAvatar = document.getElementById('profile-avatar');
 
     if (profileName) profileName.textContent = userProfile.name || 'Nome não definido';
     if (profileEmail) profileEmail.textContent = userProfile.email || 'Email não definido';
-    if (profileProfession) profileProfession.textContent = `Profissão: ${userProfile.profession || 'Não informado'}`;
+    if (profileProfession) profileProfession.textContent = userProfile.profession || 'Não informado';
 
     if (profileFavorite) {
         const favoriteSection = sectionsData.find(s => s.id === userProfile.favoriteSection);
-        profileFavorite.textContent = `Seção Favorita: ${favoriteSection ? favoriteSection.title : 'Não definida'}`;
+        profileFavorite.textContent = favoriteSection ? favoriteSection.title : 'Não definida';
     }
 
-    if (profileJoined) {
+    if (profileJoinedDate) {
         const joinedDate = userProfile.joinedDate ? new Date(userProfile.joinedDate).toLocaleDateString('pt-BR') : 'Data não disponível';
-        profileJoined.textContent = `Membro desde: ${joinedDate}`;
+        profileJoinedDate.textContent = joinedDate;
+    }
+
+    // Atualiza estatísticas
+    const profileStreak = document.getElementById('profile-streak');
+    const profilePoints = document.getElementById('profile-points');
+    const profileQuizzes = document.getElementById('profile-quizzes');
+    const profileArticles = document.getElementById('profile-articles');
+    const profileLastAccess = document.getElementById('profile-last-access');
+
+    if (profileStreak) profileStreak.textContent = `${userProfile.streak || 0} dias`;
+    if (profilePoints) profilePoints.textContent = userProfile.points || 0;
+    if (profileQuizzes) profileQuizzes.textContent = userProfile.quizzes || 0;
+    if (profileArticles) profileArticles.textContent = userProfile.articles || 0;
+
+    if (profileLastAccess) {
+        const lastAccess = userProfile.lastAccess ? new Date(userProfile.lastAccess.seconds ? userProfile.lastAccess.seconds * 1000 : userProfile.lastAccess) : new Date();
+        const hoje = new Date();
+        const diff = Math.floor((hoje - lastAccess) / (1000 * 60 * 60 * 24));
+
+        if (diff === 0) {
+            profileLastAccess.textContent = 'Hoje';
+        } else if (diff === 1) {
+            profileLastAccess.textContent = 'Ontem';
+        } else {
+            profileLastAccess.textContent = lastAccess.toLocaleDateString('pt-BR');
+        }
+    }
+
+    // Atualiza conquistas
+    const achievementsContainer = document.getElementById('profile-achievements');
+    if (achievementsContainer && userProfile.achievements && userProfile.achievements.length > 0) {
+        const achievementsHTML = userProfile.achievements.map(achievement => `
+            <div style="background: rgba(255, 215, 0, 0.1); border: 2px solid gold; border-radius: 10px; padding: 0.75rem 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-medal" style="color: gold; font-size: 1.2rem;"></i>
+                <span style="color: var(--texto);">${achievement}</span>
+            </div>
+        `).join('');
+        achievementsContainer.innerHTML = achievementsHTML;
+    } else if (achievementsContainer) {
+        achievementsContainer.innerHTML = `
+            <div style="background: rgba(255, 215, 0, 0.1); border: 2px solid gold; border-radius: 10px; padding: 0.75rem 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-star" style="color: gold; font-size: 1.2rem;"></i>
+                <span style="color: var(--texto);">Primeiro Login</span>
+            </div>
+        `;
     }
 
     // Atualiza avatar do modal
@@ -1249,7 +1362,7 @@ function displaySearchResults(results) {
     }
 
     const resultsHTML = results.map(result => `
-        <div class="search-result-item" onclick="handleSearchResultClick('${result.type}', '${result.id || result.url}')">
+        <div class="search-result-item" onclick="handleSearchResultClick('${result.id || result.url}', '${result.section || result.id}')">
             <h4 class="search-result-title">${result.title}</h4>
             <p class="search-result-description">${result.description}</p>
             <span class="search-result-tag">${result.tag}</span>
@@ -1260,24 +1373,50 @@ function displaySearchResults(results) {
 }
 
 // Clique em resultado de pesquisa
-function handleSearchResultClick(type, identifier) {
-    closeSearchModal();
+async function handleSearchResultClick(articleId, sectionId) {
+    try {
+        const collectionName = getCollectionNameFromSection(sectionId);
 
-    if (type === 'section') {
-        const section = sectionsData.find(s => s.url === identifier);
-        if (section) {
-            navigateToSection(section.url);
+        if (window.openArticle) {
+            await window.openArticle(articleId, collectionName);
+            document.getElementById('search-modal').classList.remove('active');
+        } else {
+            const articleRef = doc(db, collectionName, articleId);
+            const articleSnap = await getDoc(articleRef);
+
+            if (articleSnap.exists()) {
+                const article = { id: articleSnap.id, ...articleSnap.data() };
+                showDetailModal(article);
+                document.getElementById('search-modal').classList.remove('active');
+            }
         }
-    } else if (type === 'news') {
-        const news = newsData.find(n => n.id === identifier);
-        if (news) {
-            openArticleModal(news, true); // Passa true para indicar que é um submit
-        }
+    } catch (error) {
+        console.error('Erro ao abrir artigo:', error);
+    }
+}
+
+// Função auxiliar para obter o nome da coleção com base no ID da seção
+function getCollectionNameFromSection(sectionId) {
+    switch (sectionId) {
+        case 'quizmania': return 'quizzes';
+        case 'newsmania': return 'news';
+        case 'historymania': return 'history-articles';
+        case 'sciencemania': return 'science-articles';
+        case 'techmania': return 'tech-articles';
+        case 'spacemania': return 'space-articles';
+        case 'ecomania': return 'eco-articles';
+        case 'sportmania': return 'sport-articles';
+        case 'medmania': return 'med-articles';
+        case 'gamesmania': return 'games-articles';
+        case 'artmania': return 'art-articles';
+        case 'misticmania': return 'mystic-articles';
+        case 'labmania': return 'lab-articles';
+        default: return 'news'; // Default para casos desconhecidos
     }
 }
 
 // Função para abrir o modal de detalhes (artigo ou submit)
-function openArticleModal(item, isSubmit = false) {
+function showDetailModal(item) {
     if (!elements.detailModal || !item) return;
 
     if (elements.modalTitle) elements.modalTitle.textContent = item.title;
@@ -1305,12 +1444,12 @@ function openArticleModal(item, isSubmit = false) {
         elements.modalContent.innerHTML = item.content || item.description;
 
         // Adiciona seção de comentários se não for um submit ou se o submit tiver comentários
-        if (!isSubmit || (item.comments && item.comments.length > 0)) {
+        if (!item.isSubmit || (item.comments && item.comments.length > 0)) {
             addCommentsSection(item);
         }
 
         // Adiciona visualização de imagem se for um submit e tiver URL de imagem
-        if (isSubmit && item.imageUrl) {
+        if (item.isSubmit && item.imageUrl) {
             const imagePreviewHTML = `
                 <div class="image-preview" style="margin-bottom: 1.5rem; text-align: center;">
                     <img src="${item.imageUrl}" alt="Visualização do Submit" style="max-width: 100%; border-radius: 10px; max-height: 400px; object-fit: cover;">
@@ -1320,7 +1459,7 @@ function openArticleModal(item, isSubmit = false) {
         }
 
         // Adiciona barra de progresso se for um submit e tiver progresso
-        if (isSubmit && item.progress !== undefined) {
+        if (item.isSubmit && item.progress !== undefined) {
             const progressBarHTML = `
                 <div class="progress-bar-container" style="margin-top: 1rem; margin-bottom: 1rem;">
                     <div class="progress-bar" style="width: ${item.progress}%; background: linear-gradient(45deg, var(--azul), var(--verde)); height: 10px; border-radius: 5px;"></div>
@@ -1690,6 +1829,18 @@ window.requireAuth = requireAuth;
 window.waitForAuth = waitForAuth;
 window.likeContent = likeContent;
 window.shareContent = shareContent;
+window.openProfileModal = openProfileModal;
+window.closeProfileModal = closeProfileModal;
+window.toggleEditMode = toggleEditMode;
+window.saveProfile = saveProfile;
+window.toggleUserDropdown = toggleUserDropdown;
+window.navigateToSection = navigateToSection;
+window.handleSearchResultClick = handleSearchResultClick;
+window.addComment = addComment;
+window.showDetailModal = showDetailModal;
+window.getCollectionNameFromSection = getCollectionNameFromSection;
+window.openArticleModal = openArticleModal;
+
 
 // Inicialização
 document.addEventListener('DOMContentLoaded', () => {

@@ -550,7 +550,7 @@
                     <i class="fas fa-search"></i>
                 </button>
             </div>
-            
+
             <select class="category-filter" id="categoryFilter" onchange="filterArticles()">
                 <option value="">Todas as categorias</option>
                 <option value="pintura">🖼️ Pintura</option>
@@ -604,7 +604,7 @@
                 </div>
                 <div class="modal-content-text" id="modalContent"></div>
                 <div class="modal-tags" id="modalTags"></div>
-                
+
                 <div class="comment-section">
                     <h3 class="comment-title">💬 Críticas e Opiniões</h3>
                     <div class="comment-form">
@@ -686,20 +686,26 @@
 
             articlesGrid.innerHTML = filteredArticles.map(article => `
                 <div class="article-card" onclick="openModal('${article.id}')">
-                    <div class="article-image" style="background-image: url('${article.imageUrl || '/icon/fatomania.png'}')">
-                        <div class="article-category">${getCategoryIcon(article.category)} ${article.category}</div>
-                    </div>
+                    ${article.imageUrl ? `
+                        <div class="article-image" style="background-image: url('${article.imageUrl}')">
+                            <span class="article-category">${article.category || '🎨 Arte'}</span>
+                        </div>
+                    ` : `
+                        <div class="article-image" style="background: linear-gradient(135deg, var(--rosa) 0%, var(--destaque) 100%);">
+                            <span class="article-category">${article.category || '🎨 Arte'}</span>
+                        </div>
+                    `}
                     <div class="article-content">
                         <h3 class="article-title">${article.title}</h3>
-                        <p class="article-summary">${article.summary}</p>
+                        <p class="article-summary">${article.excerpt || article.summary || ''}</p>
                         <div class="article-meta">
                             <div class="article-author">
                                 <i class="fas fa-user"></i>
-                                <span>${article.author}</span>
+                                <span>${article.author || 'Anônimo'}</span>
                             </div>
                             <div class="article-stats">
-                                <span><i class="fas fa-eye"></i> ${article.views || 0}</span>
                                 <span><i class="fas fa-heart"></i> ${article.likes || 0}</span>
+                                <span><i class="fas fa-comment"></i> ${(article.comments && article.comments.length) || 0}</span>
                             </div>
                         </div>
                     </div>
@@ -746,7 +752,7 @@
             document.getElementById('modalViews').textContent = article.views || 0;
             document.getElementById('modalLikes').textContent = article.likes || 0;
             document.getElementById('modalContent').innerHTML = article.content.replace(/\n/g, '<br>');
-            
+
             // Tags
             const tagsContainer = document.getElementById('modalTags');
             if (article.tags && article.tags.length > 0) {
@@ -780,7 +786,7 @@
 
         function renderComments(comments) {
             const commentsList = document.getElementById('commentsList');
-            
+
             if (comments.length === 0) {
                 commentsList.innerHTML = '<p style="opacity: 0.7;">Nenhuma crítica ainda. Seja o primeiro a comentar!</p>';
                 return;

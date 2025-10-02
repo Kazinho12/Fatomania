@@ -553,9 +553,15 @@
 
             articlesGrid.innerHTML = filteredArticles.map(article => `
                 <div class="article-card" onclick="openArticle('${article.id}')">
-                    <div class="article-image" style="background-image: url('${article.imageUrl || 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800'}')">
-                        <div class="article-category">${getCategoryIcon(article.category)} ${article.category}</div>
-                    </div>
+                    ${article.imageUrl ? `
+                        <div class="article-image" style="background-image: url('${article.imageUrl}')">
+                            <span class="article-category">${getCategoryLabel(article.category)}</span>
+                        </div>
+                    ` : `
+                        <div class="article-image" style="background: linear-gradient(135deg, var(--destaque) 0%, var(--sport-orange) 100%);">
+                            <span class="article-category">${getCategoryLabel(article.category)}</span>
+                        </div>
+                    `}
                     <div class="article-content">
                         <h3 class="article-title">${article.title}</h3>
                         <p class="article-summary">${article.summary}</p>
@@ -568,18 +574,18 @@
             `).join('');
         }
 
-        function getCategoryIcon(category) {
-            const icons = {
-                'biomechanics': '🏃',
-                'nutrition': '🥗',
-                'psychology': '🧠',
-                'technology': '📱',
-                'recovery': '🛌',
-                'performance': '⚡',
-                'training': '💪',
-                'equipment': '🥇'
+        function getCategoryLabel(category) {
+            const labels = {
+                'biomechanics': '🏃 Biomecânica',
+                'nutrition': '🥗 Nutrição Esportiva',
+                'psychology': '🧠 Psicologia Esportiva',
+                'technology': '📱 Tecnologia Esportiva',
+                'recovery': '🛌 Recuperação',
+                'performance': '⚡ Performance',
+                'training': '💪 Treinamento',
+                'equipment': '🥇 Equipamentos'
             };
-            return icons[category] || '🏃';
+            return labels[category] || '💡 Destaque'; // Default category if not found
         }
 
         async function openArticle(articleId) {

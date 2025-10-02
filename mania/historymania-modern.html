@@ -18,6 +18,8 @@
             --perigo: #c0392b;
             --sucesso: #27ae60;
             --texto-claro: #f4f1de;
+            --dourado: #d4af37; /* Added for potential fallback */
+            --bronze: #cd7f32; /* Added for potential fallback */
         }
 
         * {
@@ -656,33 +658,33 @@
         async function loadArticles() {
             try {
                 console.log('🔄 Carregando artigos históricos...');
-                
+
                 // Importa e usa safeQuery
                 const { safeQuery, createSampleArticles } = await import('/js/firebase-collections-checker.js');
-                
+
                 let currentArticles = await safeQuery('history-articles', {
                     where: ['status', '==', 'published'],
                     orderBy: 'createdAt',
                     direction: 'desc',
                     limit: 50
                 });
-                
+
                 // Filtra documentos de inicialização
                 currentArticles = currentArticles.filter(article => !article._initialized);
-                
+
                 // Se não houver artigos, cria exemplos
                 if (currentArticles.length === 0) {
                     console.log('📝 Criando artigos de exemplo para HISTORYMANIA...');
                     currentArticles = await createSampleArticles('history', 3);
                 }
-                
+
                 console.log('✅ Artigos históricos carregados:', currentArticles.length);
 
                 window.currentArticles = currentArticles;
                 allArticles = [...currentArticles];
                 filteredArticles = [...currentArticles];
                 renderArticles();
-                
+
             } catch (error) {
                 console.error('❌ Erro ao carregar artigos históricos:', error);
                 document.getElementById('loading').innerHTML = `
@@ -698,7 +700,7 @@
             }
         }
 
-        
+
 
         function filterByPeriod() {
             if (currentPeriod === 'all') {
@@ -727,18 +729,26 @@
             noResults.style.display = 'none';
 
             articlesGrid.innerHTML = filteredArticles.map(article => {
-                const imageUrl = article.imageUrl || 'https://images.unsplash.com/photo-1461360370896-922624d12aa1?w=800';
-                const period = article.period || article.category || 'História';
+                const imageUrl = article.imageUrl || '/icon/fatomania.png'; // Fallback image for all manias
+                const period = article.historicalPeriod || '📜 História';
+                const category = article.category || 'Geral';
                 const author = article.author || 'Anônimo';
                 const title = article.title || 'Artigo sem título';
                 const summary = article.summary || 'Resumo não disponível';
 
                 return `
                     <div class="article-card" onclick="openArticle('${article.id}')">
-                        <div class="article-image" style="background-image: url('${imageUrl}')">
-                            <div class="article-period">${getPeriodIcon(period)} ${period}</div>
-                            <div class="article-era">${formatDate(article.createdAt)}</div>
-                        </div>
+                        ${article.imageUrl ? `
+                            <div class="article-image" style="background-image: url('${article.imageUrl}')">
+                                <span class="article-period">${period}</span>
+                                <span class="article-era">${category}</span>
+                            </div>
+                        ` : `
+                            <div class="article-image" style="background: linear-gradient(135deg, var(--dourado) 0%, var(--bronze) 100%);">
+                                <span class="article-period">${period}</span>
+                                <span class="article-era">${category}</span>
+                            </div>
+                        `}
                         <div class="article-content">
                             <h3 class="article-title">${title}</h3>
                             <p class="article-summary">${summary}</p>
@@ -767,16 +777,17 @@
             }
         }
 
-        function getPeriodIcon(period) {
-            const icons = {
-                'prehistoric': '🦕',
-                'ancient': '🏛️',
-                'medieval': '⚔️',
-                'modern': '🏰',
-                'contemporary': '🏭'
-            };
-            return icons[period] || '📜';
-        }
+        // Helper function to get period icon - already defined globally by shared-utils.js
+        // function getPeriodIcon(period) {
+        //     const icons = {
+        //         'prehistoric': '🦕',
+        //         'ancient': '🏛️',
+        //         'medieval': '⚔️',
+        //         'modern': '🏰',
+        //         'contemporary': '🏭'
+        //     };
+        //     return icons[period] || '📜';
+        // }
 
         async function openArticle(articleId) {
             try {
@@ -873,23 +884,25 @@
             }
         }
 
-        function formatDate(timestamp) {
-            if (!timestamp) return '';
-            try {
-                const date = timestamp.seconds ? new Date(timestamp.seconds * 1000) : new Date(timestamp);
-                if (isNaN(date.getTime())) {
-                    return 'Data Inválida';
-                }
-                return date.toLocaleDateString('pt-BR', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                });
-            } catch (e) {
-                console.error("Error formatting date:", timestamp, e);
-                return 'Erro na Data';
-            }
-        }
+        // Date formatting function from shared-utils.js is imported and used.
+        // Local definition removed to avoid conflicts and ensure consistency.
+        // function formatDate(timestamp) {
+        //     if (!timestamp) return '';
+        //     try {
+        //         const date = timestamp.seconds ? new Date(timestamp.seconds * 1000) : new Date(timestamp);
+        //         if (isNaN(date.getTime())) {
+        //             return 'Data Inválida';
+        //         }
+        //         return date.toLocaleDateString('pt-BR', {
+        //             day: '2-digit',
+        //             month: '2-digit',
+        //             year: 'numeric'
+        //         });
+        //     } catch (e) {
+        //         console.error("Error formatting date:", timestamp, e);
+        //         return 'Erro na Data';
+        //     }
+        // }
 
         // Global functions
         window.openArticle = openArticle;

@@ -107,6 +107,65 @@ function createNotificationContainer() {
         const style = document.createElement('style');
         style.id = 'popup-notification-styles';
         style.textContent = `
+            /* Estilos para botão de curtida */
+            .like-button {
+                background: rgba(255, 255, 255, 0.1);
+                border: 2px solid rgba(255, 255, 255, 0.2);
+                border-radius: 25px;
+                padding: 0.5rem 1rem;
+                color: white;
+                cursor: pointer;
+                transition: all 0.3s;
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-weight: 600;
+            }
+            
+            .like-button:hover {
+                background: rgba(255, 255, 255, 0.2);
+                transform: scale(1.05);
+            }
+            
+            .like-button.liked {
+                background: linear-gradient(45deg, #ff006e, #ff4081);
+                border-color: #ff006e;
+            }
+            
+            .like-button.liked i {
+                animation: heartBeat 0.3s;
+            }
+            
+            @keyframes heartBeat {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.2); }
+            }
+            
+            /* Estilos para comentários */
+            .comment-form textarea:focus {
+                outline: none;
+                border-color: var(--destaque, #00f7ff);
+                box-shadow: 0 0 20px rgba(0, 247, 255, 0.3);
+            }
+            
+            .comment-form button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 20px rgba(0, 247, 255, 0.4);
+            }
+            
+            .comments-list::-webkit-scrollbar {
+                width: 8px;
+            }
+            
+            .comments-list::-webkit-scrollbar-track {
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 10px;
+            }
+            
+            .comments-list::-webkit-scrollbar-thumb {
+                background: var(--destaque, #00f7ff);
+                border-radius: 10px;
+            }
             .popup-notification {
                 background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
                 border: 2px solid var(--azul, #00f7ff);
@@ -271,39 +330,93 @@ export function validateForm(formData) {
 /**
  * Abrir modal de artigo (função unificada)
  */
-export function openArticle(articleId, articles) {
-    const article = articles.find(a => a.id === articleId);
-    if (!article) return;
-    
-    // Criar modal se não existir
-    let modal = document.getElementById('articleModal');
-    if (!modal) {
-        modal = createArticleModal();
-        document.body.appendChild(modal);
+export async function openArticle(articleId, collectionName = 'news-articles') {
+    try {
+        // Incrementa visualizações
+        if (window.incrementViews) {
+            await window.incrementViews(collectionName, articleId);
+        }
+        
+        // Busca artigo
+        const articleRef = window.firebaseDB.doc(window.firebaseDB.db, collectionName, articleId);
+        const articleSnap = await window.firebaseDB.getDoc(articleRef);
+        
+        if (!articleSnap.exists()) {
+            console.error('Artigo não encontrado');
+            return;
+        }
+        
+        const article = { id: articleSnap.id, ...articleSnap.data() };
+        
+        // Criar modal se não existir
+        let modal = document.getElementById('articleModal');
+        if (!modal) {
+            modal = createArticleModal();
+            document.body.appendChild(modal);
+        }
+        
+        // Preencher dados do modal
+        const modalTitle = modal.querySelector('.modal-title');
+        const modalImage = modal.querySelector('.modal-image');
+        const modalMeta = modal.querySelector('.modal-meta');
+        const modalContent = modal.querySelector('.modal-content-text');
+        const modalBody = modal.querySelector('.modal-body');
+        
+        if (modalTitle) modalTitle.textContent = article.title;
+        if (modalImage) {
+            modalImage.style.backgroundImage = `url('${article.imageUrl || '/icon/fatomania.png'}')`;
+            modalImage.style.display = 'block';
+        }
+        
+        // Meta com botão de like
+        if (modalMeta) {
+            const user = window.firebaseAuth?.auth?.currentUser;
+            const userId = user?.uid || 'anonymous';
+            
+            // Verifica se usuário já curtiu
+            let isLiked = false;
+            if (window.checkIfLiked) {
+                isLiked = await window.checkIfLiked(collectionName, articleId, userId);
+            }
+            
+            modalMeta.innerHTML = `
+                <span><i class="fas fa-user"></i> ${article.author || 'Anônimo'}</span>
+                <span><i class="fas fa-calendar"></i> ${formatDate(article.createdAt)}</span>
+                <span><i class="fas fa-eye"></i> ${(article.views || 0) + 1} visualizações</span>
+                ${window.renderLikeButton ? window.renderLikeButton(collectionName, articleId, userId, article.likes || 0, isLiked) : ''}
+            `;
+        }
+        
+        if (modalContent) {
+            modalContent.textContent = article.content || article.summary || '';
+        }
+        
+        // Adiciona seção de comentários
+        if (modalBody && window.renderCommentsSection) {
+            const user = window.firebaseAuth?.auth?.currentUser;
+            const userId = user?.uid || 'anonymous';
+            const userName = user?.displayName || user?.email?.split('@')[0] || 'Visitante';
+            
+            // Remove seção de comentários antiga se existir
+            const oldComments = modalBody.querySelector('.comments-section');
+            if (oldComments) oldComments.remove();
+            
+            modalBody.insertAdjacentHTML('beforeend', window.renderCommentsSection(collectionName, articleId, userId, userName));
+            
+            // Carrega comentários
+            if (window.loadComments && window.renderComments) {
+                const comments = await window.loadComments(collectionName, articleId);
+                window.renderComments(comments, `commentsList-${articleId}`);
+            }
+        }
+        
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        
+    } catch (error) {
+        console.error('Erro ao abrir artigo:', error);
+        window.showPopupNotification?.('Erro ao abrir artigo', 'error');
     }
-    
-    // Preencher dados do modal
-    const modalTitle = modal.querySelector('.modal-title');
-    const modalImage = modal.querySelector('.modal-image');
-    const modalMeta = modal.querySelector('.modal-meta');
-    const modalContent = modal.querySelector('.modal-content-text');
-    
-    if (modalTitle) modalTitle.textContent = article.title;
-    if (modalImage) {
-        modalImage.style.backgroundImage = `url('${article.imageUrl || '/icon/fatomania.png'}')`;
-        modalImage.style.display = 'block';
-    }
-    if (modalMeta) {
-        modalMeta.innerHTML = `
-            <span><i class="fas fa-user"></i> ${article.author}</span>
-            <span><i class="fas fa-calendar"></i> ${formatDate(article.createdAt)}</span>
-            <span><i class="fas fa-eye"></i> ${article.views || 0}</span>
-        `;
-    }
-    if (modalContent) modalContent.textContent = article.content;
-    
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
 }
 
 /**
@@ -358,6 +471,245 @@ export async function uploadImageByType(file, type, progressCallback) {
     }
 }
 
+/**
+ * Incrementar visualizações de um artigo
+ */
+export async function incrementViews(collectionName, articleId) {
+    try {
+        const articleRef = window.firebaseDB.doc(window.firebaseDB.db, collectionName, articleId);
+        await window.firebaseDB.updateDoc(articleRef, {
+            views: window.firebaseDB.increment(1)
+        });
+        return true;
+    } catch (error) {
+        console.error('Erro ao incrementar visualizações:', error);
+        return false;
+    }
+}
+
+/**
+ * Alternar curtida em um artigo
+ */
+export async function toggleLike(collectionName, articleId, userId) {
+    try {
+        const articleRef = window.firebaseDB.doc(window.firebaseDB.db, collectionName, articleId);
+        const articleSnap = await window.firebaseDB.getDoc(articleRef);
+        
+        if (!articleSnap.exists()) return false;
+        
+        const article = articleSnap.data();
+        const likedBy = article.likedBy || [];
+        const likes = article.likes || 0;
+        
+        if (likedBy.includes(userId)) {
+            // Remove curtida
+            await window.firebaseDB.updateDoc(articleRef, {
+                likes: Math.max(0, likes - 1),
+                likedBy: likedBy.filter(id => id !== userId)
+            });
+            return false; // não curtido
+        } else {
+            // Adiciona curtida
+            await window.firebaseDB.updateDoc(articleRef, {
+                likes: likes + 1,
+                likedBy: [...likedBy, userId]
+            });
+            return true; // curtido
+        }
+    } catch (error) {
+        console.error('Erro ao alternar curtida:', error);
+        return false;
+    }
+}
+
+/**
+ * Verificar se usuário curtiu o artigo
+ */
+export async function checkIfLiked(collectionName, articleId, userId) {
+    try {
+        const articleRef = window.firebaseDB.doc(window.firebaseDB.db, collectionName, articleId);
+        const articleSnap = await window.firebaseDB.getDoc(articleRef);
+        
+        if (!articleSnap.exists()) return false;
+        
+        const article = articleSnap.data();
+        const likedBy = article.likedBy || [];
+        
+        return likedBy.includes(userId);
+    } catch (error) {
+        console.error('Erro ao verificar curtida:', error);
+        return false;
+    }
+}
+
+/**
+ * Adicionar comentário
+ */
+export async function addComment(collectionName, articleId, userId, userName, commentText) {
+    try {
+        const articleRef = window.firebaseDB.doc(window.firebaseDB.db, collectionName, articleId);
+        const articleSnap = await window.firebaseDB.getDoc(articleRef);
+        
+        if (!articleSnap.exists()) return false;
+        
+        const article = articleSnap.data();
+        const comments = article.comments || [];
+        
+        const newComment = {
+            id: Date.now().toString(),
+            userId,
+            userName,
+            text: commentText,
+            createdAt: new Date().toISOString(),
+            likes: 0
+        };
+        
+        await window.firebaseDB.updateDoc(articleRef, {
+            comments: [...comments, newComment]
+        });
+        
+        return newComment;
+    } catch (error) {
+        console.error('Erro ao adicionar comentário:', error);
+        return false;
+    }
+}
+
+/**
+ * Carregar comentários
+ */
+export async function loadComments(collectionName, articleId) {
+    try {
+        const articleRef = window.firebaseDB.doc(window.firebaseDB.db, collectionName, articleId);
+        const articleSnap = await window.firebaseDB.getDoc(articleRef);
+        
+        if (!articleSnap.exists()) return [];
+        
+        const article = articleSnap.data();
+        return article.comments || [];
+    } catch (error) {
+        console.error('Erro ao carregar comentários:', error);
+        return [];
+    }
+}
+
+/**
+ * Renderizar botão de curtida
+ */
+export function renderLikeButton(collectionName, articleId, userId, likes, isLiked) {
+    const heartIcon = isLiked ? 'fas fa-heart' : 'far fa-heart';
+    const likeClass = isLiked ? 'liked' : '';
+    
+    return `
+        <button class="like-button ${likeClass}" onclick="handleLikeClick('${collectionName}', '${articleId}', '${userId}')">
+            <i class="${heartIcon}"></i> 
+            <span class="like-count">${likes}</span>
+        </button>
+    `;
+}
+
+/**
+ * Manipular clique em curtida
+ */
+window.handleLikeClick = async function(collectionName, articleId, userId) {
+    const isLiked = await toggleLike(collectionName, articleId, userId);
+    
+    // Atualizar UI
+    const likeButton = event.target.closest('.like-button');
+    const likeCount = likeButton.querySelector('.like-count');
+    const heartIcon = likeButton.querySelector('i');
+    
+    if (isLiked) {
+        likeButton.classList.add('liked');
+        heartIcon.className = 'fas fa-heart';
+        likeCount.textContent = parseInt(likeCount.textContent) + 1;
+        showPopupNotification('Artigo curtido!', 'success', 2000);
+    } else {
+        likeButton.classList.remove('liked');
+        heartIcon.className = 'far fa-heart';
+        likeCount.textContent = Math.max(0, parseInt(likeCount.textContent) - 1);
+        showPopupNotification('Curtida removida', 'info', 2000);
+    }
+};
+
+/**
+ * Renderizar seção de comentários
+ */
+export function renderCommentsSection(collectionName, articleId, userId, userName) {
+    return `
+        <div class="comments-section" style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+            <h3 style="color: var(--destaque, #00f7ff); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-comments"></i> Comentários
+            </h3>
+            <div class="comment-form" style="margin-bottom: 2rem;">
+                <textarea 
+                    id="commentInput-${articleId}" 
+                    placeholder="Compartilhe sua opinião..."
+                    style="width: 100%; padding: 1rem; border-radius: 10px; border: 2px solid rgba(255, 255, 255, 0.2); background: rgba(0, 0, 0, 0.3); color: white; font-family: inherit; min-height: 100px; resize: vertical;"
+                ></textarea>
+                <button 
+                    onclick="handleCommentSubmit('${collectionName}', '${articleId}', '${userId}', '${userName}')"
+                    style="margin-top: 1rem; padding: 0.8rem 2rem; background: linear-gradient(45deg, var(--destaque, #00f7ff), var(--verde, #00ffaa)); border: none; border-radius: 10px; color: var(--fundo, #0f0c29); font-weight: 600; cursor: pointer; transition: all 0.3s;"
+                >
+                    <i class="fas fa-paper-plane"></i> Comentar
+                </button>
+            </div>
+            <div id="commentsList-${articleId}" class="comments-list" style="max-height: 400px; overflow-y: auto;"></div>
+        </div>
+    `;
+}
+
+/**
+ * Manipular envio de comentário
+ */
+window.handleCommentSubmit = async function(collectionName, articleId, userId, userName) {
+    const commentInput = document.getElementById(`commentInput-${articleId}`);
+    const commentText = commentInput.value.trim();
+    
+    if (!commentText) {
+        showPopupNotification('Digite um comentário', 'warning', 2000);
+        return;
+    }
+    
+    const comment = await addComment(collectionName, articleId, userId, userName, commentText);
+    
+    if (comment) {
+        commentInput.value = '';
+        showPopupNotification('Comentário adicionado!', 'success', 2000);
+        
+        // Recarregar comentários
+        const comments = await loadComments(collectionName, articleId);
+        renderComments(comments, `commentsList-${articleId}`);
+    } else {
+        showPopupNotification('Erro ao adicionar comentário', 'error');
+    }
+};
+
+/**
+ * Renderizar lista de comentários
+ */
+export function renderComments(comments, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    if (comments.length === 0) {
+        container.innerHTML = '<p style="color: rgba(255, 255, 255, 0.5); text-align: center; padding: 2rem;">Nenhum comentário ainda. Seja o primeiro!</p>';
+        return;
+    }
+    
+    container.innerHTML = comments.map(comment => `
+        <div class="comment-item" style="background: rgba(0, 0, 0, 0.2); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; border-left: 4px solid var(--destaque, #00f7ff);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong style="color: var(--destaque, #00f7ff);">
+                    <i class="fas fa-user"></i> ${comment.userName}
+                </strong>
+                <small style="color: rgba(255, 255, 255, 0.5);">${formatDate(comment.createdAt)}</small>
+            </div>
+            <p style="color: white; line-height: 1.6;">${comment.text}</p>
+        </div>
+    `).join('');
+}
+
 // Tornar funções globalmente disponíveis
 window.openArticle = openArticle;
 window.closeArticleModal = closeArticleModal;
@@ -366,3 +718,11 @@ window.showMessage = showMessage;
 window.showProgress = showProgress;
 window.hideProgress = hideProgress;
 window.showImagePreview = showImagePreview;
+window.incrementViews = incrementViews;
+window.toggleLike = toggleLike;
+window.checkIfLiked = checkIfLiked;
+window.addComment = addComment;
+window.loadComments = loadComments;
+window.renderLikeButton = renderLikeButton;
+window.renderCommentsSection = renderCommentsSection;
+window.renderComments = renderComments;

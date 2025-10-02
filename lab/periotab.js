@@ -1305,36 +1305,40 @@ class PeriodicTable {
         actinideContainer.className = 'actinide-series';
         this.tableContainer.appendChild(actinideContainer);
 
-        // Adicionar lantanídeos simulados
-        for (let i = 57; i <= 71; i++) {
-            const element = elements.find(el => el.number === i) || {
-                number: i, symbol: `L${i-56}`, name: `Lantanídeo ${i-56}`, 
-                mass: 150 + i, category: 'lanthanide', valences: ['+3']
-            };
-            const elementDiv = this.createElement(element);
-            elementDiv.style.gridRow = 9; // Posição fixa para séries
-            elementDiv.style.gridColumn = element.number - 57 + 3; // Ajusta coluna
-            lanthanideContainer.appendChild(elementDiv);
+        // Adicionar lantanídeos armazenados
+        if (this.lanthanideElements && this.lanthanideElements.length > 0) {
+            this.lanthanideElements.sort((a, b) => {
+                return parseInt(a.getAttribute('data-number')) - parseInt(b.getAttribute('data-number'));
+            });
+            this.lanthanideElements.forEach((elementDiv, index) => {
+                elementDiv.style.gridRow = 9;
+                elementDiv.style.gridColumn = index + 3;
+                lanthanideContainer.appendChild(elementDiv);
+            });
         }
 
-        // Adicionar actinídeos simulados
-        for (let i = 89; i <= 103; i++) {
-            const element = elements.find(el => el.number === i) || {
-                number: i, symbol: `A${i-88}`, name: `Actinídeo ${i-88}`, 
-                mass: 220 + i, category: 'actinide', valences: ['+3']
-            };
-            const elementDiv = this.createElement(element);
-            elementDiv.style.gridRow = 10; // Posição fixa para séries
-            elementDiv.style.gridColumn = element.number - 89 + 3; // Ajusta coluna
-            actinideContainer.appendChild(elementDiv);
+        // Adicionar actinídeos armazenados
+        if (this.actinideElements && this.actinideElements.length > 0) {
+            this.actinideElements.sort((a, b) => {
+                return parseInt(a.getAttribute('data-number')) - parseInt(b.getAttribute('data-number'));
+            });
+            this.actinideElements.forEach((elementDiv, index) => {
+                elementDiv.style.gridRow = 10;
+                elementDiv.style.gridColumn = index + 3;
+                actinideContainer.appendChild(elementDiv);
+            });
         }
     }
 
     addToLanthanideSeries(elementDiv) {
+        if (!this.lanthanideElements) this.lanthanideElements = [];
+        this.lanthanideElements.push(elementDiv);
         return elementDiv;
     }
 
     addToActinideSeries(elementDiv) {
+        if (!this.actinideElements) this.actinideElements = [];
+        this.actinideElements.push(elementDiv);
         return elementDiv;
     }
 
