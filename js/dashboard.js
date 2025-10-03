@@ -1171,32 +1171,58 @@ function openProfileModal() {
         }
     }
 
-    // Atualiza conquistas
+    // Atualiza conquistas - SEMPRE recarregar do Firebase
     const achievementsContainer = document.getElementById('profile-achievements');
-    if (achievementsContainer && userProfile.achievements && userProfile.achievements.length > 0) {
-        const achievementsHTML = userProfile.achievements.map(achievement => {
-            const icon = achievement.icon || '🏆';
-            const name = achievement.name || achievement.id || 'Conquista';
-            const description = achievement.description || '';
-            
-            return `
-            <div style="background: rgba(255, 215, 0, 0.1); border: 2px solid gold; border-radius: 10px; padding: 0.75rem 1.25rem; display: flex; flex-direction: column; gap: 0.25rem;" title="${description}">
-                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <span style="font-size: 1.5rem;">${icon}</span>
-                    <span style="color: var(--texto); font-weight: 600;">${name}</span>
+    if (achievementsContainer) {
+        // Recarregar conquistas do Firebase
+        const userRef = doc(db, "users", userProfile.id);
+        getDoc(userRef).then(freshUserDoc => {
+            if (freshUserDoc.exists()) {
+                const freshUserData = freshUserDoc.data();
+                const achievements = freshUserData.achievements || [];
+                
+                console.log('🏆 Conquistas carregadas do Firebase:', achievements);
+                
+                if (achievements.length > 0) {
+                    const achievementsHTML = achievements.map(achievement => {
+                        const icon = achievement.icon || '🏆';
+                        const name = achievement.name || achievement.id || 'Conquista';
+                        const description = achievement.description || '';
+                        
+                        return `
+                        <div style="background: rgba(255, 215, 0, 0.1); border: 2px solid gold; border-radius: 10px; padding: 0.75rem 1.25rem; display: flex; flex-direction: column; gap: 0.25rem;" title="${description}">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="font-size: 1.5rem;">${icon}</span>
+                                <span style="color: var(--texto); font-weight: 600;">${name}</span>
+                            </div>
+                            ${description ? `<small style="color: var(--texto-secundario); margin-left: 2rem;">${description}</small>` : ''}
+                        </div>
+                    `}).join('');
+                    achievementsContainer.innerHTML = achievementsHTML;
+                } else {
+                    achievementsContainer.innerHTML = `
+                        <div style="color: var(--texto-secundario); text-align: center; padding: 1rem;">
+                            <i class="fas fa-trophy" style="font-size: 2rem; opacity: 0.3; margin-bottom: 0.5rem;"></i>
+                            <p>Nenhuma conquista desbloqueada ainda</p>
+                            <p style="font-size: 0.9rem; margin-top: 0.5rem;">Complete quizzes e interaja com o site para ganhar conquistas!</p>
+                        </div>
+                    `;
+                }
+                
+                // Atualizar também o totalXP
+                if (profilePoints) {
+                    profilePoints.textContent = freshUserData.totalXP || 0;
+                }
+            }
+        }).catch(error => {
+            console.error('Erro ao carregar conquistas:', error);
+            achievementsContainer.innerHTML = `
+                <div style="color: var(--texto-secundario); text-align: center; padding: 1rem;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 2rem; opacity: 0.3; margin-bottom: 0.5rem;"></i>
+                    <p>Erro ao carregar conquistas</p>
                 </div>
-                ${description ? `<small style="color: var(--texto-secundario); margin-left: 2rem;">${description}</small>` : ''}
-            </div>
-        `}).join('');
-        achievementsContainer.innerHTML = achievementsHTML;
-    } else if (achievementsContainer) {
-        achievementsContainer.innerHTML = `
-            <div style="color: var(--texto-secundario); text-align: center; padding: 1rem;">
-                <i class="fas fa-trophy" style="font-size: 2rem; opacity: 0.3; margin-bottom: 0.5rem;"></i>
-                <p>Nenhuma conquista desbloqueada ainda</p>
-                <p style="font-size: 0.9rem; margin-top: 0.5rem;">Complete quizzes e interaja com o site para ganhar conquistas!</p>
-            </div>
-        `;
+            `;
+        });
     }
 
     // Atualiza avatar do modal

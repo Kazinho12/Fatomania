@@ -1652,18 +1652,27 @@
                 const user = window.firebaseAuth.auth.currentUser;
                 if (user) {
                     console.log('💾 Salvando resultado e verificando conquistas...');
+                    console.log('📊 Score obtido:', score);
 
                     // 1. Salvar resultado do quiz
                     await saveQuizResult(currentQuiz.id, score, timeSpent);
 
-                    // 2. Adicionar XP ao perfil do usuário (score é a pontuação, não XP fixo)
+                    // 2. Adicionar XP ao perfil do usuário
                     const xpGained = score; // O score já é a pontuação (0-100)
                     const userRef = window.firebaseDB.doc(window.firebaseDB.db, 'users', user.uid);
+                    
+                    // Obter XP atual para log
+                    const userDoc = await window.firebaseDB.getDoc(userRef);
+                    const currentXP = userDoc.exists() ? (userDoc.data().totalXP || 0) : 0;
+                    
                     await window.firebaseDB.updateDoc(userRef, {
                         totalXP: window.firebaseDB.increment(xpGained),
-                        quizzesPlayed: window.firebaseDB.increment(1)
+                        quizzesPlayed: window.firebaseDB.increment(1),
+                        lastQuizScore: score,
+                        lastQuizDate: new Date().toISOString()
                     });
-                    console.log(`✅ +${xpGained} XP adicionado ao perfil`);
+                    
+                    console.log(`✅ XP atualizado: ${currentXP} → ${currentXP + xpGained} (+${xpGained})`);
 
                     // 3. Verificar conquistas (importante fazer APÓS salvar tudo)
                     await checkQuizAchievements(user.uid, score);
@@ -1671,7 +1680,7 @@
                     showNotification(`Quiz concluído! +${xpGained} XP ganhos`, 'success');
                 }
             } catch (error) {
-                console.error('Erro ao salvar resultado:', error);
+                console.error('❌ Erro ao salvar resultado:', error);
                 showNotification('Erro ao salvar progresso', 'error');
             }
         }

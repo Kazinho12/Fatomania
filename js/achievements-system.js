@@ -245,10 +245,13 @@ export async function calculateUserStats(userId) {
         }
 
         const userData = userSnap.data();
+        
+        // Log completo dos dados
         console.log('📊 Dados do usuário carregados:', {
-            totalXP: userData.totalXP,
-            quizzesPlayed: userData.quizzesPlayed,
-            perfectQuizzes: userData.perfectQuizzes
+            totalXP: userData.totalXP || 0,
+            quizzesPlayed: userData.quizzesPlayed || 0,
+            perfectQuizzes: userData.perfectQuizzes || 0,
+            achievements: (userData.achievements || []).length
         });
 
         // Contar quizzes e quizzes perfeitos
