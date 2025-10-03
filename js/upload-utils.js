@@ -121,6 +121,9 @@ export async function uploadToImgbb(file, progressCallback = null, type = 'gener
     }
 }
 
+// Cache para evitar múltiplas leituras do mesmo arquivo
+const fileReadCache = new Map();
+
 /**
  * Convert file to base64 string with compression based on type
  * @param {File} file - The file to convert
@@ -128,7 +131,16 @@ export async function uploadToImgbb(file, progressCallback = null, type = 'gener
  * @returns {Promise<string>} - Base64 encoded string
  */
 function fileToBase64(file, type = 'general') {
-    return new Promise((resolve, reject) => {
+    // Criar chave única para o arquivo
+    const fileKey = `${file.name}_${file.size}_${file.lastModified}`;
+    
+    // Verificar se já está sendo processado
+    if (fileReadCache.has(fileKey)) {
+        console.log('📦 Retornando conversão em cache para:', file.name);
+        return fileReadCache.get(fileKey);
+    }
+    
+    const promise = new Promise((resolve, reject) => {
         // Validações iniciais mais robustas
         if (!file) {
             reject(new Error('Arquivo não fornecido'));
@@ -241,15 +253,19 @@ function fileToBase64(file, type = 'general') {
                     }
                     
                     console.log('✅ Conversão para base64 concluída');
+                    // Limpar cache após 5 segundos
+                    setTimeout(() => fileReadCache.delete(fileKey), 5000);
                     resolve(base64);
                 } catch (error) {
                     console.error('❌ Erro no processamento da imagem:', error);
+                    fileReadCache.delete(fileKey);
                     reject(new Error('Erro ao processar imagem: ' + error.message));
                 }
             };
 
             img.onerror = (error) => {
                 console.error('❌ Erro ao carregar imagem no elemento Image:', error);
+                fileReadCache.delete(fileKey);
                 reject(new Error('Erro ao carregar imagem. Verifique se o arquivo é uma imagem válida e não está corrompida.'));
             };
             
@@ -272,6 +288,8 @@ function fileToBase64(file, type = 'general') {
                 errorMessage: reader.error?.message
             });
             
+            fileReadCache.delete(fileKey);
+            
             let errorMsg = 'Erro ao ler arquivo';
             if (reader.error) {
                 errorMsg = `Erro ao ler arquivo: ${reader.error.message || reader.error.name}`;
@@ -281,6 +299,7 @@ function fileToBase64(file, type = 'general') {
 
         reader.onabort = () => {
             console.error('❌ Leitura do arquivo foi abortada');
+            fileReadCache.delete(fileKey);
             reject(new Error('Leitura do arquivo foi cancelada'));
         };
 
@@ -315,9 +334,15 @@ function fileToBase64(file, type = 'general') {
             console.log('✅ FileReader.readAsDataURL() chamado com sucesso');
         } catch (error) {
             console.error('❌ Erro ao iniciar leitura do arquivo:', error);
+            fileReadCache.delete(fileKey);
             reject(new Error('Não foi possível iniciar a leitura do arquivo: ' + error.message));
         }
     });
+    
+    // Armazenar promise no cache
+    fileReadCache.set(fileKey, promise);
+    
+    return promise;
 }
 
 /**

@@ -420,7 +420,15 @@
             }, 5000);
         }
 
+        let isProcessingImage = false;
+        
         function handleImageSelect(event) {
+            // Evitar processamento simultâneo
+            if (isProcessingImage) {
+                console.log('⚠️ Já processando uma imagem, ignorando...');
+                return;
+            }
+            
             const file = event.target.files[0];
             const label = event.target.nextElementSibling;
             const preview = document.getElementById('imagePreview');
@@ -428,6 +436,8 @@
             const fileName = document.getElementById('fileName');
             
             if (file) {
+                isProcessingImage = true;
+                
                 console.log('📁 Arquivo selecionado:', {
                     name: file.name,
                     size: file.size,
@@ -470,6 +480,7 @@
                     previewImg.src = e.target.result;
                     fileName.textContent = file.name;
                     preview.style.display = 'block';
+                    isProcessingImage = false;
                 };
                 
                 reader.onerror = function(error) {
@@ -477,6 +488,7 @@
                     showMessage('Erro ao carregar preview da imagem', 'error');
                     event.target.value = '';
                     preview.style.display = 'none';
+                    isProcessingImage = false;
                 };
                 
                 try {
@@ -486,9 +498,11 @@
                     showMessage('Erro ao processar arquivo. Tente outro arquivo.', 'error');
                     event.target.value = '';
                     preview.style.display = 'none';
+                    isProcessingImage = false;
                 }
             } else {
                 preview.style.display = 'none';
+                isProcessingImage = false;
             }
         }
 
