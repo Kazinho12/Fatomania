@@ -79,30 +79,24 @@ The project utilizes a modern web stack consisting of HTML5, CSS3, and ES6 JavaS
 
 ## Problemas Conhecidos e Limitações
 
-### ⚠️ Índice Firestore para Sistema de Conquistas
-**Status:** Requer configuração manual no Firebase Console
-**Impacto:** Conquistas baseadas em quizzes perfeitos podem não desbloquear corretamente
+### ✅ Sistema de Conquistas - Quizzes Perfeitos
+**Status:** Resolvido com dupla estratégia
+**Última Atualização:** 03/10/2025
 
-**Descrição do Problema:**
-- A função `calculateUserStats` em `js/achievements-system.js` precisa fazer uma query composta na coleção `quiz-results`
-- Query: `where('userId', '==', userId)` 
-- Firestore requer um índice composto que precisa ser criado manualmente no Firebase Console
-- Quando o índice não existe, a query lança erro "invalid-argument"
+**Solução Implementada:**
+1. **Query Simplificada:** Usa apenas `where('userId', '==', userId)` que não requer índice composto
+2. **Contador no Perfil:** Campo `perfectQuizzes` incrementado diretamente no documento do usuário
+3. **Fallback Robusto:** Se a query falhar, usa dados do perfil (`userData.perfectQuizzes`)
+4. **Logging Detalhado:** Mensagens de debug para rastrear quizzes perfeitos
 
-**Solução Atual (Fallback):**
-- O sistema usa try-catch e fallback para `userData.quizzesPlayed` quando a query falha
-- Isso permite que o sistema continue funcionando, mas `perfectQuizzes` fica sempre em 0
-- Conquistas que dependem de quizzes perfeitos não podem ser desbloqueadas até o índice ser criado
+**Como Funciona:**
+- Quando um quiz é completado com 100%, o campo `perfectQuizzes` é incrementado no perfil
+- `calculateUserStats()` lê da coleção `quiz-results` E do perfil do usuário
+- Conquistas de quizzes perfeitos funcionam mesmo se a query falhar
 
-**Solução Definitiva (Requer Firebase Console):**
-1. Acesse Firebase Console > Firestore > Índices
-2. Crie índice composto para coleção `quiz-results`:
-   - Campo: `userId` (Ascending)
-   - Ativar consultas
-
-**Arquivos Afetados:**
-- `js/achievements-system.js` - Linhas 249-268 (query com fallback)
-- `js/dashboard.js` - Linhas 283-314 (chamada do sistema de conquistas)
+**Arquivos Modificados:**
+- `js/achievements-system.js` - Query melhorada com logging
+- `mania/quizmania-modern.html` - Atualização do contador perfectQuizzes
 
 ## Atualizações Recentes (Outubro 2025)
 

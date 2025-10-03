@@ -1678,9 +1678,14 @@
                 // Se foi 100%, atualizar contador de perfect quizzes
                 if (score === 100) {
                     const userRef = window.firebaseDB.doc(window.firebaseDB.db, 'users', userId);
-                    await window.firebaseDB.updateDoc(userRef, {
-                        perfectQuizzes: window.firebaseDB.increment(1)
-                    });
+                    try {
+                        await window.firebaseDB.updateDoc(userRef, {
+                            perfectQuizzes: window.firebaseDB.increment(1)
+                        });
+                        console.log('⭐ Perfect quiz counter incrementado!');
+                    } catch (error) {
+                        console.error('Erro ao atualizar perfectQuizzes:', error);
+                    }
                 }
 
                 // Calcular estatísticas e verificar conquistas

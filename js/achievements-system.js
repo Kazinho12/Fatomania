@@ -242,26 +242,45 @@ export async function calculateUserStats(userId) {
 
         const userData = userSnap.data();
 
-        // Contar quizzes com try-catch para evitar erro de índice
+        // Contar quizzes e quizzes perfeitos
         let quizzes = 0;
         let perfectQuizzes = 0;
         
         try {
+            // Query simples sem índice composto necessário
+            const quizResultsRef = window.firebaseDB.collection(window.firebaseDB.db, 'quiz-results');
             const quizResultsQuery = window.firebaseDB.query(
-                window.firebaseDB.collection(window.firebaseDB.db, 'quiz-results'),
+                quizResultsRef,
                 window.firebaseDB.where('userId', '==', userId)
             );
+            
             const quizResults = await window.firebaseDB.getDocs(quizResultsQuery);
+            
+            console.log(`✅ Quiz results encontrados: ${quizResults.size}`);
             
             quizResults.forEach(doc => {
                 quizzes++;
                 const data = doc.data();
-                if (data.score === 100) perfectQuizzes++;
+                if (data.score === 100) {
+                    perfectQuizzes++;
+                    console.log(`⭐ Quiz perfeito encontrado: ${data.quizTitle || data.quizId}`);
+                }
             });
+            
+            console.log(`📊 Total: ${quizzes} quizzes, ${perfectQuizzes} perfeitos`);
+            
         } catch (queryError) {
-            console.warn('⚠️ Erro ao consultar quiz-results:', queryError.message);
+            console.error('❌ Erro ao consultar quiz-results:', {
+                code: queryError.code,
+                message: queryError.message,
+                details: queryError
+            });
+            
             // Usar dados do perfil como fallback
-            quizzes = userData.quizzesPlayed || 0;
+            quizzes = userData.quizzesPlayed || userData.totalQuizzes || 0;
+            perfectQuizzes = userData.perfectQuizzes || 0;
+            
+            console.warn(`⚠️ Usando fallback: ${quizzes} quizzes, ${perfectQuizzes} perfeitos`);
         }
 
         // Contar artigos lidos (views)
