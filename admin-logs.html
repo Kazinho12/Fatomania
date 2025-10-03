@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Logs de Erros | FATOMANIA</title>
+    <link rel="icon" type="image/png" href="/icon/fatomania.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --roxo: #6a00ff;
+            --azul: #00f7ff;
+            --verde: #00ffaa;
+            --vermelho: #ff3d00;
+            --amarelo: #ffc107;
+            --fundo: #0f0c29;
+            --fundo-card: #16213e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--fundo) 0%, #24243e 50%, var(--fundo) 100%);
+            font-family: 'Rajdhani', sans-serif;
+            color: white;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .admin-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .admin-header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, var(--azul), var(--roxo));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--fundo-card);
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 2px solid rgba(0, 247, 255, 0.3);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--azul);
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 0.5rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--azul), var(--roxo));
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, var(--vermelho), #dd2c00);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(45deg, var(--amarelo), #ff8c00);
+            color: #0f0c29;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 247, 255, 0.3);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        select, input {
+            padding: 0.8rem;
+            border: 2px solid rgba(0, 247, 255, 0.3);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-family: inherit;
+        }
+
+        .logs-container {
+            background: var(--fundo-card);
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid rgba(0, 247, 255, 0.3);
+        }
+
+        .log-entry {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 10px;
+            border-left: 4px solid var(--azul);
+        }
+
+        .log-entry.error {
+            border-left-color: var(--vermelho);
+        }
+
+        .log-entry.warning {
+            border-left-color: var(--amarelo);
+        }
+
+        .log-entry.info {
+            border-left-color: var(--verde);
+        }
+
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .log-level {
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .log-level.error {
+            background: var(--vermelho);
+            color: white;
+        }
+
+        .log-level.warning {
+            background: var(--amarelo);
+            color: #0f0c29;
+        }
+
+        .log-level.info {
+            background: var(--verde);
+            color: #0f0c29;
+        }
+
+        .log-message {
+            color: white;
+            margin: 0.5rem 0;
+        }
+
+        .log-meta {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .log-stack {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 0.5rem;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: #00ff00;
+            margin-top: 0.5rem;
+            overflow-x: auto;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .delete-btn {
+            background: rgba(255, 61, 0, 0.2);
+            border: 1px solid var(--vermelho);
+            color: var(--vermelho);
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+        }
+
+        .delete-btn:hover {
+            background: var(--vermelho);
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--azul);
+        }
+
+        .no-logs {
+            text-align: center;
+            padding: 3rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <h1><i class="fas fa-shield-alt"></i> Painel de Logs de Erros</h1>
+        <p style="color: var(--azul); margin-top: 0.5rem;">Monitoramento e Gerenciamento de Erros do Sistema</p>
+    </div>
+
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+            <div class="stat-value" id="totalLogs">0</div>
+            <div class="stat-label">Total de Logs</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="errorCount" style="color: var(--vermelho);">0</div>
+            <div class="stat-label">Erros</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="warningCount" style="color: var(--amarelo);">0</div>
+            <div class="stat-label">Avisos</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="last24h" style="color: var(--verde);">0</div>
+            <div class="stat-label">Últimas 24h</div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="btn btn-primary" onclick="loadLogs()">
+            <i class="fas fa-sync"></i> Atualizar Logs
+        </button>
+        <button class="btn btn-warning" onclick="clearOldLogsPrompt()">
+            <i class="fas fa-broom"></i> Limpar Logs Antigos (30+ dias)
+        </button>
+        <button class="btn btn-danger" onclick="clearAllLogsPrompt()">
+            <i class="fas fa-trash"></i> Limpar Todos os Logs
+        </button>
+        
+        <div class="filter-group">
+            <select id="levelFilter" onchange="filterLogs()">
+                <option value="all">Todos os níveis</option>
+                <option value="error">Erros</option>
+                <option value="warning">Avisos</option>
+                <option value="info">Informações</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <select id="limitSelect" onchange="loadLogs()">
+                <option value="50">50 logs</option>
+                <option value="100" selected>100 logs</option>
+                <option value="200">200 logs</option>
+                <option value="500">500 logs</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="logs-container">
+        <div id="logsContent" class="loading">
+            <i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i>
+            <p>Carregando logs...</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import '/firebase-config.js';
+        import { 
+            getFirebaseLogs, 
+            getLogStats, 
+            clearOldLogs, 
+            clearAllLogs, 
+            deleteLog 
+        } from '/js/error-logger.js';
+
+        let currentLogs = [];
+
+        // Verificar autenticação e permissões de admin
+        async function checkAdminAccess() {
+            return new Promise((resolve) => {
+                window.firebaseAuth.onAuthStateChanged(window.firebaseAuth.auth, async (user) => {
+                    if (!user) {
+                        alert('⛔ Acesso negado! Você precisa estar autenticado para acessar esta página.');
+                        window.location.href = '/logsin.html';
+                        return;
+                    }
+
+                    // Verificar se o usuário é admin
+                    try {
+                        const userDoc = await window.firebaseDB.getDoc(
+                            window.firebaseDB.doc(window.firebaseDB.db, 'users', user.uid)
+                        );
+                        
+                        const userData = userDoc.data();
+                        if (!userData || userData.role !== 'admin') {
+                            alert('⛔ Acesso negado! Você não tem permissões de administrador.');
+                            window.location.href = '/dashboard.html';
+                            return;
+                        }
+
+                        console.log('✅ Acesso de admin verificado para:', user.email);
+                        resolve(true);
+                    } catch (error) {
+                        console.error('Erro ao verificar permissões:', error);
+                        alert('⛔ Erro ao verificar permissões de acesso.');
+                        window.location.href = '/dashboard.html';
+                    }
+                });
+            });
+        }
+
+        // Carregar logs ao iniciar (somente após verificação de admin)
+        window.addEventListener('DOMContentLoaded', async () => {
+            await checkAdminAccess();
+            await loadStats();
+            await loadLogs();
+        });
+
+        window.loadLogs = async function() {
+            const logsContent = document.getElementById('logsContent');
+            const limit = parseInt(document.getElementById('limitSelect').value);
+            
+            logsContent.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i><p>Carregando logs...</p></div>';
+            
+            try {
+                currentLogs = await getFirebaseLogs(limit);
+                await loadStats();
+                filterLogs();
+            } catch (error) {
+                console.error('Erro ao carregar logs:', error);
+                logsContent.innerHTML = '<div class="no-logs"><i class="fas fa-exclamation-circle" style="font-size: 3rem; color: var(--vermelho);"></i><p>Erro ao carregar logs</p></div>';
+            }
+        };
+
+        window.filterLogs = function() {
+            const levelFilter = document.getElementById('levelFilter').value;
+            const logsContent = document.getElementById('logsContent');
+            
+            let filteredLogs = currentLogs;
+            if (levelFilter !== 'all') {
+                filteredLogs = currentLogs.filter(log => log.level === levelFilter);
+            }
+
+            if (filteredLogs.length === 0) {
+                logsContent.innerHTML = '<div class="no-logs"><i class="fas fa-inbox" style="font-size: 3rem;"></i><p>Nenhum log encontrado</p></div>';
+                return;
+            }
+
+            logsContent.innerHTML = filteredLogs.map(log => `
+                <div class="log-entry ${log.level}">
+                    <div class="log-header">
+                        <span class="log-level ${log.level}">${log.level.toUpperCase()}</span>
+                        <button class="delete-btn" onclick="deleteLogEntry('${log.id}')">
+                            <i class="fas fa-trash"></i> Deletar
+                        </button>
+                    </div>
+                    <div class="log-message">${log.message || 'Sem mensagem'}</div>
+                    <div class="log-meta">
+                        <span><i class="fas fa-clock"></i> ${formatDate(log.timestamp)}</span>
+                        <span><i class="fas fa-user"></i> ${log.userId || 'anonymous'}</span>
+                        <span><i class="fas fa-link"></i> ${log.url || 'N/A'}</span>
+                        ${log.type ? `<span><i class="fas fa-tag"></i> ${log.type}</span>` : ''}
+                    </div>
+                    ${log.stack ? `<div class="log-stack">${log.stack}</div>` : ''}
+                </div>
+            `).join('');
+        };
+
+        async function loadStats() {
+            const stats = await getLogStats();
+            if (stats) {
+                document.getElementById('totalLogs').textContent = stats.total;
+                document.getElementById('errorCount').textContent = stats.byLevel.error;
+                document.getElementById('warningCount').textContent = stats.byLevel.warning;
+                document.getElementById('last24h').textContent = stats.last24h;
+            }
+        }
+
+        window.deleteLogEntry = async function(logId) {
+            if (confirm('Tem certeza que deseja deletar este log?')) {
+                await deleteLog(logId);
+                await loadLogs();
+            }
+        };
+
+        window.clearOldLogsPrompt = async function() {
+            if (confirm('Deseja limpar todos os logs com mais de 30 dias?')) {
+                const deleted = await clearOldLogs(30);
+                alert(`${deleted} logs antigos foram removidos`);
+                await loadLogs();
+            }
+        };
+
+        window.clearAllLogsPrompt = async function() {
+            if (confirm('⚠️ ATENÇÃO: Isso vai deletar TODOS os logs permanentemente. Tem certeza?')) {
+                if (confirm('Confirme novamente para deletar TODOS os logs')) {
+                    const deleted = await clearAllLogs();
+                    alert(`Todos os ${deleted} logs foram removidos`);
+                    await loadLogs();
+                }
+            }
+        };
+
+        function formatDate(timestamp) {
+            if (!timestamp) return 'Data não disponível';
+            const date = new Date(timestamp);
+            return date.toLocaleString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+    </script>
+</body>
+</html>

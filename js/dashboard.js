@@ -262,11 +262,53 @@ async function checkAuthState() {
         currentUser = user;
         await loadUserProfile(user);
         await updateUserUI(user);
+        
+        // Atualizar streak de login
+        await updateLoginStreak(user.uid);
+        
+        // Verificar conquistas
+        await checkUserAchievements(user.uid);
+        
         loadContent();
         startAvatarAnimation();
-        // Feed removido - notícias dinâmicas agora em NewsMANIA
     } else {
         showAuthRequiredMessage();
+    }
+}
+
+// Verificar e desbloquear conquistas
+async function checkUserAchievements(userId) {
+    try {
+        // Importar sistema de conquistas
+        const { calculateUserStats, checkAndUnlockAchievements, showAchievementPopup } = await import('/js/achievements-system.js');
+        
+        // Calcular estatísticas
+        const stats = await calculateUserStats(userId);
+        if (!stats) return;
+        
+        // Verificar conquistas
+        const newAchievements = await checkAndUnlockAchievements(userId, stats);
+        
+        // Mostrar popup para cada nova conquista
+        for (const achievement of newAchievements) {
+            setTimeout(() => {
+                showAchievementPopup(achievement);
+            }, 500);
+        }
+        
+    } catch (error) {
+        console.error('Erro ao verificar conquistas:', error);
+    }
+}
+
+// Atualizar streak de login
+async function updateLoginStreak(userId) {
+    try {
+        const { updateLoginStreak: updateStreak } = await import('/js/achievements-system.js');
+        const streak = await updateStreak(userId);
+        console.log(`🔥 Sequência de login: ${streak} dias`);
+    } catch (error) {
+        console.error('Erro ao atualizar streak:', error);
     }
 }
 

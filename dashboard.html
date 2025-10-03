@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FATOMANIA HUB</title>
+    <link rel="icon" type="image/png" href="/icon/fatomania.png">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -1339,8 +1340,11 @@
         </div>
     </div>
 
-    <!-- Firebase e Script Principal -->
-    <script type="module" src="/firebase-config.js"></script>
+    <!-- Firebase e módulos -->
+    <script type="module">
+        import './firebase-config.js';
+        import './js/init-interactions.js';
+    </script>
     <script type="module">
         import { checkAndCreateCollections } from '/js/firebase-collections-checker.js';
         import { showPopupNotification } from '/js/shared-utils.js';

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MISTICMANIA - Mistérios e Fenômenos Inexplicáveis</title>
+    <link rel="icon" type="image/png" href="/icon/fatomania.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -655,6 +656,91 @@
                 flex-direction: column;
             }
         }
+
+        /* Estilos de Interatividade Completos */
+        .modal-interactions {
+            display: flex;
+            gap: 1rem;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: rgba(106, 0, 255, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(106, 0, 255, 0.2);
+        }
+
+        .modal-interactions button {
+            flex: 1;
+            background: linear-gradient(45deg, var(--roxo), var(--misterio));
+            border: none;
+            color: white;
+            padding: 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 1rem;
+        }
+
+        .modal-interactions button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(106, 0, 255, 0.5);
+        }
+
+        .modal-interactions button i {
+            font-size: 1.2rem;
+        }
+
+        .like-count {
+            font-weight: 700;
+            color: var(--roxo);
+        }
+
+        .comment-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(106, 0, 255, 0.2);
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .comment-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--roxo), var(--misterio));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+        }
+
+        .comment-author {
+            font-weight: 600;
+            color: var(--roxo);
+        }
+
+        .comment-date {
+            font-size: 0.85rem;
+            color: var(--azul);
+            opacity: 0.8;
+        }
+
+        .comment-text {
+            color: var(--texto);
+            line-height: 1.6;
+        }
     </style>
 </head>
 <body>
@@ -755,6 +841,7 @@
 
     <script type="module">
         import '/firebase-config.js';
+        import '/js/init-interactions.js';
 
         let currentArticles = [];
         let filteredArticles = [];

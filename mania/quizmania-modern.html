@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,device-scale=1.0">
     <title>QuizMANIA - Desafios Científicos</title>
+    <link rel="icon" type="image/png" href="/icon/fatomania.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -752,6 +753,48 @@
             box-shadow: 0 5px 15px rgba(52,152,219,0.4);
         }
 
+        /* Achievement Notification */
+        .achievement-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--fundo-card);
+            color: var(--branco);
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+            border-left: 5px solid var(--amarelo);
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+
+        .achievement-notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .achievement-notification i {
+            font-size: 1.8rem;
+            color: var(--amarelo);
+        }
+
+        .achievement-info h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: var(--amarelo);
+        }
+
+        .achievement-info p {
+            margin: 0;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
         @media (max-width: 768px) {
             header {
                 flex-direction: column;
@@ -783,6 +826,13 @@
                 position: static; /* O cronômetro ficará visível o tempo todo */
                 margin-bottom: 1rem;
             }
+
+            .achievement-notification {
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: calc(100% - 20px);
+            }
         }
     </style>
 </head>
@@ -795,6 +845,7 @@
         <nav>
             <a href="/dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
             <a href="#rankings-tab" onclick="showTab('rankings')"><i class="fas fa-trophy"></i> Rankings</a>
+            <a onclick="window.openFavoritesModal?.()" style="cursor: pointer;"><i class="fas fa-bookmark"></i> Favoritos</a>
             <a href="/submit-quiz.html" class="submit-quiz-btn">
                 <i class="fas fa-plus"></i> Criar Quiz
             </a>
@@ -945,6 +996,15 @@
 
             <!-- Container do Certificado (Inicialmente Oculto) -->
             <div id="certificateContainer" style="display: none; margin-top: 2rem; padding: 1rem; border-top: 2px solid rgba(255, 255, 255, 0.1);"></div>
+        </div>
+    </div>
+
+    <!-- Achievement Notification Container -->
+    <div class="achievement-notification" id="achievementNotification">
+        <i class="fas fa-star"></i>
+        <div class="achievement-info">
+            <h3 id="achievementTitle">Nova Conquista!</h3>
+            <p id="achievementDescription">Você desbloqueou uma nova conquista.</p>
         </div>
     </div>
 
@@ -1413,6 +1473,11 @@
             console.log('🎮 Iniciando quiz:', quizId);
             console.log('📚 Quizzes disponíveis:', window.currentQuizzes);
 
+            // Incrementar contador de jogadas
+            if (window.incrementPlays) {
+                await window.incrementPlays('quizzes', quizId);
+            }
+
             const quiz = window.currentQuizzes.find(q => q.id === quizId);
 
             if (!quiz) {
@@ -1586,23 +1651,66 @@
             try {
                 const user = window.firebaseAuth.auth.currentUser;
                 if (user) {
-                    await saveQuizResult(user, score, correct, timeSpent);
+                    // Integrar conquistas ao completar quiz
+                    await saveQuizResult(currentQuiz.id, score, timeSpent);
+
+                    // Verificar conquistas
+                    const user = window.firebaseAuth.auth.currentUser;
+                    if (user) {
+                        await checkQuizAchievements(user.uid, score);
+                    }
+
+                    showNotification('Quiz concluído!', 'success');
                 }
             } catch (error) {
                 console.error('Erro ao salvar resultado:', error);
             }
         }
 
-        async function saveQuizResult(user, score, correct, timeSpent) {
+        async function checkQuizAchievements(userId, score) {
+            try {
+                // Importar sistema de conquistas
+                const { calculateUserStats, checkAndUnlockAchievements, showAchievementPopup, incrementActivityCounter } = await import('/js/achievements-system.js');
+
+                // Incrementar contador de quiz
+                await incrementActivityCounter(userId, 'quiz');
+
+                // Se foi 100%, atualizar contador de perfect quizzes
+                if (score === 100) {
+                    const userRef = window.firebaseDB.doc(window.firebaseDB.db, 'users', userId);
+                    await window.firebaseDB.updateDoc(userRef, {
+                        perfectQuizzes: window.firebaseDB.increment(1)
+                    });
+                }
+
+                // Calcular estatísticas e verificar conquistas
+                const stats = await calculateUserStats(userId);
+                if (!stats) return;
+
+                const newAchievements = await checkAndUnlockAchievements(userId, stats);
+
+                // Mostrar popup para cada nova conquista
+                for (const achievement of newAchievements) {
+                    setTimeout(() => {
+                        showAchievementPopup(achievement);
+                    }, 1000);
+                }
+
+            } catch (error) {
+                console.error('Erro ao verificar conquistas:', error);
+            }
+        }
+
+        async function saveQuizResult(quizId, score, timeTaken) {
             const resultData = {
-                userId: user.uid,
-                userName: user.displayName || user.email,
+                userId: window.firebaseAuth.auth.currentUser.uid,
+                userName: window.firebaseAuth.auth.currentUser.displayName || window.firebaseAuth.auth.currentUser.email,
                 quizId: currentQuiz.id,
                 quizTitle: currentQuiz.title,
                 score: score,
-                correctAnswers: correct,
+                correctAnswers: currentQuiz.questions.reduce((acc, q, i) => acc + (userAnswers[i] === q.correctAnswer ? 1 : 0), 0),
                 totalQuestions: currentQuiz.questions.length,
-                timeSpent: timeSpent,
+                timeSpent: timeTaken,
                 completedAt: window.firebaseDB.serverTimestamp()
             };
 
@@ -1613,7 +1721,7 @@
             );
 
             // Update user's total score
-            const userScoreRef = window.firebaseDB.doc(window.firebaseDB.db, 'quiz-scores', user.uid);
+            const userScoreRef = window.firebaseDB.doc(window.firebaseDB.db, 'quiz-scores', window.firebaseAuth.auth.currentUser.uid);
             const userScoreDoc = await window.firebaseDB.getDoc(userScoreRef);
 
             if (userScoreDoc.exists()) {
@@ -1625,8 +1733,8 @@
                 });
             } else {
                 await window.firebaseDB.setDoc(userScoreRef, {
-                    userId: user.uid,
-                    userName: user.displayName || user.email,
+                    userId: window.firebaseAuth.auth.currentUser.uid,
+                    userName: window.firebaseAuth.auth.currentUser.displayName || window.firebaseAuth.auth.currentUser.email,
                     totalScore: score,
                     quizzesCompleted: 1,
                     createdAt: window.firebaseDB.serverTimestamp(),
@@ -1911,6 +2019,19 @@
             }, 1000);
         }
 
+        // Helper function to show achievement notifications
+        function showNotification(title, description) {
+            const notification = document.getElementById('achievementNotification');
+            document.getElementById('achievementTitle').textContent = title;
+            document.getElementById('achievementDescription').textContent = description;
+            notification.classList.add('show');
+
+            // Remove the 'show' class after a few seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000); // Show for 5 seconds
+        }
+
 
         // Global functions - definir ANTES de carregar os quizzes
         window.showTab = showTab;
@@ -1932,5 +2053,8 @@
             }
         });
     </script>
+
+    <!-- Sistema de Interações -->
+    <script type="module" src="/js/init-interactions.js"></script>
 </body>
 </html>

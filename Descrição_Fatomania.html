@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fatomania | Conhecimento Interativo</title>
+    <link rel="icon" type="image/png" href="/icon/fatomania.png">
     <style>
         :root {
             --deep-blue: #0a1128;
@@ -14,7 +15,7 @@
             --soft-black: #0d0d0d;
             --lighter-text: #e6e6e6;
         }
-        
+
         body {
             margin: 0;
             font-family: 'Poppins', 'Segoe UI', sans-serif;
@@ -24,7 +25,7 @@
             background-image: radial-gradient(circle at 10% 20%, var(--royal-purple) 0%, transparent 20%), 
                             radial-gradient(circle at 90% 80%, var(--electric-blue) 0%, transparent 20%);
         }
-        
+
         header {
             background: linear-gradient(135deg, var(--royal-purple), var(--dark-accent));
             color: #fff;
@@ -34,7 +35,7 @@
             overflow: hidden;
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
         }
-        
+
         header::before {
             content: '';
             position: absolute;
@@ -45,7 +46,7 @@
             background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="rgba(255,255,255,0.05)" d="M0,0 L100,0 L100,100 L0,100 Z" /></svg>');
             opacity: 0.1;
         }
-        
+
         header h1 {
             margin: 0;
             font-size: 3em;
@@ -54,7 +55,7 @@
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
             position: relative;
         }
-        
+
         header p {
             font-size: 1.3em;
             margin-top: 15px;
@@ -64,13 +65,13 @@
             position: relative;
             opacity: 0.9;
         }
-        
+
         main {
             max-width: 1100px;
             margin: auto;
             padding: 40px 20px;
         }
-        
+
         section {
             margin-bottom: 50px;
             background: rgba(26, 26, 46, 0.7);
@@ -81,12 +82,12 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        
+
         section:hover {
             transform: translateY(-5px);
             box-shadow: 0 12px 40px rgba(74, 44, 130, 0.3);
         }
-        
+
         h2 {
             color: var(--light-purple);
             border-left: 4px solid var(--electric-blue);
@@ -95,18 +96,18 @@
             margin-top: 0;
             font-weight: 600;
         }
-        
+
         ul {
             padding-left: 25px;
             list-style-type: none;
         }
-        
+
         ul li {
             margin-bottom: 12px;
             position: relative;
             padding-left: 25px;
         }
-        
+
         ul li::before {
             content: '•';
             color: var(--electric-blue);
@@ -115,7 +116,7 @@
             left: 0;
             top: -3px;
         }
-        
+
         footer {
             background: linear-gradient(to right, var(--dark-accent), var(--royal-purple));
             color: #fff;
@@ -125,7 +126,7 @@
             font-size: 0.9em;
             position: relative;
         }
-        
+
         footer::before {
             content: '';
             position: absolute;
@@ -135,21 +136,21 @@
             height: 3px;
             background: linear-gradient(to right, var(--electric-blue), var(--light-purple));
         }
-        
+
         .highlight {
             color: var(--electric-blue);
             font-weight: 600;
         }
-        
+
         @media (max-width: 768px) {
             header h1 {
                 font-size: 2.2em;
             }
-            
+
             header p {
                 font-size: 1.1em;
             }
-            
+
             section {
                 padding: 20px;
             }
@@ -166,7 +167,7 @@
             <i class="fas fa-home"></i> Ir para Plataforma
         </a>
     </header>
-    
+
     <main>
         <section>
             <h2>Estrutura e Tecnologia</h2>
@@ -179,7 +180,7 @@
                 <li>Arquitetura escalável para futuras expansões</li>
             </ul>
         </section>
-        
+
         <section>
             <h2>Seções Temáticas (Manias)</h2>
             <ul>
@@ -195,7 +196,7 @@
                 <li><span class="highlight">Artmania</span> - Expressões artísticas através dos tempos</li>
             </ul>
         </section>
-        
+
         <section>
             <h2>Recursos Interativos</h2>
             <ul>
@@ -208,7 +209,7 @@
                 <li>Realidade Virtual para experiências imersivas</li>
             </ul>
         </section>
-        
+
         <section>
             <h2>Impacto Esperado</h2>
             <ul>
@@ -220,14 +221,14 @@
                 <li>Preparar jovens para os desafios do futuro</li>
             </ul>
         </section>
-        
+
         <section>
             <h2>Considerações Finais</h2>
             <p>Fatomania representa a evolução da educação digital - uma plataforma que transforma o aprendizado em uma experiência rica, envolvente e profundamente significativa. Combinando personalização avançada, conteúdo modular de alta qualidade e tecnologia de ponta, criamos o ambiente ideal para jovens mentes curiosas e educadores inovadores.</p>
             <p>Nosso compromisso é com a excelência educacional, a acessibilidade e a formação de uma geração preparada para moldar o futuro.</p>
         </section>
     </main>
-    
+
     <footer>
         © 2025 Fatomania. Todos os direitos reservados. | Uma plataforma de educação revolucionária
     </footer>
@@ -236,9 +237,9 @@
         // Efeitos interativos futuros
         document.addEventListener('DOMContentLoaded', () => {
             console.log("Plataforma Fatomania inicializada com sucesso!");
-            
+
             // Efeito de digitação no título (opcional)
-            const title = document.querySelector('span class="highlight" ');
+            const title = document.querySelector('span.highlight');
             if (title) {
                 const originalText = title.innerHTML;
                 title.innerHTML = '';
@@ -252,14 +253,14 @@
                     }
                 }, 100);
             }
-            
+
             // Animação suave das seções
             const sections = document.querySelectorAll('section');
             sections.forEach((section, index) => {
                 section.style.opacity = '0';
                 section.style.transform = 'translateY(20px)';
                 section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-                
+
                 setTimeout(() => {
                     section.style.opacity = '1';
                     section.style.transform = 'translateY(0)';

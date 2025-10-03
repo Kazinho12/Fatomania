@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laboratório de Física - LABMANIA</title>
+    <link rel="icon" type="image/png" href="/icon/fatomania.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -31,7 +32,7 @@
 
         body {
             font-family: 'Rajdhani', sans-serif;
-            background: var(--fundo);
+            background: linear-gradient(135deg, var(--fundo) 0%, #1a1a3e 50%, var(--fundo) 100%);
             color: var(--texto);
             line-height: 1.6;
             min-height: 100vh;
@@ -108,13 +109,13 @@
             justify-content: space-between;
             align-items: center;
             padding: 20px 5%;
-            background: linear-gradient(135deg, rgba(15, 12, 41, 0.95), rgba(106, 0, 255, 0.2));
+            background: linear-gradient(135deg, rgba(15, 12, 41, 0.98), rgba(106, 0, 255, 0.4));
             position: sticky;
             top: 0;
-            z-index: 100;
-            backdrop-filter: blur(15px);
-            border-bottom: 2px solid var(--physics-primary);
-            box-shadow: 0 4px 25px rgba(106, 0, 255, 0.3);
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+            border-bottom: 3px solid var(--physics-primary);
+            box-shadow: 0 8px 32px rgba(106, 0, 255, 0.4);
         }
 
         .logo h1 {

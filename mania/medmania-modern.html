@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MEDMANIA - Medicina e Saúde</title>
+    <link rel="icon" type="image/png" href="/icon/fatomania.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -18,6 +19,13 @@
             --perigo: #dc143c;
             --sucesso: #00a86b;
             --texto-claro: #ffffff;
+
+            /* Novas cores para interatividade */
+            --primary-cream: #f8edeB; /* Cor creme primária */
+            --soft-coral: #ff7f50;     /* Cor coral suave */
+            --medical-blue: #0077be;  /* Azul médico, já existente */
+            --text-muted: #cccccc;     /* Texto de suporte, mais claro */
+            --text-light: #e0e0e0;     /* Texto claro */
         }
 
         * {
@@ -371,6 +379,87 @@
             color: var(--destaque);
         }
 
+        /* Estilos de Interatividade */
+        .modal-interactions {
+            display: flex;
+            gap: 1rem;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: rgba(248, 237, 235, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(248, 237, 235, 0.2);
+        }
+
+        .modal-interactions button {
+            flex: 1;
+            background: linear-gradient(45deg, var(--primary-cream), var(--soft-coral));
+            border: none;
+            color: var(--medical-blue);
+            padding: 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 1rem;
+        }
+
+        .modal-interactions button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(248, 237, 235, 0.4);
+        }
+
+        .like-count {
+            font-weight: 700;
+            color: var(--primary-cream);
+        }
+
+        .comment-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(248, 237, 235, 0.2);
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .comment-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-cream), var(--soft-coral));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--medical-blue);
+        }
+
+        .comment-author {
+            font-weight: 600;
+            color: var(--primary-cream);
+        }
+
+        .comment-date {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            opacity: 0.8;
+        }
+
+        .comment-text {
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
         @media (max-width: 768px) {
             header {
                 flex-direction: column;
@@ -401,6 +490,35 @@
             .modal-body {
                 padding: 1.5rem;
             }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            nav {
+                margin-top: 15px;
+            }
+
+            .modal-content {
+                padding: 25px;
+            }
+
+            .modal-interactions {
+                flex-direction: column;
+            }
+        }
+
+        /* Animações */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
         }
     </style>
 </head>
@@ -501,15 +619,31 @@
                     </div>
                 </div>
                 <div id="modalContent"></div>
+                <!-- Seção de Interações do Modal -->
+                <div class="modal-interactions">
+                    <button id="likeButton">
+                        <i class="fas fa-heart"></i> Curtir
+                        <span class="like-count" id="modalLikeCount"></span>
+                    </button>
+                    <button id="commentButton">
+                        <i class="fas fa-comment"></i> Comentar
+                    </button>
+                </div>
+                <!-- Seção de Comentários -->
+                <div id="commentsSection">
+                    <!-- Comentários serão carregados aqui -->
+                </div>
             </div>
         </div>
     </div>
 
     <script type="module">
         import '/firebase-config.js';
+        import '/js/init-interactions.js';
 
         let currentArticles = [];
         let filteredArticles = [];
+        let currentArticleId = null; // Para armazenar o ID do artigo aberto no modal
 
         // Wait for Firebase to be ready
         window.addEventListener('load', async () => {
@@ -669,9 +803,11 @@
             });
         }
 
-        function showArticleModal(article) {
+        async function showArticleModal(article) {
             const modal = document.getElementById('articleModal');
-            
+            const modalLikeCount = document.getElementById('modalLikeCount');
+            const likeButton = document.getElementById('likeButton');
+
             // Populate modal
             document.getElementById('modalTitle').textContent = article.title;
             document.getElementById('modalAuthor').textContent = article.author;
@@ -679,7 +815,8 @@
             document.getElementById('modalViews').textContent = article.views || 0;
             document.getElementById('modalLikes').textContent = article.likes || 0;
             document.getElementById('modalContent').innerHTML = article.content;
-            
+            modalLikeCount.textContent = article.likes || 0; // Atualiza a contagem de likes no botão
+
             const modalImage = document.getElementById('modalImage');
             if (article.imageUrl) {
                 modalImage.src = article.imageUrl;
@@ -687,14 +824,19 @@
             } else {
                 modalImage.style.display = 'none';
             }
-            
+
+            // Carrega comentários
+            await loadComments(article.id);
+
             modal.classList.add('active');
+            currentArticleId = article.id; // Define o ID do artigo atual
         }
 
         function closeModal() {
             const modal = document.getElementById('articleModal');
             if (modal) {
                 modal.classList.remove('active');
+                currentArticleId = null; // Limpa o ID do artigo atual ao fechar o modal
             }
         }
 
@@ -717,6 +859,104 @@
             }
         };
 
+        // Funções de Interação (Curtir e Comentar)
+        window.toggleLike = async function() {
+            if (!currentArticleId) return;
+
+            const articleRef = window.firebaseDB.doc(window.firebaseDB.db, 'med-articles', currentArticleId);
+            const currentLikes = parseInt(document.getElementById('modalLikes').textContent);
+            const modalLikeCount = document.getElementById('modalLikeCount');
+            const likeButtonIcon = document.getElementById('likeButton').querySelector('i');
+
+            try {
+                // Simula atualização do estado do like (na prática, você precisaria de um sistema de autenticação/usuário)
+                // Por enquanto, apenas incrementa o contador.
+                await window.firebaseDB.updateDoc(articleRef, {
+                    likes: window.firebaseDB.increment(1)
+                });
+
+                const newLikes = currentLikes + 1;
+                document.getElementById('modalLikes').textContent = newLikes;
+                modalLikeCount.textContent = newLikes; // Atualiza o contador no botão
+                likeButtonIcon.style.color = 'var(--perigo)'; // Muda a cor do ícone para indicar 'curtido'
+                likeButtonIcon.style.transform = 'scale(1.1)'; // Pequena animação
+                setTimeout(() => { likeButtonIcon.style.transform = 'scale(1)'; }, 300);
+
+                console.log('Artigo curtido! Novo total:', newLikes);
+            } catch (error) {
+                console.error('Erro ao curtir artigo:', error);
+            }
+        };
+
+        window.addComment = async function() {
+            if (!currentArticleId) return;
+
+            const commentInput = document.getElementById('commentInput'); // Assumindo que há um input com id="commentInput"
+            const commentText = commentInput.value.trim();
+
+            if (!commentText) {
+                alert('Por favor, escreva um comentário.');
+                return;
+            }
+
+            const commentsRef = window.firebaseDB.collection(window.firebaseDB.db, 'comments');
+
+            try {
+                await window.firebaseDB.addDoc(commentsRef, {
+                    articleId: currentArticleId,
+                    text: commentText,
+                    author: 'Usuário Anônimo', // Substituir por nome do usuário logado
+                    avatar: '?', // Substituir por avatar do usuário logado
+                    createdAt: window.firebaseDB.serverTimestamp()
+                });
+
+                commentInput.value = ''; // Limpa o input
+                await loadComments(currentArticleId); // Recarrega os comentários
+                alert('Comentário adicionado com sucesso!');
+            } catch (error) {
+                console.error('Erro ao adicionar comentário:', error);
+                alert('Erro ao adicionar comentário.');
+            }
+        };
+
+        async function loadComments(articleId) {
+            const commentsSection = document.getElementById('commentsSection');
+            commentsSection.innerHTML = '<p>Carregando comentários...</p>';
+
+            const commentsQuery = window.firebaseDB.query(
+                window.firebaseDB.collection(window.firebaseDB.db, 'comments'),
+                window.firebaseDB.where('articleId', '==', articleId),
+                window.firebaseDB.orderBy('createdAt', 'desc')
+            );
+
+            try {
+                const querySnapshot = await window.firebaseDB.getDocs(commentsQuery);
+                if (querySnapshot.empty) {
+                    commentsSection.innerHTML = '<p>Nenhum comentário ainda. Seja o primeiro!</p>';
+                    return;
+                }
+
+                commentsSection.innerHTML = ''; // Limpa o carregando
+                querySnapshot.forEach(doc => {
+                    const comment = { id: doc.id, ...doc.data() };
+                    const commentElement = document.createElement('div');
+                    commentElement.classList.add('comment-item');
+                    commentElement.innerHTML = `
+                        <div class="comment-header">
+                            <div class="comment-avatar">${comment.avatar}</div>
+                            <div class="comment-author">${comment.author}</div>
+                            <div class="comment-date">${formatDate(comment.createdAt)}</div>
+                        </div>
+                        <div class="comment-text">${comment.text}</div>
+                    `;
+                    commentsSection.appendChild(commentElement);
+                });
+            } catch (error) {
+                console.error('Erro ao carregar comentários:', error);
+                commentsSection.innerHTML = '<p>Erro ao carregar comentários.</p>';
+            }
+        }
+
 
         window.toggleFavorites = function() {
             console.log('Toggle favorites');
@@ -726,6 +966,9 @@
         window.filterArticles = filterArticles;
         window.sortArticles = sortArticles;
         window.closeModal = closeModal;
+        window.toggleLike = toggleLike;
+        window.addComment = addComment; // Expondo para ser usada no HTML
+
 
         // Search on enter
         document.getElementById('searchInput').addEventListener('keypress', function(e) {
@@ -739,6 +982,67 @@
             document.getElementById('articlesGrid').innerHTML = '';
             document.getElementById('noResults').style.display = 'none';
         }
+
+        // Inicializar listeners para os botões de interação quando o modal estiver ativo
+        document.getElementById('likeButton').addEventListener('click', window.toggleLike);
+        // Para o botão de comentar, você pode querer abrir um formulário ou um input
+        document.getElementById('commentButton').addEventListener('click', () => {
+            // Exemplo: Focar em um input de comentário que você adicionaria no HTML
+            const commentInput = document.getElementById('commentInput');
+            if (commentInput) {
+                commentInput.focus();
+            } else {
+                // Se não houver input, pode mostrar um prompt simples
+                const commentText = prompt("Adicione seu comentário:");
+                if (commentText) {
+                    // Precisaria de uma forma de associar este prompt ao addComment
+                    // Para simplificar, vamos assumir que o addComment lida com o prompt se o input não existir
+                    // Ou melhor, vamos adicionar um input de comentário diretamente no HTML
+                    console.warn("Input de comentário não encontrado. Considere adicionar um <input id='commentInput'> no modal.");
+                }
+            }
+        });
+
+        // Adicionar um input de comentário ao modal, caso não exista
+        // Verifique se o input de comentário já existe no HTML, se não, adicione-o dinamicamente.
+        // Isso é uma abordagem mais robusta do que depender de um prompt.
+        let commentInputExists = document.getElementById('commentInput');
+        if (!commentInputExists) {
+            const modalBody = document.getElementById('modalBody');
+            const existingInteractions = modalBody.querySelector('.modal-interactions');
+            const newCommentInput = document.createElement('input');
+            newCommentInput.type = 'text';
+            newCommentInput.id = 'commentInput';
+            newCommentInput.placeholder = 'Adicione seu comentário...';
+            newCommentInput.style.display = 'block';
+            newCommentInput.style.width = '100%';
+            newCommentInput.style.padding = '0.8rem';
+            newCommentInput.style.margin = '1rem 0 0.5rem 0';
+            newCommentInput.style.background = 'rgba(0,0,0,0.3)';
+            newCommentInput.style.color = 'var(--texto-claro)';
+            newCommentInput.style.border = '1px solid var(--destaque)';
+            newCommentInput.style.borderRadius = '10px';
+
+            const addCommentButton = document.createElement('button');
+            addCommentButton.textContent = 'Enviar Comentário';
+            addCommentButton.classList.add('submit-btn'); // Reutilizando estilo do botão de submit
+            addCommentButton.style.background = 'linear-gradient(45deg, var(--primary-cream), var(--soft-coral))';
+            addCommentButton.style.color = 'var(--medical-blue)';
+            addCommentButton.style.padding = '0.8rem 1rem';
+            addCommentButton.style.marginTop = '0.5rem';
+            addCommentButton.onclick = window.addComment;
+
+            // Adiciona o input e o botão após a seção de interações
+            if (existingInteractions) {
+                existingInteractions.parentNode.insertBefore(newCommentInput, existingInteractions.nextSibling);
+                existingInteractions.parentNode.insertBefore(addCommentButton, newCommentInput.nextSibling);
+            } else {
+                // Se não houver .modal-interactions, adiciona no final do modal-body
+                modalBody.appendChild(newCommentInput);
+                modalBody.appendChild(addCommentButton);
+            }
+        }
+
     </script>
 </body>
 </html>

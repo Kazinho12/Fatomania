@@ -1,10 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LABMANIA - Laboratórios Científicos Virtuais</title>
+    <link rel="icon" type="image/png" href="/icon/fatomania.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -18,6 +18,8 @@
             --perigo: #ff3d00;
             --sucesso: #00e676;
             --texto-claro: #ffffff;
+            --primary: #6a00ff; /* Alias for --roxo */
+            --text-secondary: #cccccc; /* New color for secondary text */
         }
 
         * {
@@ -132,6 +134,52 @@
             margin-bottom: 2rem;
         }
 
+        .progress-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(22, 33, 62, 0.6);
+            border-radius: 20px;
+            border: 2px solid var(--primary);
+        }
+
+        .progress-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 20px;
+            background: rgba(106, 0, 255, 0.1);
+            border-radius: 15px;
+            border: 1px solid var(--primary);
+            transition: all 0.3s ease;
+        }
+
+        .progress-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(106, 0, 255, 0.3);
+        }
+
+        .progress-item i {
+            font-size: 2.5rem;
+            color: var(--primary);
+        }
+
+        .progress-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .progress-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            font-family: 'Orbitron', sans-serif;
+        }
+
         .labs-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -207,8 +255,9 @@
         }
 
         .lab-button:hover {
+            background: var(--primary);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 0, 170, 0.3);
+            box-shadow: 0 5px 15px rgba(106, 0, 255, 0.3);
         }
 
         @media (max-width: 768px) {
@@ -235,7 +284,7 @@
         </div>
         <nav>
             <a href="../dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
-            <a href="#" onclick="toggleFavorites()"><i class="fas fa-bookmark"></i> Favoritos</a>
+            <a onclick="window.openFavoritesModal?.()" style="cursor: pointer;"><i class="fas fa-bookmark"></i> Favoritos</a>
             <a href="../submit-lab.html" class="submit-btn">
                 <i class="fas fa-plus"></i> Enviar Experimento
             </a>
@@ -250,6 +299,24 @@
             <p class="hero-subtitle">
                 Explore experimentos virtuais e simulações científicas interativas
             </p>
+        </div>
+
+        <div class="progress-dashboard">
+            <div class="progress-item">
+                <i class="fas fa-flask"></i>
+                <span class="progress-label">Experimentos Realizados</span>
+                <span class="progress-value" id="experimentsCount">0</span>
+            </div>
+            <div class="progress-item">
+                <i class="fas fa-star"></i>
+                <span class="progress-label">Conquistas Desbloqueadas</span>
+                <span class="progress-value" id="achievementsCount">0/12</span>
+            </div>
+            <div class="progress-item">
+                <i class="fas fa-fire"></i>
+                <span class="progress-label">Sequência de Dias</span>
+                <span class="progress-value" id="streakCount">0</span>
+            </div>
         </div>
 
         <div class="labs-grid" id="labsGrid">
@@ -298,12 +365,13 @@
         // Wait for Firebase to be ready
         window.addEventListener('load', async () => {
             await loadLabs();
+            updateProgressDashboard(); // Initial update of the progress dashboard
         });
 
         async function loadLabs() {
             try {
                 const labsGrid = document.getElementById('labsGrid');
-                
+
                 labsData.forEach(lab => {
                     const labCard = createLabCard(lab);
                     labsGrid.appendChild(labCard);
@@ -334,11 +402,26 @@
             return card;
         }
 
+        // Placeholder functions for progress and achievements
+        function updateProgressDashboard() {
+            // In a real application, these values would be fetched from user data
+            const experimentsCount = localStorage.getItem('experimentsCount') || 0;
+            const achievementsCount = localStorage.getItem('achievementsCount') || '0/12';
+            const streakCount = localStorage.getItem('streakCount') || 0;
+
+            document.getElementById('experimentsCount').textContent = experimentsCount;
+            document.getElementById('achievementsCount').textContent = achievementsCount;
+            document.getElementById('streakCount').textContent = streakCount;
+        }
+
         // Global functions
         window.toggleFavorites = function() {
             // Implementation for favorites
             console.log('Toggle favorites');
         };
     </script>
+
+    <!-- Sistema de Interações -->
+    <script type="module" src="/js/init-interactions.js"></script>
 </body>
 </html>

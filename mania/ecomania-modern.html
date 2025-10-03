@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ECOMANIA - Sustentabilidade e Meio Ambiente</title>
+    <link rel="icon" type="image/png" href="/icon/fatomania.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -19,6 +20,7 @@
             --sucesso: #00ff88;
             --texto-claro: #ffffff;
             --azul-agua: #00a0d1;
+            --eco-verde: #00b894; /* Nova cor para interatividade */
         }
 
         * {
@@ -413,6 +415,87 @@
             text-decoration: underline;
         }
 
+        /* Estilos de Interatividade */
+        .modal-interactions {
+            display: flex;
+            gap: 1rem;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: rgba(0, 184, 148, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(0, 184, 148, 0.2);
+        }
+
+        .modal-interactions button {
+            flex: 1;
+            background: linear-gradient(45deg, var(--destaque), var(--eco-verde));
+            border: none;
+            color: white;
+            padding: 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 1rem;
+        }
+
+        .modal-interactions button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 184, 148, 0.5);
+        }
+
+        .like-count {
+            font-weight: 700;
+            color: var(--destaque);
+        }
+
+        .comment-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(0, 184, 148, 0.2);
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .comment-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--destaque), var(--eco-verde));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+        }
+
+        .comment-author {
+            font-weight: 600;
+            color: var(--destaque);
+        }
+
+        .comment-date {
+            font-size: 0.85rem;
+            color: var(--eco-verde);
+            opacity: 0.8;
+        }
+
+        .comment-text {
+            color: var(--texto-claro);
+            line-height: 1.6;
+        }
+
         @keyframes fadeInDown {
             from {
                 opacity: 0;
@@ -447,20 +530,12 @@
             }
 
             .modal-content {
-                width: 90%;
-                margin: 2rem auto;
-            }
-
-            .modal-image {
-                height: 200px;
-            }
-
-            .modal-body {
+                width: 95%;
                 padding: 1.5rem;
             }
 
-            .modal-title {
-                font-size: 1.8rem;
+            .modal-interactions {
+                flex-direction: column;
             }
         }
     </style>
@@ -552,6 +627,30 @@
                 <div class="modal-content-text" id="modalContent"></div>
                 <div class="modal-tags" id="modalTags"></div>
                 <div id="modalSource" style="margin-top: 1rem;"></div>
+
+                <!-- Seção de Interatividade e Comentários -->
+                <div class="modal-interactions">
+                    <button id="likeButton">
+                        <i class="fas fa-heart"></i> Curtir (<span class="like-count" id="likeCount">0</span>)
+                    </button>
+                    <button id="commentButton">
+                        <i class="fas fa-comment"></i> Comentar
+                    </button>
+                    <button id="favoriteButton">
+                        <i class="fas fa-bookmark"></i> Favoritar
+                    </button>
+                </div>
+
+                <div id="commentsSection" style="display: none;">
+                    <h4>Comentários</h4>
+                    <div id="commentsList">
+                        <!-- Comentários serão carregados aqui -->
+                    </div>
+                    <div class="comment-form">
+                        <textarea id="commentInput" placeholder="Deixe seu comentário..." rows="3"></textarea>
+                        <button class="submit-btn" style="width: auto; margin-top: 1rem;" onclick="addComment()">Enviar Comentário</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -559,9 +658,11 @@
 
     <script type="module">
         import '/firebase-config.js';
+        import '/js/init-interactions.js'; // Assuming this handles button clicks like liking/favoriting
 
         let currentArticles = [];
         let filteredArticles = [];
+        let currentArticleId = null; // To store the currently open article ID
 
         // Wait for Firebase to be ready
         window.addEventListener('load', async () => {
@@ -728,10 +829,33 @@
         };
 
         async function openModal(articleId) {
+            currentArticleId = articleId; // Store the current article ID
             try {
-                await window.openArticle(articleId);
+                // Fetch article details specifically for the modal
+                const articleDoc = await window.firebaseDB.getDoc(window.firebaseDB.doc(window.firebaseDB.db, 'eco-articles', articleId));
+                if (articleDoc.exists()) {
+                    const article = { id: articleId, ...articleDoc.data() };
+                    showArticleModal(article);
+                    await incrementViewCount(articleId);
+                    await loadComments(articleId); // Load comments when modal opens
+                    await initializeInteractions(article); // Initialize like/favorite buttons
+                } else {
+                    console.error('Artigo não encontrado:', articleId);
+                    alert('Este artigo não pôde ser carregado.');
+                }
             } catch (error) {
-                console.error('Erro ao abrir artigo:', error);
+                console.error('Erro ao abrir modal:', error);
+            }
+        }
+
+        async function incrementViewCount(articleId) {
+            try {
+                const articleRef = window.firebaseDB.doc(window.firebaseDB.db, 'eco-articles', articleId);
+                await window.firebaseDB.updateDoc(articleRef, {
+                    views: window.firebaseDB.increment(1)
+                });
+            } catch (error) {
+                console.error('Erro ao incrementar visualizações:', error);
             }
         }
 
@@ -743,6 +867,7 @@
             document.getElementById('modalDate').textContent = formatDate(article.createdAt);
             document.getElementById('modalViews').textContent = article.views || 0;
             document.getElementById('modalLikes').textContent = article.likes || 0;
+            document.getElementById('likeCount').textContent = article.likes || 0; // Update like count display
             document.getElementById('modalContent').innerHTML = (article.content || 'Conteúdo indisponível').replace(/\n/g, '<br>');
 
             const modalImage = document.getElementById('modalImage');
@@ -772,6 +897,9 @@
                 sourceDiv.style.display = 'none';
             }
 
+            // Show/hide comments section based on existence of comments or if user wants to enable
+            document.getElementById('commentsSection').style.display = 'block'; // Always show for now, commenting logic handled separately
+
             modal.classList.add('active');
         }
 
@@ -789,12 +917,156 @@
             const modal = document.getElementById('articleModal');
             if (modal) {
                 modal.classList.remove('active');
+                currentArticleId = null; // Reset current article ID
             }
         }
+
+        // --- Interaction Functions ---
+
+        async function initializeInteractions(article) {
+            const likeButton = document.getElementById('likeButton');
+            const favoriteButton = document.getElementById('favoriteButton');
+            const likeCountSpan = document.getElementById('likeCount');
+
+            // Update like button state and count
+            likeButton.onclick = () => toggleLike(article.id, article.likes || 0);
+            likeCountSpan.textContent = article.likes || 0;
+
+            // Check if article is already favorited (assuming a 'favorites' collection or similar)
+            // For now, just setting up the click handler
+            favoriteButton.onclick = () => toggleFavorite(article.id);
+
+            // Comment button opens/shows comment section
+            document.getElementById('commentButton').onclick = () => {
+                document.getElementById('commentsSection').style.display = 'block';
+                // Optional: Scroll to comments section
+                document.getElementById('commentsSection').scrollIntoView({ behavior: 'smooth' });
+            };
+        }
+
+        async function toggleLike(articleId, currentLikes) {
+            const articleRef = window.firebaseDB.doc(window.firebaseDB.db, 'eco-articles', articleId);
+            const likeButton = document.getElementById('likeButton');
+            const likeCountSpan = document.getElementById('likeCount');
+            const isLiked = likeButton.classList.contains('liked'); // Assuming 'liked' class for visual feedback
+
+            try {
+                if (isLiked) {
+                    // Unlike
+                    await window.firebaseDB.updateDoc(articleRef, { likes: window.firebaseDB.increment(-1) });
+                    likeButton.classList.remove('liked');
+                    likeCountSpan.textContent = currentLikes - 1;
+                    likeButton.style.background = `linear-gradient(45deg, var(--destaque), var(--eco-verde))`; // Reset background
+                } else {
+                    // Like
+                    await window.firebaseDB.updateDoc(articleRef, { likes: window.firebaseDB.increment(1) });
+                    likeButton.classList.add('liked');
+                    likeCountSpan.textContent = currentLikes + 1;
+                    likeButton.style.background = `linear-gradient(45deg, var(--perigo), var(--dourado))`; // Change background for liked state
+                }
+            } catch (error) {
+                console.error('Erro ao curtir/descurtir:', error);
+            }
+        }
+
+        async function toggleFavorite(articleId) {
+            // Placeholder for favorite functionality
+            console.log(`Favoritar/Desfavoritar artigo: ${articleId}`);
+            alert("Funcionalidade de Favoritar ainda em desenvolvimento.");
+        }
+
+        // --- Comment Functions ---
+
+        async function loadComments(articleId) {
+            const commentsList = document.getElementById('commentsList');
+            commentsList.innerHTML = '<p>Carregando comentários...</p>'; // Show loading indicator
+
+            const commentsQuery = window.firebaseDB.query(
+                window.firebaseDB.collection(window.firebaseDB.db, `eco-articles/${articleId}/comments`),
+                window.firebaseDB.orderBy('createdAt', 'desc')
+            );
+
+            try {
+                const querySnapshot = await window.firebaseDB.getDocs(commentsQuery);
+                commentsList.innerHTML = ''; // Clear loading indicator
+                if (querySnapshot.empty) {
+                    commentsList.innerHTML = '<p>Seja o primeiro a comentar!</p>';
+                } else {
+                    querySnapshot.forEach(doc => {
+                        const comment = doc.data();
+                        commentsList.appendChild(createCommentElement(doc.id, comment));
+                    });
+                }
+            } catch (error) {
+                console.error('Erro ao carregar comentários:', error);
+                commentsList.innerHTML = '<p>Erro ao carregar comentários.</p>';
+            }
+        }
+
+        function createCommentElement(commentId, commentData) {
+            const commentDiv = document.createElement('div');
+            commentDiv.className = 'comment-item';
+            commentDiv.id = `comment-${commentId}`;
+
+            const avatar = commentData.authorAvatar || ''; // Assuming avatar URL is stored
+            const authorName = commentData.authorName || 'Anônimo';
+            const createdAt = commentData.createdAt ? formatDate(commentData.createdAt) : '';
+
+            commentDiv.innerHTML = `
+                <div class="comment-header">
+                    <div class="comment-avatar">${avatar ? `<img src="${avatar}" alt="Avatar">` : authorName.charAt(0)}</div>
+                    <span class="comment-author">${authorName}</span>
+                    <span class="comment-date">${createdAt}</span>
+                </div>
+                <p class="comment-text">${commentData.text.replace(/\n/g, '<br>')}</p>
+            `;
+            return commentDiv;
+        }
+
+        async function addComment() {
+            if (!currentArticleId) return;
+
+            const commentInput = document.getElementById('commentInput');
+            const commentText = commentInput.value.trim();
+
+            if (commentText === '') {
+                alert('Por favor, digite um comentário.');
+                return;
+            }
+
+            // Placeholder for user authentication - get current user's info
+            const currentUser = {
+                uid: 'user123', // Replace with actual logged-in user ID
+                displayName: 'Visitante', // Replace with actual user name
+                photoURL: '' // Replace with actual user avatar URL
+            };
+
+            const newComment = {
+                text: commentText,
+                createdAt: window.firebaseDB.serverTimestamp(),
+                authorName: currentUser.displayName,
+                authorAvatar: currentUser.photoURL,
+                authorId: currentUser.uid
+            };
+
+            try {
+                await window.firebaseDB.addDoc(
+                    window.firebaseDB.collection(window.firebaseDB.db, `eco-articles/${currentArticleId}/comments`),
+                    newComment
+                );
+                commentInput.value = ''; // Clear the input
+                await loadComments(currentArticleId); // Reload comments to show the new one
+            } catch (error) {
+                console.error('Erro ao adicionar comentário:', error);
+                alert('Erro ao adicionar comentário. Tente novamente.');
+            }
+        }
+
 
         // Placeholder for toggleFavorites, assuming it's defined elsewhere or not critical for this fix
         function toggleFavorites() {
             console.log("Função toggleFavorites chamada (implementação não fornecida neste contexto).");
+            alert("Funcionalidade de Favoritos ainda em desenvolvimento.");
         }
 
         // Global functions
@@ -804,6 +1076,7 @@
         window.filterArticles = filterArticles;
         window.sortArticles = sortArticles;
         window.toggleFavorites = toggleFavorites; // Exporting placeholder
+        window.addComment = addComment; // Exporting addComment
 
         // Search on enter
         document.getElementById('searchInput').addEventListener('keypress', function(e) {

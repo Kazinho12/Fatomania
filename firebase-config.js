@@ -18,6 +18,7 @@ import {
     getDocs,
     doc,
     getDoc,
+    setDoc,
     updateDoc,
     deleteDoc,
     query,
@@ -26,7 +27,9 @@ import {
     limit,
     onSnapshot,
     serverTimestamp,
-    increment
+    increment,
+    arrayRemove,
+    arrayUnion
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { 
     getStorage,
@@ -78,6 +81,7 @@ window.firebaseDB = {
     getDocs,
     doc,
     getDoc,
+    setDoc,
     updateDoc,
     deleteDoc,
     query,
@@ -86,7 +90,9 @@ window.firebaseDB = {
     limit,
     onSnapshot,
     serverTimestamp,
-    increment
+    increment,
+    arrayRemove,
+    arrayUnion
 };
 
 window.firebaseStorage = {
