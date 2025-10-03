@@ -77,15 +77,26 @@
             }
 
             .logo {
-                font-size: 3.5rem;
+                font-size: 4.5rem;
                 font-weight: 700;
-                letter-spacing: 5px;
+                letter-spacing: 8px;
                 text-transform: uppercase;
-                background: linear-gradient(90deg, #00f7ff, #ff00ff, #00ff88);
-                background-size: 200%;
+                background: linear-gradient(135deg, #00f7ff 0%, #ff00ff 50%, #00ff88 100%);
+                background-size: 300% 300%;
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
-                animation: gradientShift 5s ease infinite;
+                animation: gradientShift 4s ease infinite, logoGlow 2s ease-in-out infinite alternate;
+                filter: drop-shadow(0 0 30px rgba(0, 247, 255, 0.5));
+                text-shadow: 0 0 40px rgba(0, 247, 255, 0.8);
+            }
+            
+            @keyframes logoGlow {
+                0% {
+                    filter: drop-shadow(0 0 20px rgba(0, 247, 255, 0.3));
+                }
+                100% {
+                    filter: drop-shadow(0 0 40px rgba(255, 0, 255, 0.6));
+                }
             }
 
             .subtext {
@@ -100,25 +111,42 @@
 
             .loader {
                 position: relative;
-                width: 100px;
-                height: 100px;
+                width: 120px;
+                height: 120px;
                 margin: 30px auto;
+                filter: drop-shadow(0 0 20px rgba(0, 247, 255, 0.6));
             }
 
             .loader-circle {
                 position: absolute;
                 width: 100%;
                 height: 100%;
-                border: 6px solid transparent;
-                border-top: 6px solid #00f7ff;
+                border: 4px solid transparent;
+                border-top: 4px solid #00f7ff;
+                border-right: 4px solid rgba(0, 247, 255, 0.3);
                 border-radius: 50%;
-                animation: spin 1.5s linear infinite;
+                animation: spin 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+                box-shadow: 0 0 20px rgba(0, 247, 255, 0.5);
             }
 
             .loader-circle:nth-child(2) {
-                border-top: 6px solid #ff00ff;
-                animation: spin 1.5s linear infinite reverse;
-                animation-delay: 0.3s;
+                border-top: 4px solid #ff00ff;
+                border-right: 4px solid rgba(255, 0, 255, 0.3);
+                animation: spin 1.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite reverse;
+                animation-delay: 0.2s;
+                box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+            }
+            
+            .loader-circle:nth-child(3) {
+                border-top: 4px solid #00ff88;
+                border-right: 4px solid rgba(0, 255, 136, 0.3);
+                animation: spin 2.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+                animation-delay: 0.4s;
+                width: 80%;
+                height: 80%;
+                top: 10%;
+                left: 10%;
+                box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
             }
 
             .icon-container {
@@ -131,20 +159,55 @@
             }
 
             .icon {
-                font-size: 1.5rem;
+                font-size: 1.8rem;
                 color: #ffffff;
                 opacity: 0;
-                animation: iconPop 0.8s ease forwards;
+                animation: iconPop 0.8s ease forwards, iconFloat 3s ease-in-out infinite;
+                filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
             }
 
             .icon:nth-child(1) {
                 animation-delay: 0.6s;
+                color: #00f7ff;
             }
             .icon:nth-child(2) {
                 animation-delay: 0.8s;
+                color: #ff00ff;
             }
             .icon:nth-child(3) {
                 animation-delay: 1s;
+                color: #00ff88;
+            }
+            
+            @keyframes iconFloat {
+                0%, 100% {
+                    transform: translateY(0px);
+                }
+                50% {
+                    transform: translateY(-10px);
+                }
+            }
+            
+            .loading-status {
+                margin-top: 20px;
+                font-family: "Roboto Mono", monospace;
+                font-size: 0.9rem;
+                color: #00f7ff;
+                opacity: 0;
+                animation: fadeIn 1s ease forwards;
+                animation-delay: 1.2s;
+                letter-spacing: 2px;
+            }
+            
+            .loading-dots::after {
+                content: '';
+                animation: dots 1.5s steps(4, end) infinite;
+            }
+            
+            @keyframes dots {
+                0%, 20% { content: '.'; }
+                40% { content: '..'; }
+                60%, 100% { content: '...'; }
             }
 
             .background-particles {
@@ -237,11 +300,15 @@
             <div class="loader">
                 <div class="loader-circle"></div>
                 <div class="loader-circle"></div>
+                <div class="loader-circle"></div>
                 <div class="icon-container">
                     <i class="icon fas fa-atom"></i>
                     <i class="icon fas fa-dna"></i>
                     <i class="icon fas fa-rocket"></i>
                 </div>
+            </div>
+            <div class="loading-status">
+                <span class="loading-dots">Inicializando</span>
             </div>
         </div>
         <script>

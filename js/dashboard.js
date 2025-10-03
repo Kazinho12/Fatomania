@@ -106,7 +106,7 @@ const sectionsData = [
         icon: "fas fa-leaf",
         tag: "#Ecologia",
         stats: ["Carregando...", "7.3k Acessos"],
-        image: "https://images.unsplash.com/photo-14666611653911-95081537e5b7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
+        image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
         color: "#2a9d8f",
         url: "/mania/ecomania-modern.html",
         collection: "eco-articles"
@@ -154,7 +154,7 @@ const sectionsData = [
         icon: "fas fa-palette",
         tag: "#Arte",
         stats: ["Carregando...", "15.6k Acessos"],
-        image: "https://images.unsplash.com/photo-1541961017774-2234917?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
+        image: "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
         color: "#00b4d8",
         url: "/mania/artmania-modern.html",
         collection: "art-articles"
@@ -928,7 +928,10 @@ function updateHighlight() {
     }
 
     if (elements.featuredImage) {
-        elements.featuredImage.style.backgroundImage = `url('${highlight.image}')`;
+        const imageUrl = highlight.imageUrl || highlight.image;
+        if (imageUrl) {
+            elements.featuredImage.style.backgroundImage = `url('${imageUrl}')`;
+        }
     }
 
     if (elements.featuredButton) {

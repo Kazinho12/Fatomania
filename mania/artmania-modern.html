@@ -587,42 +587,16 @@
         </div>
     </div>
 
-    <!-- Modal para artigo completo -->
-    <div class="modal" id="articleModal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeModal()">
-                <i class="fas fa-times"></i>
-            </button>
-            <div class="modal-image" id="modalImage"></div>
-            <div class="modal-body">
-                <h2 class="modal-title" id="modalTitle"></h2>
-                <div class="modal-meta">
-                    <span><i class="fas fa-user"></i> <span id="modalAuthor"></span></span>
-                    <span><i class="fas fa-calendar"></i> <span id="modalDate"></span></span>
-                    <span><i class="fas fa-eye"></i> <span id="modalViews"></span> visualizações</span>
-                    <span><i class="fas fa-heart"></i> <span id="modalLikes"></span> curtidas</span>
-                </div>
-                <div class="modal-content-text" id="modalContent"></div>
-                <div class="modal-tags" id="modalTags"></div>
-
-                <div class="comment-section">
-                    <h3 class="comment-title">💬 Críticas e Opiniões</h3>
-                    <div class="comment-form">
-                        <textarea class="comment-input" id="commentText" placeholder="Compartilhe sua interpretação artística..."></textarea>
-                        <button class="comment-submit" onclick="submitComment()">
-                            <i class="fas fa-paper-plane"></i> Publicar Crítica
-                        </button>
-                    </div>
-                    <div class="comments-list" id="commentsList">
-                        <!-- Comentários serão carregados aqui -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- O modal será criado dinamicamente pelo shared-utils.js -->
 
     <script type="module">
         import '/firebase-config.js';
+        import { openArticle, closeArticleModal, showPopupNotification } from '/js/shared-utils.js';
+
+        // Disponibilizar funções globalmente se ainda não estiverem
+        if (!window.openArticle) window.openArticle = openArticle;
+        if (!window.closeArticleModal) window.closeArticleModal = closeArticleModal;
+        if (!window.showPopupNotification) window.showPopupNotification = showPopupNotification;
 
         let currentArticles = [];
         let filteredArticles = [];
@@ -751,139 +725,32 @@
             return icons[category] || '🎨';
         }
 
+        // Usar diretamente a função do shared-utils
         async function openModal(articleId) {
             try {
+                console.log('🎨 Abrindo artigo ARTMANIA:', articleId);
+                
                 if (window.openArticle) {
                     await window.openArticle(articleId, 'art-articles');
                 } else {
-                    console.error('openArticle não está disponível');
+                    console.error('❌ window.openArticle não está disponível');
+                    window.showPopupNotification?.('Erro ao abrir artigo. Recarregue a página.', 'error');
                 }
             } catch (error) {
-                console.error('Erro ao abrir artigo:', error);
-            }
-        }
-
-        // Função legada para compatibilidade
-        async function openModalLegacy(articleId) {
-            const article = currentArticles.find(a => a.id === articleId);
-            if (!article) return;
-
-            currentArticleId = articleId;
-
-            // Increment view count
-            try {
-                const articleRef = window.firebaseDB.doc(window.firebaseDB.db, 'art-articles', articleId);
-                await window.firebaseDB.updateDoc(articleRef, {
-                    views: window.firebaseDB.increment(1)
-                });
-                article.views = (article.views || 0) + 1;
-            } catch (error) {
-                console.error('Erro ao atualizar visualizações:', error);
-            }
-
-            // Populate modal
-            document.getElementById('modalImage').style.backgroundImage = `url('${article.imageUrl || '/icon/fatomania.png'}')`;
-            document.getElementById('modalTitle').textContent = article.title;
-            document.getElementById('modalAuthor').textContent = article.author;
-            document.getElementById('modalDate').textContent = formatDate(article.createdAt);
-            document.getElementById('modalViews').textContent = article.views || 0;
-            document.getElementById('modalLikes').textContent = article.likes || 0;
-            document.getElementById('modalContent').innerHTML = article.content.replace(/\n/g, '<br>');
-
-            // Tags
-            const tagsContainer = document.getElementById('modalTags');
-            if (article.tags && article.tags.length > 0) {
-                tagsContainer.innerHTML = article.tags.map(tag => `<span class="tag">#${tag}</span>`).join('');
-            } else {
-                tagsContainer.innerHTML = '';
-            }
-
-            // Load comments
-            await loadComments(articleId);
-
-            document.getElementById('articleModal').classList.add('active');
-        }
-
-        async function loadComments(articleId) {
-            try {
-                const commentsQuery = window.firebaseDB.query(
-                    window.firebaseDB.collection(window.firebaseDB.db, 'art-comments'),
-                    window.firebaseDB.where('articleId', '==', articleId),
-                    window.firebaseDB.orderBy('createdAt', 'desc')
-                );
-
-                const snapshot = await window.firebaseDB.getDocs(commentsQuery);
-                const comments = snapshot.docs.map(doc => doc.data());
-
-                renderComments(comments);
-            } catch (error) {
-                console.error('Erro ao carregar comentários:', error);
-            }
-        }
-
-        function renderComments(comments) {
-            const commentsList = document.getElementById('commentsList');
-
-            if (comments.length === 0) {
-                commentsList.innerHTML = '<p style="opacity: 0.7;">Nenhuma crítica ainda. Seja o primeiro a comentar!</p>';
-                return;
-            }
-
-            commentsList.innerHTML = comments.map(comment => `
-                <div class="comment-item">
-                    <div class="comment-author">${comment.author}</div>
-                    <div class="comment-text">${comment.text}</div>
-                    <div class="comment-date">${formatDate(comment.createdAt)}</div>
-                </div>
-            `).join('');
-        }
-
-        async function submitComment() {
-            const commentText = document.getElementById('commentText').value.trim();
-            if (!commentText) return;
-
-            const user = window.firebaseAuth.auth.currentUser;
-            if (!user) {
-                alert('Você precisa estar logado para comentar.');
-                return;
-            }
-
-            try {
-                const commentData = {
-                    articleId: currentArticleId,
-                    text: commentText,
-                    author: user.displayName || user.email,
-                    authorId: user.uid,
-                    createdAt: window.firebaseDB.serverTimestamp()
-                };
-
-                await window.firebaseDB.addDoc(
-                    window.firebaseDB.collection(window.firebaseDB.db, 'art-comments'),
-                    commentData
-                );
-
-                document.getElementById('commentText').value = '';
-                await loadComments(currentArticleId);
-            } catch (error) {
-                console.error('Erro ao enviar comentário:', error);
-                alert('Erro ao enviar comentário. Tente novamente.');
+                console.error('❌ Erro ao abrir artigo:', error);
+                window.showPopupNotification?.('Erro ao abrir artigo: ' + error.message, 'error');
             }
         }
 
         function closeModal() {
-            document.getElementById('articleModal').classList.remove('active');
-            currentArticleId = null;
+            if (window.closeArticleModal) {
+                window.closeArticleModal();
+            }
         }
 
-        function formatDate(timestamp) {
-            if (!timestamp) return 'Data não disponível';
-            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-            return date.toLocaleDateString('pt-BR', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-        }
+        // Expor funções globalmente
+        window.openModal = openModal;
+        window.closeModal = closeModal;
 
         function searchArticles() {
             filterAndSort();
@@ -935,12 +802,9 @@
         }
 
         // Global functions
-        window.openModal = openModal;
-        window.closeModal = closeModal;
         window.searchArticles = searchArticles;
         window.filterArticles = filterArticles;
         window.sortArticles = sortArticles;
-        window.submitComment = submitComment;
         window.toggleFavorites = toggleFavorites;
 
         // Search on enter
@@ -949,13 +813,579 @@
                 searchArticles();
             }
         });
+    </script>
 
-        // Close modal on click outside
-        document.getElementById('articleModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal();
+    <!-- Modal de Artigo -->
+    <div id="articleModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-image" id="modalImage"></div>
+            <div class="modal-body">
+                <h2 class="modal-title" id="modalTitle"></h2>
+                <div class="modal-meta">
+                    <span><i class="fas fa-user"></i> <span id="modalAuthor"></span></span>
+                    <span><i class="fas fa-calendar"></i> <span id="modalDate"></span></span>
+                    <span><i class="fas fa-palette"></i> <span id="modalCategory"></span></span>
+                </div>
+                <div class="modal-content-text" id="modalContent"></div>
+                <div class="modal-tags" id="modalTags"></div>
+                
+                <!-- Seção de Interação -->
+                <div class="modal-interactions" style="display: flex; gap: 1rem; margin: 2rem 0; padding: 1.5rem; background: rgba(0, 247, 255, 0.05); border-radius: 15px; border: 1px solid rgba(0, 247, 255, 0.2);">
+                    <button id="likeBtn" onclick="handleLike()" style="flex: 1; background: linear-gradient(45deg, #ff1744, #f50057); border: none; color: white; padding: 1rem; border-radius: 12px; cursor: pointer; font-weight: 600; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <i class="fas fa-heart"></i>
+                        <span id="likeCount">0</span> Curtidas
+                    </button>
+                    <button id="favoriteBtn" onclick="handleFavorite()" style="flex: 1; background: linear-gradient(45deg, #ffd700, #ffa000); border: none; color: white; padding: 1rem; border-radius: 12px; cursor: pointer; font-weight: 600; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <i class="fas fa-star"></i>
+                        Favoritar
+                    </button>
+                    <button onclick="handleShare()" style="flex: 1; background: linear-gradient(45deg, #00e676, #00c853); border: none; color: white; padding: 1rem; border-radius: 12px; cursor: pointer; font-weight: 600; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <i class="fas fa-share-alt"></i>
+                        Compartilhar
+                    </button>
+                </div>
+
+                <!-- Seção de Comentários -->
+                <div class="comments-section">
+                    <h3 style="font-family: 'Orbitron', sans-serif; color: var(--destaque); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-comments"></i>
+                        Comentários
+                        <span id="commentCount" style="background: rgba(0, 247, 255, 0.2); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.9rem;">0</span>
+                    </h3>
+                    <div id="commentsList" style="margin-bottom: 2rem;"></div>
+                    <div class="comment-form" style="display: flex; gap: 1rem; align-items: flex-start;">
+                        <textarea id="commentInput" placeholder="Adicione seu comentário..." style="flex: 1; padding: 1rem; border: 2px solid rgba(0, 247, 255, 0.3); border-radius: 12px; background: rgba(0, 0, 0, 0.3); color: white; font-family: 'Rajdhani', sans-serif; font-size: 1rem; resize: vertical; min-height: 80px;"></textarea>
+                        <button onclick="handleComment()" style="background: linear-gradient(45deg, var(--destaque), var(--verde)); border: none; color: var(--fundo); padding: 1rem 2rem; border-radius: 12px; cursor: pointer; font-weight: 600; transition: all 0.3s; white-space: nowrap;">
+                            <i class="fas fa-paper-plane"></i>
+                            Enviar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Estilos do Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--fundo-card);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            border: 2px solid var(--destaque);
+            box-shadow: 0 0 40px rgba(0, 247, 255, 0.3);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--perigo);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            z-index: 1001;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            background: #ff6f00;
+            transform: rotate(90deg);
+        }
+
+        .modal-image {
+            width: 100%;
+            height: 350px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            color: var(--destaque);
+            margin-bottom: 1rem;
+            line-height: 1.3;
+        }
+
+        .modal-meta {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            color: var(--dourado);
+            font-size: 0.95rem;
+        }
+
+        .modal-meta i {
+            color: var(--destaque);
+            margin-right: 0.3rem;
+        }
+
+        .modal-content-text {
+            line-height: 1.8;
+            font-size: 1.05rem;
+            margin-bottom: 2rem;
+            color: var(--texto-claro);
+        }
+
+        .modal-content-text h2,
+        .modal-content-text h3,
+        .modal-content-text h4 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--destaque);
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            line-height: 1.3;
+        }
+
+        .modal-content-text h2 {
+            font-size: 1.8rem;
+            border-bottom: 2px solid rgba(0, 247, 255, 0.3);
+            padding-bottom: 0.5rem;
+        }
+
+        .modal-content-text p {
+            margin-bottom: 1.2rem;
+            text-align: justify;
+        }
+
+        .modal-content-text ul,
+        .modal-content-text ol {
+            margin-left: 2rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .modal-content-text li {
+            margin-bottom: 0.5rem;
+            line-height: 1.7;
+        }
+
+        .modal-content-text blockquote {
+            background: rgba(0, 247, 255, 0.1);
+            border-left: 4px solid var(--destaque);
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 5px;
+            font-style: italic;
+        }
+
+        .modal-content-text strong {
+            color: var(--dourado);
+            font-weight: 700;
+        }
+
+        .modal-content-text a {
+            color: var(--azul);
+            text-decoration: none;
+            border-bottom: 1px dashed var(--azul);
+            transition: all 0.3s;
+        }
+
+        .modal-content-text a:hover {
+            color: var(--verde);
+            border-bottom-color: var(--verde);
+        }
+
+        .modal-content-text img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .modal-tag {
+            background: rgba(0, 247, 255, 0.2);
+            color: var(--destaque);
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            border: 1px solid rgba(0, 247, 255, 0.3);
+        }
+
+        .comment-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(0, 247, 255, 0.2);
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .comment-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--destaque), var(--verde));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--fundo);
+        }
+
+        .comment-author {
+            font-weight: 600;
+            color: var(--destaque);
+        }
+
+        .comment-date {
+            font-size: 0.85rem;
+            color: var(--dourado);
+            opacity: 0.8;
+        }
+
+        .comment-text {
+            color: var(--texto-claro);
+            line-height: 1.6;
+        }
+
+        .modal-interactions button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 247, 255, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                margin: 0.5rem;
+                max-height: 95vh;
             }
-        });
+
+            .modal-image {
+                height: 200px;
+            }
+
+            .modal-title {
+                font-size: 1.5rem;
+            }
+
+            .modal-meta {
+                font-size: 0.85rem;
+            }
+
+            .modal-interactions {
+                flex-direction: column;
+            }
+
+            .comment-form {
+                flex-direction: column;
+            }
+        }
+    </style>
+
+    <script>
+        // Variáveis globais para o modal
+        let currentArticleId = null;
+        let currentArticleData = null;
+
+        async function handleLike() {
+            if (!currentArticleId) return;
+            
+            const user = window.firebaseAuth?.auth?.currentUser;
+            if (!user) {
+                alert('Faça login para curtir artigos');
+                return;
+            }
+
+            try {
+                const articleRef = window.firebaseDB.doc(window.firebaseDB.db, 'art-articles', currentArticleId);
+                const articleSnap = await window.firebaseDB.getDoc(articleRef);
+                
+                if (!articleSnap.exists()) return;
+
+                const articleData = articleSnap.data();
+                const likedBy = articleData.likedBy || [];
+                const hasLiked = likedBy.includes(user.uid);
+
+                const likeBtn = document.getElementById('likeBtn');
+                
+                if (hasLiked) {
+                    await window.firebaseDB.updateDoc(articleRef, {
+                        likes: window.firebaseDB.increment(-1),
+                        likedBy: likedBy.filter(id => id !== user.uid)
+                    });
+                    likeBtn.style.background = 'linear-gradient(45deg, #ff1744, #f50057)';
+                    document.getElementById('likeCount').textContent = (articleData.likes || 1) - 1;
+                } else {
+                    await window.firebaseDB.updateDoc(articleRef, {
+                        likes: window.firebaseDB.increment(1),
+                        likedBy: [...likedBy, user.uid]
+                    });
+                    likeBtn.style.background = 'linear-gradient(45deg, #00e676, #00c853)';
+                    document.getElementById('likeCount').textContent = (articleData.likes || 0) + 1;
+                }
+            } catch (error) {
+                console.error('Erro ao curtir:', error);
+                alert('Erro ao curtir artigo');
+            }
+        }
+
+        async function handleFavorite() {
+            if (!currentArticleId) return;
+            
+            const user = window.firebaseAuth?.auth?.currentUser;
+            if (!user) {
+                alert('Faça login para favoritar');
+                return;
+            }
+
+            try {
+                const userRef = window.firebaseDB.doc(window.firebaseDB.db, 'users', user.uid);
+                const userSnap = await window.firebaseDB.getDoc(userRef);
+                
+                let userData = userSnap.exists() ? userSnap.data() : {};
+                const favorites = userData.favorites || [];
+                const favoriteKey = `art-articles:${currentArticleId}`;
+                const hasFavorited = favorites.includes(favoriteKey);
+
+                const favoriteBtn = document.getElementById('favoriteBtn');
+                
+                if (hasFavorited) {
+                    await window.firebaseDB.updateDoc(userRef, {
+                        favorites: favorites.filter(fav => fav !== favoriteKey)
+                    });
+                    favoriteBtn.innerHTML = '<i class="fas fa-star"></i> Favoritar';
+                    favoriteBtn.style.background = 'linear-gradient(45deg, #ffd700, #ffa000)';
+                } else {
+                    await window.firebaseDB.updateDoc(userRef, {
+                        favorites: [...favorites, favoriteKey]
+                    });
+                    favoriteBtn.innerHTML = '<i class="fas fa-star"></i> Favoritado';
+                    favoriteBtn.style.background = 'linear-gradient(45deg, #00e676, #00c853)';
+                }
+            } catch (error) {
+                console.error('Erro ao favoritar:', error);
+                alert('Erro ao favoritar artigo');
+            }
+        }
+
+        async function handleShare() {
+            if (!currentArticleData) return;
+
+            const shareData = {
+                title: currentArticleData.title,
+                text: `Confira este artigo incrível: ${currentArticleData.title}`,
+                url: window.location.href
+            };
+
+            try {
+                if (navigator.share) {
+                    await navigator.share(shareData);
+                } else {
+                    await navigator.clipboard.writeText(window.location.href);
+                    alert('Link copiado para área de transferência!');
+                }
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    console.error('Erro ao compartilhar:', error);
+                }
+            }
+        }
+
+        async function handleComment() {
+            if (!currentArticleId) return;
+            
+            const user = window.firebaseAuth?.auth?.currentUser;
+            if (!user) {
+                alert('Faça login para comentar');
+                return;
+            }
+
+            const commentInput = document.getElementById('commentInput');
+            const commentText = commentInput.value.trim();
+
+            if (!commentText) {
+                alert('Digite um comentário');
+                return;
+            }
+
+            try {
+                const articleRef = window.firebaseDB.doc(window.firebaseDB.db, 'art-articles', currentArticleId);
+                const articleSnap = await window.firebaseDB.getDoc(articleRef);
+                
+                if (!articleSnap.exists()) return;
+
+                const articleData = articleSnap.data();
+                const comments = articleData.comments || [];
+                
+                const newComment = {
+                    id: Date.now().toString(),
+                    userId: user.uid,
+                    userName: user.displayName || user.email.split('@')[0],
+                    userAvatar: user.photoURL || null,
+                    text: commentText,
+                    createdAt: new Date().toISOString(),
+                    likes: 0
+                };
+
+                await window.firebaseDB.updateDoc(articleRef, {
+                    comments: [...comments, newComment]
+                });
+
+                commentInput.value = '';
+                loadComments([...comments, newComment]);
+            } catch (error) {
+                console.error('Erro ao comentar:', error);
+                alert('Erro ao adicionar comentário');
+            }
+        }
+
+        function loadComments(comments) {
+            const commentsList = document.getElementById('commentsList');
+            const commentCount = document.getElementById('commentCount');
+            
+            commentCount.textContent = comments.length;
+
+            if (comments.length === 0) {
+                commentsList.innerHTML = '<p style="color: var(--dourado); opacity: 0.7; text-align: center; padding: 2rem;">Seja o primeiro a comentar!</p>';
+                return;
+            }
+
+            commentsList.innerHTML = comments.map(comment => {
+                const initial = comment.userName.charAt(0).toUpperCase();
+                const date = new Date(comment.createdAt).toLocaleDateString('pt-BR');
+                
+                return `
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <div class="comment-avatar">${initial}</div>
+                            <div style="flex: 1;">
+                                <div class="comment-author">${comment.userName}</div>
+                                <div class="comment-date">${date}</div>
+                            </div>
+                        </div>
+                        <div class="comment-text">${comment.text}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Modificar a função openModal existente para carregar dados do modal
+        const originalOpenModal = window.openModal;
+        window.openModal = async function(articleId) {
+            try {
+                const articleRef = window.firebaseDB.doc(window.firebaseDB.db, 'art-articles', articleId);
+                const articleSnap = await window.firebaseDB.getDoc(articleRef);
+                
+                if (!articleSnap.exists()) {
+                    alert('Artigo não encontrado');
+                    return;
+                }
+
+                const article = articleSnap.data();
+                currentArticleId = articleId;
+                currentArticleData = article;
+
+                // Preencher modal
+                document.getElementById('modalImage').style.backgroundImage = `url(${article.image || article.imageUrl || '/icon/default-art.png'})`;
+                document.getElementById('modalTitle').textContent = article.title;
+                document.getElementById('modalAuthor').textContent = article.author || 'Anônimo';
+                document.getElementById('modalDate').textContent = article.createdAt ? new Date(article.createdAt.seconds * 1000).toLocaleDateString('pt-BR') : 'Data não disponível';
+                document.getElementById('modalCategory').textContent = article.category || 'Arte';
+                document.getElementById('modalContent').innerHTML = article.content || article.description || '';
+                
+                // Tags
+                const tagsContainer = document.getElementById('modalTags');
+                if (article.tags && article.tags.length > 0) {
+                    tagsContainer.innerHTML = article.tags.map(tag => 
+                        `<span class="modal-tag">#${tag}</span>`
+                    ).join('');
+                } else {
+                    tagsContainer.innerHTML = '';
+                }
+
+                // Curtidas
+                document.getElementById('likeCount').textContent = article.likes || 0;
+                
+                // Verificar se usuário já curtiu
+                const user = window.firebaseAuth?.auth?.currentUser;
+                if (user) {
+                    const likedBy = article.likedBy || [];
+                    const likeBtn = document.getElementById('likeBtn');
+                    if (likedBy.includes(user.uid)) {
+                        likeBtn.style.background = 'linear-gradient(45deg, #00e676, #00c853)';
+                    } else {
+                        likeBtn.style.background = 'linear-gradient(45deg, #ff1744, #f50057)';
+                    }
+
+                    // Verificar favoritos
+                    const userRef = window.firebaseDB.doc(window.firebaseDB.db, 'users', user.uid);
+                    const userSnap = await window.firebaseDB.getDoc(userRef);
+                    if (userSnap.exists()) {
+                        const userData = userSnap.data();
+                        const favorites = userData.favorites || [];
+                        const favoriteBtn = document.getElementById('favoriteBtn');
+                        if (favorites.includes(`art-articles:${articleId}`)) {
+                            favoriteBtn.innerHTML = '<i class="fas fa-star"></i> Favoritado';
+                            favoriteBtn.style.background = 'linear-gradient(45deg, #00e676, #00c853)';
+                        }
+                    }
+                }
+
+                // Comentários
+                loadComments(article.comments || []);
+
+                // Mostrar modal
+                document.getElementById('articleModal').classList.add('active');
+
+                // Incrementar visualizações
+                await window.firebaseDB.updateDoc(articleRef, {
+                    views: window.firebaseDB.increment(1)
+                });
+
+            } catch (error) {
+                console.error('Erro ao abrir artigo:', error);
+                alert('Erro ao abrir artigo: ' + error.message);
+            }
+        };
     </script>
 </body>
 </html>

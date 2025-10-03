@@ -473,6 +473,38 @@
         </div>
     </div>
 
+    <!-- Modal para visualizar artigo completo -->
+    <div id="articleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle"></h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <img id="modalImage" style="display: none;">
+                <div class="article-meta">
+                    <div>
+                        <i class="fas fa-user-md"></i>
+                        <span id="modalAuthor"></span>
+                    </div>
+                    <div>
+                        <i class="fas fa-calendar"></i>
+                        <span id="modalDate"></span>
+                    </div>
+                    <div>
+                        <i class="fas fa-eye"></i>
+                        <span id="modalViews"></span> visualiza\u00e7\u00f5es
+                    </div>
+                    <div>
+                        <i class="fas fa-heart"></i>
+                        <span id="modalLikes"></span> curtidas
+                    </div>
+                </div>
+                <div id="modalContent"></div>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import '/firebase-config.js';
 
@@ -637,11 +669,49 @@
             });
         }
 
+        function showArticleModal(article) {
+            const modal = document.getElementById('articleModal');
+            
+            // Populate modal
+            document.getElementById('modalTitle').textContent = article.title;
+            document.getElementById('modalAuthor').textContent = article.author;
+            document.getElementById('modalDate').textContent = formatDate(article.createdAt);
+            document.getElementById('modalViews').textContent = article.views || 0;
+            document.getElementById('modalLikes').textContent = article.likes || 0;
+            document.getElementById('modalContent').innerHTML = article.content;
+            
+            const modalImage = document.getElementById('modalImage');
+            if (article.imageUrl) {
+                modalImage.src = article.imageUrl;
+                modalImage.style.display = 'block';
+            } else {
+                modalImage.style.display = 'none';
+            }
+            
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('articleModal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
+
         window.openArticle = async function(articleId) {
             try {
-                // Usa a função compartilhada de shared-utils.js
-                const { openArticle: openArticleUtil } = await import('/js/shared-utils.js');
-                await openArticleUtil(articleId, 'med-articles');
+                const docSnap = await window.firebaseDB.getDoc(window.firebaseDB.doc(window.firebaseDB.db, 'med-articles', articleId));
+                if (docSnap.exists()) {
+                    const articleData = { id: docSnap.id, ...docSnap.data() };
+                    // Increment view count
+                    await window.firebaseDB.updateDoc(window.firebaseDB.doc(window.firebaseDB.db, 'med-articles', articleId), {
+                        views: window.firebaseDB.increment(1)
+                    });
+                    articleData.views = (articleData.views || 0) + 1;
+                    showArticleModal(articleData);
+                } else {
+                    console.error("No such document!");
+                }
             } catch (error) {
                 console.error('Erro ao abrir artigo:', error);
             }
@@ -655,6 +725,7 @@
         window.searchArticles = searchArticles;
         window.filterArticles = filterArticles;
         window.sortArticles = sortArticles;
+        window.closeModal = closeModal;
 
         // Search on enter
         document.getElementById('searchInput').addEventListener('keypress', function(e) {

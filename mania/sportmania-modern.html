@@ -624,13 +624,30 @@
 
         async function openArticle(articleId) {
             try {
-                if (window.openArticle) {
-                    await window.openArticle(articleId, 'sports-articles');
+                console.log('🚀 Abrindo artigo:', articleId);
+                const docSnap = await window.firebaseDB.getDoc(
+                    window.firebaseDB.doc(window.firebaseDB.db, 'sports-articles', articleId)
+                );
+                
+                if (docSnap.exists()) {
+                    console.log('✅ Artigo encontrado:', docSnap.data().title);
+                    const articleData = { id: docSnap.id, ...docSnap.data() };
+                    
+                    // Increment view count
+                    await window.firebaseDB.updateDoc(
+                        window.firebaseDB.doc(window.firebaseDB.db, 'sports-articles', articleId),
+                        { views: (articleData.views || 0) + 1 }
+                    );
+                    articleData.views = (articleData.views || 0) + 1;
+                    
+                    showArticleModal(articleData);
                 } else {
-                    console.error('openArticle não está disponível');
+                    console.error('❌ Artigo não encontrado!');
+                    showNotification('Artigo não encontrado', 'error');
                 }
             } catch (error) {
-                console.error('Erro ao abrir artigo:', error);
+                console.error('❌ Erro ao abrir artigo:', error);
+                showNotification('Erro ao abrir artigo: ' + error.message, 'error');
             }
         }
 
@@ -760,24 +777,7 @@
         }
 
         // Global functions
-        window.openArticle = async function(articleId, collectionName) {
-            try {
-                const docSnap = await window.firebaseDB.getDoc(window.firebaseDB.doc(window.firebaseDB.db, collectionName, articleId));
-                if (docSnap.exists()) {
-                    const articleData = { id: docSnap.id, ...docSnap.data() };
-                    // Increment view count
-                    await window.firebaseDB.updateDoc(window.firebaseDB.doc(window.firebaseDB.db, collectionName, articleId), {
-                        views: (articleData.views || 0) + 1
-                    });
-                    articleData.views = (articleData.views || 0) + 1; // Update local view count for modal display
-                    showArticleModal(articleData);
-                } else {
-                    console.error("No such document!");
-                }
-            } catch (error) {
-                console.error("Error opening article:", error);
-            }
-        };
+        window.openArticle = openArticle;
         window.closeModal = closeModal;
         window.searchArticles = searchArticles;
         window.filterArticles = filterArticles;
