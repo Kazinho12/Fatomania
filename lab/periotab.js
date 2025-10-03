@@ -1297,22 +1297,21 @@ class PeriodicTable {
     }
 
     createLanthanideActinideSeries() {
-        const lanthanideContainer = document.createElement('div');
-        lanthanideContainer.className = 'lanthanide-series';
-        this.tableContainer.appendChild(lanthanideContainer);
+        // Usar os containers existentes no HTML em vez de criar novos
+        const lanthanideContainer = document.querySelector('.lanthanide-series');
+        const actinideContainer = document.querySelector('.actinide-series');
 
-        const actinideContainer = document.createElement('div');
-        actinideContainer.className = 'actinide-series';
-        this.tableContainer.appendChild(actinideContainer);
+        if (!lanthanideContainer || !actinideContainer) {
+            console.error('Containers de lantanídeos/actinídeos não encontrados!');
+            return;
+        }
 
         // Adicionar lantanídeos armazenados
         if (this.lanthanideElements && this.lanthanideElements.length > 0) {
             this.lanthanideElements.sort((a, b) => {
                 return parseInt(a.getAttribute('data-number')) - parseInt(b.getAttribute('data-number'));
             });
-            this.lanthanideElements.forEach((elementDiv, index) => {
-                elementDiv.style.gridRow = 9;
-                elementDiv.style.gridColumn = index + 3;
+            this.lanthanideElements.forEach((elementDiv) => {
                 lanthanideContainer.appendChild(elementDiv);
             });
         }
@@ -1322,9 +1321,7 @@ class PeriodicTable {
             this.actinideElements.sort((a, b) => {
                 return parseInt(a.getAttribute('data-number')) - parseInt(b.getAttribute('data-number'));
             });
-            this.actinideElements.forEach((elementDiv, index) => {
-                elementDiv.style.gridRow = 10;
-                elementDiv.style.gridColumn = index + 3;
+            this.actinideElements.forEach((elementDiv) => {
                 actinideContainer.appendChild(elementDiv);
             });
         }

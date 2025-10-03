@@ -308,39 +308,56 @@
         } from '/js/error-logger.js';
 
         let currentLogs = [];
+        let currentAdminUser = null;
+
+        // Lista de emails autorizados como administradores
+        const AUTHORIZED_EMAILS = [
+            'ianomachai@gmail.com'
+        ];
 
         // Verificar autenticação e permissões de admin
         async function checkAdminAccess() {
-            return new Promise((resolve) => {
-                window.firebaseAuth.onAuthStateChanged(window.firebaseAuth.auth, async (user) => {
-                    if (!user) {
-                        alert('⛔ Acesso negado! Você precisa estar autenticado para acessar esta página.');
-                        window.location.href = '/logsin.html';
-                        return;
-                    }
+            try {
+                // Aguarda Firebase estar totalmente carregado
+                let attempts = 0;
+                while (!window.firebaseAuth && attempts < 50) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    attempts++;
+                }
+                
+                if (!window.firebaseAuth) {
+                    console.error('Firebase não carregou corretamente');
+                    alert('⛔ Erro ao carregar sistema de autenticação.');
+                    window.location.href = '/logsin.html';
+                    return;
+                }
 
-                    // Verificar se o usuário é admin
-                    try {
-                        const userDoc = await window.firebaseDB.getDoc(
-                            window.firebaseDB.doc(window.firebaseDB.db, 'users', user.uid)
-                        );
-                        
-                        const userData = userDoc.data();
-                        if (!userData || userData.role !== 'admin') {
-                            alert('⛔ Acesso negado! Você não tem permissões de administrador.');
-                            window.location.href = '/dashboard.html';
-                            return;
-                        }
+                const user = await window.waitForAuth(10000);
+                console.log('Usuário atual:', user?.email);
+                
+                if (!user) {
+                    console.log('Usuário não logado, redirecionando...');
+                    alert('⛔ Acesso negado! Você precisa estar autenticado para acessar esta página.');
+                    localStorage.setItem('redirectAfterLogin', window.location.pathname);
+                    window.location.href = '/logsin.html';
+                    return;
+                }
 
-                        console.log('✅ Acesso de admin verificado para:', user.email);
-                        resolve(true);
-                    } catch (error) {
-                        console.error('Erro ao verificar permissões:', error);
-                        alert('⛔ Erro ao verificar permissões de acesso.');
-                        window.location.href = '/dashboard.html';
-                    }
-                });
-            });
+                if (!AUTHORIZED_EMAILS.includes(user.email)) {
+                    console.log('Email não autorizado:', user.email);
+                    alert('⛔ Acesso negado! Você não tem permissões de administrador.');
+                    window.location.href = '/dashboard.html';
+                    return;
+                }
+
+                console.log('✅ Acesso de admin verificado para:', user.email);
+                currentAdminUser = user;
+                return true;
+            } catch (error) {
+                console.error('Erro ao verificar acesso:', error);
+                alert('⛔ Erro ao verificar permissões de acesso.');
+                window.location.href = '/dashboard.html';
+            }
         }
 
         // Carregar logs ao iniciar (somente após verificação de admin)

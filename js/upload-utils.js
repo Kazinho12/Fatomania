@@ -134,44 +134,62 @@ function fileToBase64(file, type = 'general') {
         reader.onload = function(e) {
             const img = new Image();
             img.onload = function() {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
+                try {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
 
-                // Different compression settings based on type
-                const settings = {
-                    profile: { maxSize: 150, quality: 0.8 },
-                    article: { maxSize: 800, quality: 0.9 },
-                    news: { maxSize: 800, quality: 0.9 },
-                    quiz: { maxSize: 600, quality: 0.85 },
-                    general: { maxSize: 600, quality: 0.85 }
-                };
+                    // Different compression settings based on type
+                    const settings = {
+                        profile: { maxSize: 150, quality: 0.8 },
+                        article: { maxSize: 800, quality: 0.9 },
+                        news: { maxSize: 800, quality: 0.9 },
+                        quiz: { maxSize: 600, quality: 0.85 },
+                        general: { maxSize: 600, quality: 0.85 }
+                    };
 
-                const config = settings[type] || settings.general;
-                let { width, height } = img;
+                    const config = settings[type] || settings.general;
+                    let { width, height } = img;
 
-                // Resize maintaining aspect ratio
-                if (width > height) {
-                    if (width > config.maxSize) {
-                        height = height * (config.maxSize / width);
-                        width = config.maxSize;
+                    // Resize maintaining aspect ratio
+                    if (width > height) {
+                        if (width > config.maxSize) {
+                            height = height * (config.maxSize / width);
+                            width = config.maxSize;
+                        }
+                    } else {
+                        if (height > config.maxSize) {
+                            width = width * (config.maxSize / height);
+                            height = config.maxSize;
+                        }
                     }
-                } else {
-                    if (height > config.maxSize) {
-                        width = width * (config.maxSize / height);
-                        height = config.maxSize;
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    // Draw and compress
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Determine output format based on input file type
+                    // Keep PNG for transparency, WebP for modern format, otherwise use JPEG
+                    let outputFormat = 'image/jpeg';
+                    let quality = config.quality;
+                    
+                    const fileType = file.type.toLowerCase();
+                    if (fileType === 'image/png' || fileType.includes('png')) {
+                        outputFormat = 'image/png';
+                        quality = 1; // PNG doesn't use quality param the same way
+                    } else if (fileType === 'image/webp' || fileType.includes('webp')) {
+                        outputFormat = 'image/webp';
                     }
+                    
+                    const base64 = canvas.toDataURL(outputFormat, quality);
+                    resolve(base64);
+                } catch (error) {
+                    reject(new Error('Erro ao processar imagem: ' + error.message));
                 }
-
-                canvas.width = width;
-                canvas.height = height;
-
-                // Draw and compress
-                ctx.drawImage(img, 0, 0, width, height);
-                const base64 = canvas.toDataURL('image/jpeg', config.quality);
-                resolve(base64);
             };
 
-            img.onerror = () => reject(new Error('Erro ao processar imagem'));
+            img.onerror = () => reject(new Error('Erro ao carregar imagem. Verifique se o arquivo é uma imagem válida.'));
             img.src = e.target.result;
         };
 
