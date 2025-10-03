@@ -77,7 +77,59 @@ The project utilizes a modern web stack consisting of HTML5, CSS3, and ES6 JavaS
 ✅ Python 3.11.13 installed and operational
 ✅ All pages loading correctly with proper asset delivery
 
+## Problemas Conhecidos e Limitações
+
+### ⚠️ Índice Firestore para Sistema de Conquistas
+**Status:** Requer configuração manual no Firebase Console
+**Impacto:** Conquistas baseadas em quizzes perfeitos podem não desbloquear corretamente
+
+**Descrição do Problema:**
+- A função `calculateUserStats` em `js/achievements-system.js` precisa fazer uma query composta na coleção `quiz-results`
+- Query: `where('userId', '==', userId)` 
+- Firestore requer um índice composto que precisa ser criado manualmente no Firebase Console
+- Quando o índice não existe, a query lança erro "invalid-argument"
+
+**Solução Atual (Fallback):**
+- O sistema usa try-catch e fallback para `userData.quizzesPlayed` quando a query falha
+- Isso permite que o sistema continue funcionando, mas `perfectQuizzes` fica sempre em 0
+- Conquistas que dependem de quizzes perfeitos não podem ser desbloqueadas até o índice ser criado
+
+**Solução Definitiva (Requer Firebase Console):**
+1. Acesse Firebase Console > Firestore > Índices
+2. Crie índice composto para coleção `quiz-results`:
+   - Campo: `userId` (Ascending)
+   - Ativar consultas
+
+**Arquivos Afetados:**
+- `js/achievements-system.js` - Linhas 249-268 (query com fallback)
+- `js/dashboard.js` - Linhas 283-314 (chamada do sistema de conquistas)
+
 ## Atualizações Recentes (Outubro 2025)
+
+### 0. Correções do Sistema de Conquistas e Null Safety ✅
+**Data:** 03/10/2025
+**Arquivos:** `js/dashboard.js`, `js/achievements-system.js`
+
+**Problemas Corrigidos:**
+1. **Renderização de Conquistas:** Conquistas eram exibidas como strings ao invés de objetos
+   - Corrigido para renderizar `achievement.icon`, `achievement.name` e `achievement.description`
+   - Adicionados fallbacks: icon padrão '🏆', name usa achievement.id se ausente
+   
+2. **Null Pointer no Dashboard:** Erro quando `userProfile` era null
+   - Adicionado optional chaining: `userProfile?.name || user?.displayName || ...`
+   - Previne crashes quando perfil não carrega
+   
+3. **Validação de userId:** Sistema de conquistas poderia receber userId inválido
+   - Adicionada validação: verifica se userId é string não-vazia
+   - Retorna null imediatamente se inválido
+
+4. **Tratamento de Erro Firestore:** Query de quiz-results pode falhar por falta de índice
+   - Adicionado try-catch na query
+   - Fallback para `userData.quizzesPlayed` quando query falha
+   - Logs detalhados para debug
+
+**Limitação Conhecida:**
+- Ver seção "Problemas Conhecidos" sobre índice Firestore necessário para conquistas de quizzes perfeitos
 
 ### 1. Correção Crítica do Firebase ✅
 **Data:** 03/10/2025

@@ -229,6 +229,12 @@ export async function checkAndUnlockAchievements(userId, userStats) {
  */
 export async function calculateUserStats(userId) {
     try {
+        // Validar userId
+        if (!userId || typeof userId !== 'string') {
+            console.error('❌ userId inválido:', userId);
+            return null;
+        }
+
         const userRef = window.firebaseDB.doc(window.firebaseDB.db, 'users', userId);
         const userSnap = await window.firebaseDB.getDoc(userRef);
         
@@ -236,20 +242,27 @@ export async function calculateUserStats(userId) {
 
         const userData = userSnap.data();
 
-        // Contar quizzes
-        const quizResultsQuery = window.firebaseDB.query(
-            window.firebaseDB.collection(window.firebaseDB.db, 'quiz-results'),
-            window.firebaseDB.where('userId', '==', userId)
-        );
-        const quizResults = await window.firebaseDB.getDocs(quizResultsQuery);
-        
+        // Contar quizzes com try-catch para evitar erro de índice
         let quizzes = 0;
         let perfectQuizzes = 0;
-        quizResults.forEach(doc => {
-            quizzes++;
-            const data = doc.data();
-            if (data.score === 100) perfectQuizzes++;
-        });
+        
+        try {
+            const quizResultsQuery = window.firebaseDB.query(
+                window.firebaseDB.collection(window.firebaseDB.db, 'quiz-results'),
+                window.firebaseDB.where('userId', '==', userId)
+            );
+            const quizResults = await window.firebaseDB.getDocs(quizResultsQuery);
+            
+            quizResults.forEach(doc => {
+                quizzes++;
+                const data = doc.data();
+                if (data.score === 100) perfectQuizzes++;
+            });
+        } catch (queryError) {
+            console.warn('⚠️ Erro ao consultar quiz-results:', queryError.message);
+            // Usar dados do perfil como fallback
+            quizzes = userData.quizzesPlayed || 0;
+        }
 
         // Contar artigos lidos (views)
         const articlesRead = userData.articlesRead || 0;

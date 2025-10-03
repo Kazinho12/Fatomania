@@ -279,15 +279,25 @@ async function checkAuthState() {
 // Verificar e desbloquear conquistas
 async function checkUserAchievements(userId) {
     try {
+        console.log('🔍 Verificando conquistas para userId:', userId);
+        
         // Importar sistema de conquistas
         const { calculateUserStats, checkAndUnlockAchievements, showAchievementPopup } = await import('/js/achievements-system.js');
         
         // Calcular estatísticas
+        console.log('📊 Calculando estatísticas...');
         const stats = await calculateUserStats(userId);
-        if (!stats) return;
+        console.log('📊 Estatísticas calculadas:', stats);
+        
+        if (!stats) {
+            console.warn('⚠️ Nenhuma estatística retornada');
+            return;
+        }
         
         // Verificar conquistas
+        console.log('🏆 Verificando desbloqueio de conquistas...');
         const newAchievements = await checkAndUnlockAchievements(userId, stats);
+        console.log('🏆 Conquistas desbloqueadas:', newAchievements);
         
         // Mostrar popup para cada nova conquista
         for (const achievement of newAchievements) {
@@ -451,7 +461,7 @@ async function loadUserStatistics(userId) {
 // Atualiza UI do usuário
 async function updateUserUI(user) {
     if (elements.userName) {
-        elements.userName.textContent = userProfile.name || user.displayName || user.email.split('@')[0];
+        elements.userName.textContent = userProfile?.name || user?.displayName || user?.email?.split('@')[0] || 'Usuário';
     }
 
     // Atualiza avatar principal
@@ -1164,18 +1174,27 @@ function openProfileModal() {
     // Atualiza conquistas
     const achievementsContainer = document.getElementById('profile-achievements');
     if (achievementsContainer && userProfile.achievements && userProfile.achievements.length > 0) {
-        const achievementsHTML = userProfile.achievements.map(achievement => `
-            <div style="background: rgba(255, 215, 0, 0.1); border: 2px solid gold; border-radius: 10px; padding: 0.75rem 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
-                <i class="fas fa-medal" style="color: gold; font-size: 1.2rem;"></i>
-                <span style="color: var(--texto);">${achievement}</span>
+        const achievementsHTML = userProfile.achievements.map(achievement => {
+            const icon = achievement.icon || '🏆';
+            const name = achievement.name || achievement.id || 'Conquista';
+            const description = achievement.description || '';
+            
+            return `
+            <div style="background: rgba(255, 215, 0, 0.1); border: 2px solid gold; border-radius: 10px; padding: 0.75rem 1.25rem; display: flex; flex-direction: column; gap: 0.25rem;" title="${description}">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 1.5rem;">${icon}</span>
+                    <span style="color: var(--texto); font-weight: 600;">${name}</span>
+                </div>
+                ${description ? `<small style="color: var(--texto-secundario); margin-left: 2rem;">${description}</small>` : ''}
             </div>
-        `).join('');
+        `}).join('');
         achievementsContainer.innerHTML = achievementsHTML;
     } else if (achievementsContainer) {
         achievementsContainer.innerHTML = `
-            <div style="background: rgba(255, 215, 0, 0.1); border: 2px solid gold; border-radius: 10px; padding: 0.75rem 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
-                <i class="fas fa-star" style="color: gold; font-size: 1.2rem;"></i>
-                <span style="color: var(--texto);">Primeiro Login</span>
+            <div style="color: var(--texto-secundario); text-align: center; padding: 1rem;">
+                <i class="fas fa-trophy" style="font-size: 2rem; opacity: 0.3; margin-bottom: 0.5rem;"></i>
+                <p>Nenhuma conquista desbloqueada ainda</p>
+                <p style="font-size: 0.9rem; margin-top: 0.5rem;">Complete quizzes e interaja com o site para ganhar conquistas!</p>
             </div>
         `;
     }
