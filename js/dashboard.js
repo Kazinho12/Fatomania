@@ -1492,6 +1492,9 @@ function getCollectionNameFromSection(sectionId) {
 function showDetailModal(item) {
     if (!elements.detailModal || !item) return;
 
+    // Armazena o artigo atual para uso nas funções de like/share
+    currentModalArticle = item;
+
     if (elements.modalTitle) elements.modalTitle.textContent = item.title;
     if (elements.modalTag) {
         elements.modalTag.textContent = item.tag;
@@ -1940,21 +1943,34 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
+// Variável global para rastrear o artigo atual no modal
+let currentModalArticle = null;
+
 // Funções auxiliares para modal
-function likeContent() {
-    console.log('Conteúdo curtido!');
-    // Implementar lógica de curtir
+async function likeContent() {
+    if (!currentModalArticle) {
+        showNotification('Nenhum artigo selecionado', 'error');
+        return;
+    }
+    
+    await toggleLike(currentModalArticle.id);
 }
 
 function shareContent() {
+    if (!currentModalArticle) {
+        showNotification('Nenhum artigo selecionado', 'error');
+        return;
+    }
+    
     if (navigator.share) {
         navigator.share({
-            title: 'FATOMANIA',
-            text: 'Confira este conteúdo incrível!',
+            title: currentModalArticle.title || 'FATOMANIA',
+            text: currentModalArticle.description || 'Confira este conteúdo incrível!',
             url: window.location.href
         });
     } else {
-        navigator.clipboard.writeText(window.location.href);
+        const shareText = `${currentModalArticle.title}\n\n${window.location.href}`;
+        navigator.clipboard.writeText(shareText);
         showNotification('Link copiado para a área de transferência!', 'success');
     }
 }
