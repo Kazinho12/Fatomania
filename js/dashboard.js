@@ -1633,18 +1633,20 @@ function renderComments(comments) {
         let dateStr = 'Agora';
         try {
             if (comment.createdAt) {
+                let commentDate;
+                
                 if (comment.createdAt.seconds) {
                     // Firestore Timestamp
-                    dateStr = new Date(comment.createdAt.seconds * 1000).toLocaleDateString('pt-BR', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    });
+                    commentDate = new Date(comment.createdAt.seconds * 1000);
                 } else if (typeof comment.createdAt === 'string') {
                     // ISO String
-                    dateStr = new Date(comment.createdAt).toLocaleDateString('pt-BR', {
+                    commentDate = new Date(comment.createdAt);
+                } else if (comment.createdAt instanceof Date) {
+                    commentDate = comment.createdAt;
+                }
+                
+                if (commentDate && !isNaN(commentDate.getTime())) {
+                    dateStr = commentDate.toLocaleDateString('pt-BR', {
                         day: '2-digit',
                         month: '2-digit',
                         year: 'numeric',
@@ -1654,7 +1656,7 @@ function renderComments(comments) {
                 }
             }
         } catch (e) {
-            console.error('Erro ao formatar data:', e);
+            console.warn('Erro ao formatar data do comentário:', e);
             dateStr = 'Agora';
         }
 
@@ -1717,31 +1719,38 @@ async function addComment(articleId) {
         // Determina a coleção correta
         const collectionName = newsData[newsIndex].collection || 'dynamic-news';
         
-        // Cria o objeto de comentário
+        // Cria o objeto de comentário com data atual (não serverTimestamp)
+        const currentDate = new Date();
         const newComment = {
             id: Date.now().toString(),
             userId: currentUser.uid,
             userName: userProfile.name || currentUser.displayName || currentUser.email.split('@')[0],
             userAvatar: userProfile.photoURL || currentUser.photoURL || null,
             text: content,
-            createdAt: serverTimestamp(),
+            createdAt: currentDate.toISOString(),
             likes: 0
         };
 
         // Salva no Firebase
         const articleRef = doc(db, collectionName, articleId);
+        const articleSnap = await getDoc(articleRef);
+        
+        if (!articleSnap.exists()) {
+            showNotification('Artigo não encontrado na base de dados', 'error');
+            return;
+        }
+
+        // Pega comentários existentes e adiciona o novo
+        const existingComments = articleSnap.data().comments || [];
+        const updatedComments = [...existingComments, newComment];
+
         await updateDoc(articleRef, {
-            comments: arrayUnion(newComment)
+            comments: updatedComments
         });
 
-        // Atualiza dados locais com timestamp convertido para exibição
-        const displayComment = {
-            ...newComment,
-            createdAt: new Date().toISOString()
-        };
-
+        // Atualiza dados locais
         if (!newsData[newsIndex].comments) newsData[newsIndex].comments = [];
-        newsData[newsIndex].comments.push(displayComment);
+        newsData[newsIndex].comments.push(newComment);
 
         // Limpa input
         commentInput.value = '';
@@ -1760,8 +1769,25 @@ async function addComment(articleId) {
 
         showNotification('Comentário adicionado!', 'success');
 
+        // Incrementar contador de comentários e verificar conquistas
+        try {
+            const { incrementActivityCounter, calculateUserStats, checkAndUnlockAchievements, showAchievementPopup } = await import('/js/achievements-system.js');
+            await incrementActivityCounter(currentUser.uid, 'comment');
+            
+            const stats = await calculateUserStats(currentUser.uid);
+            if (stats) {
+                const newAchievements = await checkAndUnlockAchievements(currentUser.uid, stats);
+                for (const achievement of newAchievements) {
+                    setTimeout(() => showAchievementPopup(achievement), 500);
+                }
+            }
+        } catch (achievementError) {
+            console.warn('Erro ao verificar conquistas:', achievementError);
+        }
+
     } catch (error) {
-        console.error('Erro ao adicionar comentário:', error);
+        console.error('Erro detalhado ao adicionar comentário:', error);
+        console.error('Stack trace:', error.stack);
         showNotification('Erro ao adicionar comentário. Tente novamente.', 'error');
     }
 }
