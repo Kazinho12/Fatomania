@@ -129,14 +129,35 @@ export async function uploadToImgbb(file, progressCallback = null, type = 'gener
  */
 function fileToBase64(file, type = 'general') {
     return new Promise((resolve, reject) => {
+        if (!file) {
+            reject(new Error('Arquivo não fornecido'));
+            return;
+        }
+
+        if (!file.type || !file.type.startsWith('image/')) {
+            reject(new Error('O arquivo deve ser uma imagem válida'));
+            return;
+        }
+
         const reader = new FileReader();
         
         reader.onload = function(e) {
+            if (!e.target || !e.target.result) {
+                reject(new Error('Falha ao ler o conteúdo do arquivo'));
+                return;
+            }
+
             const img = new Image();
+            
             img.onload = function() {
                 try {
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
+
+                    if (!ctx) {
+                        reject(new Error('Não foi possível criar contexto do canvas'));
+                        return;
+                    }
 
                     // Different compression settings based on type
                     const settings = {
@@ -170,31 +191,50 @@ function fileToBase64(file, type = 'general') {
                     ctx.drawImage(img, 0, 0, width, height);
                     
                     // Determine output format based on input file type
-                    // Keep PNG for transparency, WebP for modern format, otherwise use JPEG
                     let outputFormat = 'image/jpeg';
                     let quality = config.quality;
                     
                     const fileType = file.type.toLowerCase();
                     if (fileType === 'image/png' || fileType.includes('png')) {
                         outputFormat = 'image/png';
-                        quality = 1; // PNG doesn't use quality param the same way
+                        quality = 1;
                     } else if (fileType === 'image/webp' || fileType.includes('webp')) {
                         outputFormat = 'image/webp';
                     }
                     
                     const base64 = canvas.toDataURL(outputFormat, quality);
+                    
+                    if (!base64 || base64 === 'data:,') {
+                        reject(new Error('Falha ao converter imagem para base64'));
+                        return;
+                    }
+                    
                     resolve(base64);
                 } catch (error) {
+                    console.error('Erro no processamento da imagem:', error);
                     reject(new Error('Erro ao processar imagem: ' + error.message));
                 }
             };
 
-            img.onerror = () => reject(new Error('Erro ao carregar imagem. Verifique se o arquivo é uma imagem válida.'));
+            img.onerror = (error) => {
+                console.error('Erro ao carregar imagem:', error);
+                reject(new Error('Erro ao carregar imagem. Verifique se o arquivo é uma imagem válida.'));
+            };
+            
             img.src = e.target.result;
         };
 
-        reader.onerror = () => reject(new Error('Erro ao ler arquivo'));
-        reader.readAsDataURL(file);
+        reader.onerror = (error) => {
+            console.error('Erro no FileReader:', error);
+            reject(new Error('Erro ao ler arquivo. Tente novamente.'));
+        };
+
+        try {
+            reader.readAsDataURL(file);
+        } catch (error) {
+            console.error('Erro ao iniciar leitura do arquivo:', error);
+            reject(new Error('Não foi possível iniciar a leitura do arquivo'));
+        }
     });
 }
 

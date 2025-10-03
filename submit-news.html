@@ -421,13 +421,18 @@
 
         function handleImageSelect(event) {
             const file = event.target.files[0];
-            const fileInputLabel = event.target.nextElementSibling; // The label element
+            const fileInputLabel = event.target.nextElementSibling;
 
             if (file) {
-                console.log('Arquivo selecionado:', file.name, file.size, file.type);
+                console.log('📸 Arquivo selecionado:', {
+                    name: file.name,
+                    size: file.size,
+                    type: file.type,
+                    lastModified: file.lastModified
+                });
                 
                 // Validar tipo de arquivo
-                if (!file.type.match('image.*')) {
+                if (!file.type || !file.type.match('image.*')) {
                     showMessage('Por favor, selecione um arquivo de imagem válido (JPG, PNG, GIF, WebP).', 'error');
                     event.target.value = '';
                     document.getElementById('imagePreview').style.display = 'none';
@@ -440,8 +445,21 @@
                 }
                 
                 // Check file size before showing preview
-                if (file.size > 32 * 1024 * 1024) { // 32MB limit for imgbb
+                if (file.size > 32 * 1024 * 1024) {
                     showMessage('A imagem deve ter no máximo 32MB.', 'error');
+                    event.target.value = '';
+                    document.getElementById('imagePreview').style.display = 'none';
+                    fileInputLabel.innerHTML = `
+                        <i class="fas fa-cloud-upload-alt"></i><br>
+                        Clique para selecionar uma imagem<br>
+                        <small>JPG, PNG ou GIF (máx. 32MB)</small>
+                    `;
+                    return;
+                }
+
+                // Verificar se o arquivo é válido
+                if (!file.size || file.size === 0) {
+                    showMessage('Arquivo vazio ou inválido. Por favor, selecione outro arquivo.', 'error');
                     event.target.value = '';
                     document.getElementById('imagePreview').style.display = 'none';
                     fileInputLabel.innerHTML = `
@@ -460,10 +478,14 @@
                 `;
 
                 // Show preview
-                showImagePreview(file, 'imagePreview');
-                showMessage('Imagem carregada com sucesso! Pronta para envio.', 'success');
+                try {
+                    showImagePreview(file, 'imagePreview');
+                    showMessage('Imagem carregada com sucesso! Pronta para envio.', 'success');
+                } catch (previewError) {
+                    console.error('Erro ao mostrar preview:', previewError);
+                    showMessage('Arquivo selecionado, mas não foi possível mostrar preview.', 'warning');
+                }
             } else {
-                // If no file is selected, reset the label and hide the preview
                 fileInputLabel.innerHTML = `
                     <i class="fas fa-cloud-upload-alt"></i><br>
                     Clique para selecionar uma imagem<br>
@@ -526,35 +548,62 @@
                 updateProgress(50, 'Processando conteúdo...');
 
                 // Handle image upload if provided - now using imgbb with proper validation
-                const imageFile = document.getElementById('image').files[0];
+                const imageInput = document.getElementById('image');
+                const imageFile = imageInput ? imageInput.files[0] : null;
+                
                 if (imageFile) {
-                    console.log('Iniciando upload da imagem:', imageFile.name, imageFile.size, 'bytes');
+                    console.log('📤 Iniciando upload da imagem:', {
+                        name: imageFile.name,
+                        size: imageFile.size,
+                        type: imageFile.type
+                    });
                     
-                    // Validar tipo de arquivo
-                    if (!imageFile.type.match('image.*')) {
+                    // Validações completas
+                    if (!imageFile.type || !imageFile.type.match('image.*')) {
                         throw new Error('Por favor, selecione um arquivo de imagem válido (JPG, PNG, GIF, WebP)');
                     }
                     
-                    // Validar tamanho (máximo 32MB para imgbb)
+                    if (!imageFile.size || imageFile.size === 0) {
+                        throw new Error('Arquivo vazio ou inválido');
+                    }
+                    
                     if (imageFile.size > 32 * 1024 * 1024) {
                         throw new Error('A imagem deve ter menos de 32MB');
                     }
 
-                    updateProgress(60, 'Enviando imagem para imgbb...');
+                    updateProgress(60, 'Preparando imagem...');
+                    
                     try {
+                        updateProgress(65, 'Enviando imagem para imgbb...');
                         formData.imageUrl = await uploadToImgbb(imageFile, (progress) => {
-                            updateProgress(60 + (progress * 0.2), `Enviando imagem... ${Math.round(progress)}%`);
+                            const progressPercent = 65 + (progress * 0.2);
+                            updateProgress(progressPercent, `Enviando imagem... ${Math.round(progress)}%`);
                         }, 'news');
-                        console.log('Imagem enviada com sucesso:', formData.imageUrl);
+                        
+                        console.log('✅ Imagem enviada com sucesso:', formData.imageUrl);
                         showMessage('Imagem enviada com sucesso!', 'success');
-                    } catch (error) {
-                        console.error('Erro detalhado ao enviar imagem:', error);
-                        showMessage('Erro ao enviar imagem: ' + error.message, 'error');
-                        throw new Error('Falha no upload da imagem: ' + error.message);
+                    } catch (uploadError) {
+                        console.error('❌ Erro detalhado ao enviar imagem:', {
+                            error: uploadError,
+                            message: uploadError.message,
+                            stack: uploadError.stack
+                        });
+                        
+                        // Mensagem de erro mais específica
+                        let errorMsg = 'Erro ao enviar imagem';
+                        if (uploadError.message.includes('ler arquivo')) {
+                            errorMsg = 'Erro ao processar o arquivo. Tente selecionar a imagem novamente.';
+                        } else if (uploadError.message.includes('network') || uploadError.message.includes('Failed to fetch')) {
+                            errorMsg = 'Erro de conexão. Verifique sua internet e tente novamente.';
+                        } else {
+                            errorMsg = uploadError.message || 'Erro desconhecido ao enviar imagem';
+                        }
+                        
+                        showMessage(errorMsg, 'error');
+                        throw new Error(errorMsg);
                     }
                 } else {
-                    // Se não houver imagem, usa uma imagem padrão
-                    console.log('Nenhuma imagem selecionada, usando imagem padrão');
+                    console.log('ℹ️ Nenhuma imagem selecionada, usando imagem padrão');
                     formData.imageUrl = '/icon/fatomania.png';
                 }
 
