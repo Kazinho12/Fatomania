@@ -129,19 +129,42 @@ export async function uploadToImgbb(file, progressCallback = null, type = 'gener
  */
 function fileToBase64(file, type = 'general') {
     return new Promise((resolve, reject) => {
+        // Validações iniciais mais robustas
         if (!file) {
             reject(new Error('Arquivo não fornecido'));
             return;
         }
 
-        if (!file.type || !file.type.startsWith('image/')) {
-            reject(new Error('O arquivo deve ser uma imagem válida'));
+        // Verificar se é realmente um File ou Blob
+        if (!(file instanceof File) && !(file instanceof Blob)) {
+            reject(new Error('O objeto fornecido não é um arquivo válido'));
             return;
         }
+
+        // Verificar tipo de arquivo
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (!file.type || !validTypes.some(type => file.type.toLowerCase().includes(type.split('/')[1]))) {
+            reject(new Error('O arquivo deve ser uma imagem válida (JPG, PNG, GIF, WebP)'));
+            return;
+        }
+
+        // Verificar tamanho
+        if (file.size === 0) {
+            reject(new Error('O arquivo está vazio'));
+            return;
+        }
+
+        console.log('📁 Iniciando conversão para base64:', {
+            name: file.name,
+            type: file.type,
+            size: file.size
+        });
 
         const reader = new FileReader();
         
         reader.onload = function(e) {
+            console.log('✅ FileReader carregou o arquivo');
+            
             if (!e.target || !e.target.result) {
                 reject(new Error('Falha ao ler o conteúdo do arquivo'));
                 return;
@@ -150,6 +173,8 @@ function fileToBase64(file, type = 'general') {
             const img = new Image();
             
             img.onload = function() {
+                console.log('✅ Imagem carregada no elemento Image');
+                
                 try {
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
@@ -171,6 +196,8 @@ function fileToBase64(file, type = 'general') {
                     const config = settings[type] || settings.general;
                     let { width, height } = img;
 
+                    console.log('📐 Dimensões originais:', { width, height });
+
                     // Resize maintaining aspect ratio
                     if (width > height) {
                         if (width > config.maxSize) {
@@ -183,6 +210,8 @@ function fileToBase64(file, type = 'general') {
                             height = config.maxSize;
                         }
                     }
+
+                    console.log('📐 Dimensões redimensionadas:', { width, height });
 
                     canvas.width = width;
                     canvas.height = height;
@@ -202,6 +231,8 @@ function fileToBase64(file, type = 'general') {
                         outputFormat = 'image/webp';
                     }
                     
+                    console.log('🎨 Convertendo para:', outputFormat, 'qualidade:', quality);
+                    
                     const base64 = canvas.toDataURL(outputFormat, quality);
                     
                     if (!base64 || base64 === 'data:,') {
@@ -209,31 +240,49 @@ function fileToBase64(file, type = 'general') {
                         return;
                     }
                     
+                    console.log('✅ Conversão para base64 concluída');
                     resolve(base64);
                 } catch (error) {
-                    console.error('Erro no processamento da imagem:', error);
+                    console.error('❌ Erro no processamento da imagem:', error);
                     reject(new Error('Erro ao processar imagem: ' + error.message));
                 }
             };
 
             img.onerror = (error) => {
-                console.error('Erro ao carregar imagem:', error);
-                reject(new Error('Erro ao carregar imagem. Verifique se o arquivo é uma imagem válida.'));
+                console.error('❌ Erro ao carregar imagem no elemento Image:', error);
+                reject(new Error('Erro ao carregar imagem. Verifique se o arquivo é uma imagem válida e não está corrompida.'));
             };
             
-            img.src = e.target.result;
+            // Set image source
+            try {
+                img.src = e.target.result;
+            } catch (error) {
+                console.error('❌ Erro ao definir src da imagem:', error);
+                reject(new Error('Erro ao processar dados da imagem'));
+            }
         };
 
         reader.onerror = (error) => {
-            console.error('Erro no FileReader:', error);
-            reject(new Error('Erro ao ler arquivo. Tente novamente.'));
+            console.error('❌ Erro no FileReader:', error);
+            console.error('❌ Detalhes do erro:', {
+                error: error,
+                target: error.target,
+                readyState: reader.readyState
+            });
+            reject(new Error('Erro ao ler arquivo. O arquivo pode estar corrompido ou inacessível.'));
+        };
+
+        reader.onabort = () => {
+            console.error('❌ Leitura do arquivo foi abortada');
+            reject(new Error('Leitura do arquivo foi cancelada'));
         };
 
         try {
+            console.log('🔄 Iniciando leitura do arquivo...');
             reader.readAsDataURL(file);
         } catch (error) {
-            console.error('Erro ao iniciar leitura do arquivo:', error);
-            reject(new Error('Não foi possível iniciar a leitura do arquivo'));
+            console.error('❌ Erro ao iniciar leitura do arquivo:', error);
+            reject(new Error('Não foi possível iniciar a leitura do arquivo: ' + error.message));
         }
     });
 }
