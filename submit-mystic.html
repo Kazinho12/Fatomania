@@ -428,10 +428,35 @@
             const fileName = document.getElementById('fileName');
             
             if (file) {
+                console.log('📁 Arquivo selecionado:', {
+                    name: file.name,
+                    size: file.size,
+                    type: file.type,
+                    lastModified: new Date(file.lastModified)
+                });
+                
+                // Validações
+                if (!file.type.match('image.*')) {
+                    showMessage('Por favor, selecione apenas arquivos de imagem (JPG, PNG, GIF)', 'error');
+                    event.target.value = '';
+                    preview.style.display = 'none';
+                    label.innerHTML = '<i class="fas fa-cloud-upload-alt"></i><br>Clique para selecionar uma imagem<br><small>JPG, PNG ou GIF (máx. 5MB)</small>';
+                    return;
+                }
+                
                 if (file.size > 5 * 1024 * 1024) { // 5MB limit
                     showMessage('A imagem deve ter no máximo 5MB.', 'error');
                     event.target.value = '';
                     preview.style.display = 'none';
+                    label.innerHTML = '<i class="fas fa-cloud-upload-alt"></i><br>Clique para selecionar uma imagem<br><small>JPG, PNG ou GIF (máx. 5MB)</small>';
+                    return;
+                }
+                
+                if (file.size === 0) {
+                    showMessage('Arquivo vazio ou inválido. Selecione outro arquivo.', 'error');
+                    event.target.value = '';
+                    preview.style.display = 'none';
+                    label.innerHTML = '<i class="fas fa-cloud-upload-alt"></i><br>Clique para selecionar uma imagem<br><small>JPG, PNG ou GIF (máx. 5MB)</small>';
                     return;
                 }
                 
@@ -439,12 +464,29 @@
                 
                 // Show preview
                 const reader = new FileReader();
+                
                 reader.onload = function(e) {
+                    console.log('✅ Preview carregado com sucesso');
                     previewImg.src = e.target.result;
                     fileName.textContent = file.name;
                     preview.style.display = 'block';
                 };
-                reader.readAsDataURL(file);
+                
+                reader.onerror = function(error) {
+                    console.error('❌ Erro ao carregar preview:', error);
+                    showMessage('Erro ao carregar preview da imagem', 'error');
+                    event.target.value = '';
+                    preview.style.display = 'none';
+                };
+                
+                try {
+                    reader.readAsDataURL(file);
+                } catch (error) {
+                    console.error('❌ Erro ao tentar ler arquivo:', error);
+                    showMessage('Erro ao processar arquivo. Tente outro arquivo.', 'error');
+                    event.target.value = '';
+                    preview.style.display = 'none';
+                }
             } else {
                 preview.style.display = 'none';
             }
@@ -490,6 +532,22 @@
                         size: imageFile.size
                     });
                     
+                    // Validações antes do upload
+                    if (!imageFile.type.match('image.*')) {
+                        showMessage('Apenas arquivos de imagem são permitidos', 'error');
+                        throw new Error('Tipo de arquivo inválido');
+                    }
+                    
+                    if (imageFile.size > 5 * 1024 * 1024) {
+                        showMessage('A imagem deve ter no máximo 5MB', 'error');
+                        throw new Error('Arquivo muito grande');
+                    }
+                    
+                    if (imageFile.size === 0) {
+                        showMessage('Arquivo vazio. Selecione outro arquivo.', 'error');
+                        throw new Error('Arquivo vazio');
+                    }
+                    
                     try {
                         formData.imageUrl = await uploadToImgbb(imageFile, null, 'article');
                         console.log('✅ URL da imagem recebida:', formData.imageUrl);
@@ -498,9 +556,16 @@
                         console.error('❌ Erro completo ao enviar imagem:', {
                             message: error.message,
                             stack: error.stack,
-                            error: error
+                            error: error,
+                            name: error.name
                         });
-                        showMessage('Erro ao enviar imagem: ' + error.message, 'error');
+                        
+                        let errorMsg = 'Erro ao enviar imagem';
+                        if (error.message) {
+                            errorMsg = error.message;
+                        }
+                        
+                        showMessage('Erro: ' + errorMsg + '. Tente selecionar a imagem novamente.', 'error');
                         throw error;
                     }
                 } else {

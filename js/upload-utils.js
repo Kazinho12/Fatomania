@@ -267,9 +267,16 @@ function fileToBase64(file, type = 'general') {
             console.error('❌ Detalhes do erro:', {
                 error: error,
                 target: error.target,
-                readyState: reader.readyState
+                readyState: reader.readyState,
+                errorCode: reader.error?.code,
+                errorMessage: reader.error?.message
             });
-            reject(new Error('Erro ao ler arquivo. O arquivo pode estar corrompido ou inacessível.'));
+            
+            let errorMsg = 'Erro ao ler arquivo';
+            if (reader.error) {
+                errorMsg = `Erro ao ler arquivo: ${reader.error.message || reader.error.name}`;
+            }
+            reject(new Error(errorMsg));
         };
 
         reader.onabort = () => {
@@ -277,9 +284,35 @@ function fileToBase64(file, type = 'general') {
             reject(new Error('Leitura do arquivo foi cancelada'));
         };
 
+        reader.onloadstart = () => {
+            console.log('📖 FileReader iniciou a leitura');
+        };
+
+        reader.onprogress = (e) => {
+            if (e.lengthComputable) {
+                const percentLoaded = Math.round((e.loaded / e.total) * 100);
+                console.log(`📊 Leitura do arquivo: ${percentLoaded}%`);
+            }
+        };
+
         try {
             console.log('🔄 Iniciando leitura do arquivo...');
+            console.log('📋 Detalhes do arquivo:', {
+                name: file.name,
+                size: file.size,
+                type: file.type,
+                lastModified: file.lastModified
+            });
+            
+            // Verificar se o navegador suporta FileReader
+            if (!window.FileReader) {
+                throw new Error('Seu navegador não suporta leitura de arquivos');
+            }
+            
+            // Tentar ler o arquivo
             reader.readAsDataURL(file);
+            
+            console.log('✅ FileReader.readAsDataURL() chamado com sucesso');
         } catch (error) {
             console.error('❌ Erro ao iniciar leitura do arquivo:', error);
             reject(new Error('Não foi possível iniciar a leitura do arquivo: ' + error.message));
