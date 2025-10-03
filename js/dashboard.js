@@ -1549,9 +1549,12 @@ function showDetailModal(item) {
     const shareBtn = document.getElementById('shareBtn');
 
     if (likeBtn && likeCount) {
-        likeCount.textContent = item.likes || 0;
         const isLiked = item.likedBy?.includes(currentUser?.uid);
+        likeCount.textContent = item.likes || 0;
         likeBtn.style.color = isLiked ? '#ff6b6b' : 'var(--texto)';
+        likeBtn.style.background = isLiked 
+            ? 'linear-gradient(45deg, #ff006e, #ff3d00)'
+            : 'rgba(255, 255, 255, 0.1)';
 
         // Apenas permite curtir se for um artigo ou se o submit permitir curtidas
         if (item.allowLikes !== false) {
@@ -1564,7 +1567,7 @@ function showDetailModal(item) {
     }
 
     if (shareBtn) {
-        shareBtn.onclick = () => shareArticle(item);
+        shareBtn.onclick = () => window.shareArticle(item.title, window.location.href);
         shareBtn.style.display = 'inline-block';
     }
 
@@ -1668,50 +1671,34 @@ async function addComment(articleId) {
     }
 
     try {
-        const newComment = {
-            content: content,
-            authorId: currentUser.uid,
-            authorName: userProfile.name || currentUser.displayName || 'Usuário',
-            createdAt: new Date().toISOString(),
-            timestamp: Date.now()
-        };
+        // Usa a função do interactions-master
+        const collectionName = 'dynamic-news';
+        const result = await window.addComment(collectionName, articleId, content);
+        
+        if (result) {
+            // Atualiza dados locais
+            const newsIndex = newsData.findIndex(n => n.id === articleId);
+            if (newsIndex !== -1) {
+                if (!newsData[newsIndex].comments) newsData[newsIndex].comments = [];
+                newsData[newsIndex].comments.push(result);
+            }
 
-        // Primeiro tenta atualizar na base de dados
-        try {
-            const articleRef = doc(db, "news-articles", articleId);
-            await updateDoc(articleRef, {
-                comments: arrayUnion(newComment)
-            });
-        } catch (dbError) {
-            console.warn('Erro na base de dados, salvando localmente:', dbError);
-            // Se falhar, salva apenas localmente
+            // Limpa input
+            commentInput.value = '';
+
+            // Re-renderiza comentários
+            const commentsList = document.getElementById('commentsList');
+            if (commentsList) {
+                const article = newsData.find(n => n.id === articleId);
+                commentsList.innerHTML = renderComments(article?.comments || []);
+            }
+
+            // Atualiza a contagem de comentários
+            const commentsSection = document.querySelector('.comments-section h4');
+            if (commentsSection && newsData[newsIndex]) {
+                commentsSection.innerHTML = `<i class="fas fa-comments"></i> Comentários (${newsData[newsIndex].comments.length})`;
+            }
         }
-
-        // Atualiza dados locais sempre
-        const newsIndex = newsData.findIndex(n => n.id === articleId);
-        if (newsIndex !== -1) {
-            if (!newsData[newsIndex].comments) newsData[newsIndex].comments = [];
-            newsData[newsIndex].comments.push(newComment);
-        }
-
-        // Atualiza o contador de comentários no modal
-        // Limpa input e atualiza UI
-        commentInput.value = '';
-
-        // Re-renderiza comentários
-        const commentsList = document.getElementById('commentsList');
-        if (commentsList) {
-            const article = newsData.find(n => n.id === articleId);
-            commentsList.innerHTML = renderComments(article?.comments || []);
-        }
-
-        // Atualiza a contagem de comentários
-        const commentsSection = document.querySelector('.comments-section h4');
-        if (commentsSection && newsData[newsIndex]) {
-            commentsSection.innerHTML = `<i class="fas fa-comments"></i> Comentários (${newsData[newsIndex].comments.length})`;
-        }
-
-        showNotification('Comentário adicionado!', 'success');
 
     } catch (error) {
         console.error('Erro ao adicionar comentário:', error);
@@ -1733,45 +1720,34 @@ async function toggleLike(articleId) {
         return;
     }
 
-    const article = newsData[newsIndex];
-    const likedBy = article.likedBy || [];
-    const isLiked = likedBy.includes(currentUser.uid);
-
-    let newLikedBy, newLikes;
-
-    if (isLiked) {
-        newLikedBy = likedBy.filter(uid => uid !== currentUser.uid);
-        newLikes = Math.max(0, (article.likes || 0) - 1);
-    } else {
-        newLikedBy = [...likedBy, currentUser.uid];
-        newLikes = (article.likes || 0) + 1;
-    }
-
-    // Atualiza UI imediatamente
-    const likeBtn = document.getElementById('likeBtn');
-    const likeCount = document.getElementById('likeCount');
-
-    if (likeCount) likeCount.textContent = newLikes;
-    if (likeBtn) likeBtn.style.color = !isLiked ? '#ff6b6b' : 'var(--texto)';
-
-    // Atualiza dados locais
-    newsData[newsIndex].likes = newLikes;
-    newsData[newsIndex].likedBy = newLikedBy;
-
     try {
-        // Tenta atualizar na base de dados
-        const articleRef = doc(db, "news-articles", articleId);
-        await updateDoc(articleRef, {
-            likes: newLikes,
-            likedBy: newLikedBy
-        });
+        // Usa a função do interactions-master
+        const collectionName = 'dynamic-news';
+        const result = await window.toggleLike(collectionName, articleId);
+        
+        if (result !== null) {
+            // Atualiza dados locais
+            newsData[newsIndex].likes = result.likes;
+            newsData[newsIndex].likedBy = result.liked 
+                ? [...(newsData[newsIndex].likedBy || []), currentUser.uid]
+                : (newsData[newsIndex].likedBy || []).filter(uid => uid !== currentUser.uid);
 
-        showNotification(isLiked ? 'Curtida removida' : 'Artigo curtido!', 'success');
+            // Atualiza UI
+            const likeBtn = document.getElementById('likeBtn');
+            const likeCount = document.getElementById('likeCount');
+
+            if (likeCount) likeCount.textContent = result.likes;
+            if (likeBtn) {
+                likeBtn.style.color = result.liked ? '#ff6b6b' : 'var(--texto)';
+                likeBtn.style.background = result.liked 
+                    ? 'linear-gradient(45deg, #ff006e, #ff3d00)'
+                    : 'rgba(255, 255, 255, 0.1)';
+            }
+        }
 
     } catch (error) {
-        console.warn('Erro ao atualizar like na base de dados:', error);
-        // Mantém as alterações locais mesmo se a base de dados falhar
-        showNotification(isLiked ? 'Curtida removida (offline)' : 'Artigo curtido (offline)!', 'success');
+        console.error('Erro ao curtir artigo:', error);
+        showNotification('Erro ao curtir artigo. Tente novamente.', 'error');
     }
 }
 
