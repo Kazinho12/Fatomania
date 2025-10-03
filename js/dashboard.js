@@ -1622,38 +1622,71 @@ function addCommentsSection(article) {
 
 // Renderiza lista de comentários
 function renderComments(comments) {
-    if (comments.length === 0) {
+    if (!comments || comments.length === 0) {
         return '<p style="color: var(--texto-secundario); text-align: center; padding: 1rem;">Ainda não há comentários. Seja o primeiro!</p>';
     }
 
-    return comments.map(comment => `
-        <div class="comment-item" style="
-            background: rgba(255,255,255,0.05);
-            border-radius: 10px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border-left: 3px solid var(--azul);
-        ">
-            <div class="comment-header" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                <div class="comment-avatar" style="
-                    width: 30px;
-                    height: 30px;
-                    border-radius: 50%;
-                    background: linear-gradient(45deg, var(--azul), var(--roxo));
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 0.8rem;
-                    color: white;
-                ">${comment.authorName ? comment.authorName.charAt(0).toUpperCase() : 'U'}</div>
-                <strong style="color: var(--azul);">${comment.authorName || 'Usuário'}</strong>
-                <span style="color: var(--texto-secundario); font-size: 0.8rem;">
-                    ${comment.createdAt ? new Date(comment.createdAt.seconds * 1000).toLocaleDateString('pt-BR') : 'Agora'}
-                </span>
+    return comments.map(comment => {
+        let dateStr = 'Agora';
+        try {
+            if (comment.createdAt) {
+                if (comment.createdAt.seconds) {
+                    // Firestore Timestamp
+                    dateStr = new Date(comment.createdAt.seconds * 1000).toLocaleDateString('pt-BR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                } else if (typeof comment.createdAt === 'string') {
+                    // ISO String
+                    dateStr = new Date(comment.createdAt).toLocaleDateString('pt-BR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                }
+            }
+        } catch (e) {
+            console.error('Erro ao formatar data:', e);
+            dateStr = 'Agora';
+        }
+
+        const userName = comment.userName || comment.authorName || 'Usuário';
+        const commentText = comment.text || comment.content || '';
+
+        return `
+            <div class="comment-item" style="
+                background: rgba(255,255,255,0.05);
+                border-radius: 10px;
+                padding: 1rem;
+                margin-bottom: 1rem;
+                border-left: 3px solid var(--azul);
+            ">
+                <div class="comment-header" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                    <div class="comment-avatar" style="
+                        width: 30px;
+                        height: 30px;
+                        border-radius: 50%;
+                        background: linear-gradient(45deg, var(--azul), var(--roxo));
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 0.8rem;
+                        color: white;
+                    ">${userName.charAt(0).toUpperCase()}</div>
+                    <strong style="color: var(--azul);">${userName}</strong>
+                    <span style="color: var(--texto-secundario); font-size: 0.8rem;">
+                        ${dateStr}
+                    </span>
+                </div>
+                <p style="color: var(--texto); line-height: 1.5;">${commentText}</p>
             </div>
-            <p style="color: var(--texto); line-height: 1.5;">${comment.content}</p>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 // Adiciona comentário
@@ -1671,34 +1704,58 @@ async function addComment(articleId) {
     }
 
     try {
-        // Usa a função do interactions-master
-        const collectionName = 'dynamic-news';
-        const result = await window.addComment(collectionName, articleId, content);
-        
-        if (result) {
-            // Atualiza dados locais
-            const newsIndex = newsData.findIndex(n => n.id === articleId);
-            if (newsIndex !== -1) {
-                if (!newsData[newsIndex].comments) newsData[newsIndex].comments = [];
-                newsData[newsIndex].comments.push(result);
-            }
-
-            // Limpa input
-            commentInput.value = '';
-
-            // Re-renderiza comentários
-            const commentsList = document.getElementById('commentsList');
-            if (commentsList) {
-                const article = newsData.find(n => n.id === articleId);
-                commentsList.innerHTML = renderComments(article?.comments || []);
-            }
-
-            // Atualiza a contagem de comentários
-            const commentsSection = document.querySelector('.comments-section h4');
-            if (commentsSection && newsData[newsIndex]) {
-                commentsSection.innerHTML = `<i class="fas fa-comments"></i> Comentários (${newsData[newsIndex].comments.length})`;
-            }
+        // Encontra o artigo
+        const newsIndex = newsData.findIndex(n => n.id === articleId);
+        if (newsIndex === -1) {
+            showNotification('Artigo não encontrado', 'error');
+            return;
         }
+
+        // Determina a coleção correta
+        const collectionName = newsData[newsIndex].collection || 'dynamic-news';
+        
+        // Cria o objeto de comentário
+        const newComment = {
+            id: Date.now().toString(),
+            userId: currentUser.uid,
+            userName: userProfile.name || currentUser.displayName || currentUser.email.split('@')[0],
+            userAvatar: userProfile.photoURL || currentUser.photoURL || null,
+            text: content,
+            createdAt: serverTimestamp(),
+            likes: 0
+        };
+
+        // Salva no Firebase
+        const articleRef = doc(db, collectionName, articleId);
+        await updateDoc(articleRef, {
+            comments: arrayUnion(newComment)
+        });
+
+        // Atualiza dados locais com timestamp convertido para exibição
+        const displayComment = {
+            ...newComment,
+            createdAt: new Date().toISOString()
+        };
+
+        if (!newsData[newsIndex].comments) newsData[newsIndex].comments = [];
+        newsData[newsIndex].comments.push(displayComment);
+
+        // Limpa input
+        commentInput.value = '';
+
+        // Re-renderiza comentários
+        const commentsList = document.getElementById('commentsList');
+        if (commentsList) {
+            commentsList.innerHTML = renderComments(newsData[newsIndex].comments);
+        }
+
+        // Atualiza a contagem de comentários
+        const commentsSection = document.querySelector('.comments-section h4');
+        if (commentsSection) {
+            commentsSection.innerHTML = `<i class="fas fa-comments"></i> Comentários (${newsData[newsIndex].comments.length})`;
+        }
+
+        showNotification('Comentário adicionado!', 'success');
 
     } catch (error) {
         console.error('Erro ao adicionar comentário:', error);
@@ -1721,28 +1778,58 @@ async function toggleLike(articleId) {
     }
 
     try {
-        // Usa a função do interactions-master
-        const collectionName = 'dynamic-news';
-        const result = await window.toggleLike(collectionName, articleId);
+        // Determina a coleção correta baseada no artigo
+        const collectionName = newsData[newsIndex].collection || 'dynamic-news';
         
-        if (result !== null) {
-            // Atualiza dados locais
-            newsData[newsIndex].likes = result.likes;
-            newsData[newsIndex].likedBy = result.liked 
-                ? [...(newsData[newsIndex].likedBy || []), currentUser.uid]
-                : (newsData[newsIndex].likedBy || []).filter(uid => uid !== currentUser.uid);
+        // Referência ao artigo
+        const articleRef = doc(db, collectionName, articleId);
+        const articleSnap = await getDoc(articleRef);
+        
+        if (!articleSnap.exists()) {
+            showNotification('Artigo não encontrado no banco de dados', 'error');
+            return;
+        }
+        
+        const articleData = articleSnap.data();
+        const likedBy = articleData.likedBy || [];
+        const hasLiked = likedBy.includes(currentUser.uid);
+        const currentLikes = articleData.likes || 0;
+        
+        if (hasLiked) {
+            // Remove curtida
+            await updateDoc(articleRef, {
+                likes: Math.max(0, currentLikes - 1),
+                likedBy: arrayRemove(currentUser.uid)
+            });
+            
+            newsData[newsIndex].likes = Math.max(0, currentLikes - 1);
+            newsData[newsIndex].likedBy = likedBy.filter(uid => uid !== currentUser.uid);
+            
+            showNotification('Curtida removida', 'info');
+        } else {
+            // Adiciona curtida
+            await updateDoc(articleRef, {
+                likes: currentLikes + 1,
+                likedBy: arrayUnion(currentUser.uid)
+            });
+            
+            newsData[newsIndex].likes = currentLikes + 1;
+            newsData[newsIndex].likedBy = [...likedBy, currentUser.uid];
+            
+            showNotification('Artigo curtido!', 'success');
+        }
 
-            // Atualiza UI
-            const likeBtn = document.getElementById('likeBtn');
-            const likeCount = document.getElementById('likeCount');
+        // Atualiza UI
+        const likeBtn = document.getElementById('likeBtn');
+        const likeCount = document.getElementById('likeCount');
 
-            if (likeCount) likeCount.textContent = result.likes;
-            if (likeBtn) {
-                likeBtn.style.color = result.liked ? '#ff6b6b' : 'var(--texto)';
-                likeBtn.style.background = result.liked 
-                    ? 'linear-gradient(45deg, #ff006e, #ff3d00)'
-                    : 'rgba(255, 255, 255, 0.1)';
-            }
+        if (likeCount) likeCount.textContent = newsData[newsIndex].likes;
+        if (likeBtn) {
+            const isLiked = newsData[newsIndex].likedBy.includes(currentUser.uid);
+            likeBtn.style.color = isLiked ? '#ff6b6b' : 'var(--texto)';
+            likeBtn.style.background = isLiked 
+                ? 'linear-gradient(45deg, #ff006e, #ff3d00)'
+                : 'rgba(255, 255, 255, 0.1)';
         }
 
     } catch (error) {
