@@ -1647,23 +1647,32 @@
 
             document.getElementById('resultsModal').classList.add('active');
 
-            // Save score to Firebase
+            // Save score to Firebase and check achievements
             try {
                 const user = window.firebaseAuth.auth.currentUser;
                 if (user) {
-                    // Integrar conquistas ao completar quiz
+                    console.log('💾 Salvando resultado e verificando conquistas...');
+
+                    // 1. Salvar resultado do quiz
                     await saveQuizResult(currentQuiz.id, score, timeSpent);
 
-                    // Verificar conquistas
-                    const user = window.firebaseAuth.auth.currentUser;
-                    if (user) {
-                        await checkQuizAchievements(user.uid, score);
-                    }
+                    // 2. Adicionar XP ao perfil do usuário (score é a pontuação, não XP fixo)
+                    const xpGained = score; // O score já é a pontuação (0-100)
+                    const userRef = window.firebaseDB.doc(window.firebaseDB.db, 'users', user.uid);
+                    await window.firebaseDB.updateDoc(userRef, {
+                        totalXP: window.firebaseDB.increment(xpGained),
+                        quizzesPlayed: window.firebaseDB.increment(1)
+                    });
+                    console.log(`✅ +${xpGained} XP adicionado ao perfil`);
 
-                    showNotification('Quiz concluído!', 'success');
+                    // 3. Verificar conquistas (importante fazer APÓS salvar tudo)
+                    await checkQuizAchievements(user.uid, score);
+
+                    showNotification(`Quiz concluído! +${xpGained} XP ganhos`, 'success');
                 }
             } catch (error) {
                 console.error('Erro ao salvar resultado:', error);
+                showNotification('Erro ao salvar progresso', 'error');
             }
         }
 

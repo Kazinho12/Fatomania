@@ -235,12 +235,21 @@ export async function calculateUserStats(userId) {
             return null;
         }
 
+        // Força recarregar dados do usuário do Firebase
         const userRef = window.firebaseDB.doc(window.firebaseDB.db, 'users', userId);
         const userSnap = await window.firebaseDB.getDoc(userRef);
         
-        if (!userSnap.exists()) return null;
+        if (!userSnap.exists()) {
+            console.warn('⚠️ Usuário não encontrado no Firebase');
+            return null;
+        }
 
         const userData = userSnap.data();
+        console.log('📊 Dados do usuário carregados:', {
+            totalXP: userData.totalXP,
+            quizzesPlayed: userData.quizzesPlayed,
+            perfectQuizzes: userData.perfectQuizzes
+        });
 
         // Contar quizzes e quizzes perfeitos
         let quizzes = 0;
