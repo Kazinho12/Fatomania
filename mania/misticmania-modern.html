@@ -273,7 +273,6 @@
             padding: 0;
             border: 2px solid rgba(142, 68, 173, 0.2);
             transition: all 0.3s;
-            cursor: pointer;
             overflow: hidden;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
             position: relative;
@@ -937,7 +936,7 @@
             noResults.style.display = 'none';
 
             articlesGrid.innerHTML = filteredArticles.map(article => `
-                <div class="article-card" onclick="openArticle('${article.id}')" data-article-id="${article.id}">
+                <div class="article-card" data-article-id="${article.id}">
                     ${article.imageUrl ? `
                         <div class="article-image" style="background-image: url('${article.imageUrl}')">
                             <div class="article-category">${getCategoryIcon(article.category)} ${article.category}</div>
@@ -956,6 +955,25 @@
                             <span><i class="fas fa-user"></i> ${article.author}</span>
                             <span><i class="fas fa-heart"></i> ${article.likes || 0}</span>
                         </div>
+                        <button onclick="openArticle('${article.id}')" style="
+                            width: 100%;
+                            background: linear-gradient(45deg, var(--roxo), var(--misterio));
+                            border: none;
+                            color: white;
+                            padding: 0.8rem 1.5rem;
+                            border-radius: 25px;
+                            cursor: pointer;
+                            font-weight: 600;
+                            margin-top: 1rem;
+                            transition: all 0.3s ease;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 0.5rem;
+                            font-size: 1rem;
+                        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 20px rgba(106, 0, 255, 0.5)'" onmouseout="this.style.transform=''; this.style.boxShadow=''">
+                            <i class="fas fa-eye"></i> Abrir Artigo
+                        </button>
                     </div>
                 </div>
             `).join('');
@@ -1012,90 +1030,71 @@
 
         async function openArticle(articleId) {
             try {
-                console.log('🔍 Tentando abrir artigo com ID:', articleId);
+                console.log('🔍 Abrindo artigo:', articleId);
                 
-                if (!articleId) {
-                    console.error('❌ ID do artigo não fornecido');
-                    alert('Erro: ID do artigo inválido');
+                // Buscar artigo do array local
+                const article = currentArticles.find(a => a.id === articleId);
+                
+                if (!article) {
+                    console.error('❌ Artigo não encontrado');
+                    alert('Artigo não encontrado');
                     return;
                 }
                 
-                // Primeiro, buscar o artigo do array local (mais rápido)
-                const localArticle = currentArticles.find(a => a.id === articleId);
-                
-                if (!localArticle) {
-                    console.error('❌ Artigo não encontrado no cache local');
-                    alert('Artigo não encontrado. Por favor, recarregue a página.');
-                    return;
-                }
-                
-                console.log('✅ Artigo encontrado:', localArticle.title);
+                console.log('✅ Artigo:', article.title);
                 currentArticleId = articleId;
                 
-                // Preencher modal com dados locais primeiro (para resposta rápida)
-                modalTitle.textContent = localArticle.title || 'Sem título';
-                
-                // Usar summary se content não existir
-                const contentText = localArticle.content || localArticle.summary || 'Conteúdo não disponível.';
-                modalContent.innerHTML = contentText.replace(/\n/g, '<br>');
+                // Preencher modal
+                modalTitle.textContent = article.title || 'Sem título';
+                modalContent.innerHTML = (article.content || article.summary || 'Conteúdo não disponível').replace(/\n/g, '<br>');
                 
                 // Tags
-                modalTags.innerHTML = '';
-                if (localArticle.tags && localArticle.tags.length > 0) {
-                    localArticle.tags.forEach(tag => {
-                        const tagElement = document.createElement('span');
-                        tagElement.className = 'modal-tag';
-                        tagElement.textContent = tag;
-                        modalTags.appendChild(tagElement);
-                    });
+                if (article.tags && article.tags.length > 0) {
+                    modalTags.innerHTML = article.tags.map(tag => 
+                        `<span class="modal-tag">${tag}</span>`
+                    ).join('');
+                } else {
+                    modalTags.innerHTML = '';
                 }
 
                 // Imagem
-                if (localArticle.imageUrl) {
-                    modalImage.src = localArticle.imageUrl;
+                if (article.imageUrl) {
+                    modalImage.src = article.imageUrl;
                     modalImage.style.display = 'block';
-                    modalImage.alt = localArticle.title || 'Imagem do artigo';
                 } else {
                     modalImage.style.display = 'none';
                 }
 
                 // Likes
-                const currentLikes = localArticle.likes || 0;
-                likeCount.textContent = currentLikes;
-                likeBtn.onclick = () => handleLike(articleId, currentLikes);
-                likeBtn.disabled = false;
-                likeBtn.style.cursor = 'pointer';
+                likeCount.textContent = article.likes || 0;
+                likeBtn.onclick = () => handleLike(articleId, article.likes || 0);
 
-                // Mostrar modal IMEDIATAMENTE
+                // Abrir modal
                 modal.style.display = "flex";
-                modal.style.justifyContent = "center";
-                modal.style.alignItems = "center";
                 document.body.style.overflow = 'hidden';
                 
-                console.log('✅ Modal aberto com sucesso');
+                console.log('✅ Modal aberto');
 
-                // Depois, tentar incrementar visualizações em segundo plano
+                // Incrementar views (background)
                 try {
                     const articleRef = window.firebaseDB.doc(window.firebaseDB.db, 'mystic-articles', articleId);
                     await window.firebaseDB.updateDoc(articleRef, {
                         views: window.firebaseDB.increment(1)
                     });
-                    console.log('✅ Visualização incrementada');
-                } catch (viewError) {
-                    console.warn('⚠️ Não foi possível incrementar visualizações:', viewError);
-                    // Não bloqueia a abertura do modal
+                } catch (e) {
+                    console.warn('Erro ao incrementar views:', e);
                 }
 
-                // Carregar comentários em segundo plano
+                // Carregar comentários (background)
                 try {
                     await loadComments(articleId);
-                } catch (commentError) {
-                    console.warn('⚠️ Erro ao carregar comentários:', commentError);
+                } catch (e) {
+                    console.warn('Erro ao carregar comentários:', e);
                 }
 
             } catch (error) {
-                console.error('❌ Erro ao abrir artigo:', error);
-                alert('Erro ao carregar o artigo: ' + error.message);
+                console.error('❌ Erro:', error);
+                alert('Erro ao abrir artigo');
             }
         }
 
