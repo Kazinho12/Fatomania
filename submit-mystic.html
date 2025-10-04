@@ -397,7 +397,73 @@
 
     <script type="module">
         import '/firebase-config.js';
-        import { uploadToImgbb, showNotification } from '/js/upload-utils.js';
+
+        const IMGBB_API_KEY = '490019b11f119ad684399138b0226ff5';
+        const IMGBB_API_URL = 'https://api.imgbb.com/1/upload';
+
+        // Upload image function
+        async function uploadImage(file) {
+            if (!file || !file.type.match('image.*')) {
+                throw new Error('Arquivo inválido');
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                throw new Error('A imagem deve ter menos de 5MB');
+            }
+
+            const reader = new FileReader();
+            return new Promise((resolve, reject) => {
+                reader.onload = async function(e) {
+                    const img = new Image();
+                    img.onload = async function() {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+
+                        let { width, height } = img;
+                        const maxSize = 800;
+
+                        if (width > height && width > maxSize) {
+                            height = height * (maxSize / width);
+                            width = maxSize;
+                        } else if (height > maxSize) {
+                            width = width * (maxSize / height);
+                            height = maxSize;
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        const base64 = canvas.toDataURL('image/jpeg', 0.9);
+                        const base64Data = base64.split(',')[1];
+
+                        const formData = new FormData();
+                        formData.append('key', IMGBB_API_KEY);
+                        formData.append('image', base64Data);
+
+                        try {
+                            const response = await fetch(IMGBB_API_URL, {
+                                method: 'POST',
+                                body: formData
+                            });
+
+                            const data = await response.json();
+                            if (data.success && data.data && data.data.url) {
+                                resolve(data.data.url);
+                            } else {
+                                reject(new Error('Falha no upload'));
+                            }
+                        } catch (error) {
+                            reject(error);
+                        }
+                    };
+                    img.onerror = () => reject(new Error('Erro ao carregar imagem'));
+                    img.src = e.target.result;
+                };
+                reader.onerror = () => reject(new Error('Erro ao ler arquivo'));
+                reader.readAsDataURL(file);
+            });
+        }
 
         // Wait for Firebase to be ready
         window.addEventListener('load', async () => {
@@ -419,95 +485,39 @@
             }, 5000);
         }
 
-        let isProcessingImage = false;
-        
         function handleImageSelect(event) {
-            // Evitar processamento simultâneo
-            if (isProcessingImage) {
-                console.log('⚠️ Já processando uma imagem, ignorando...');
-                return;
-            }
-            
             const file = event.target.files[0];
             const label = event.target.nextElementSibling;
             const preview = document.getElementById('imagePreview');
             const previewImg = document.getElementById('previewImg');
             const fileName = document.getElementById('fileName');
-            
+
             if (file) {
-                isProcessingImage = true;
-                
-                console.log('📁 Arquivo selecionado:', {
-                    name: file.name,
-                    size: file.size,
-                    type: file.type,
-                    lastModified: new Date(file.lastModified)
-                });
-                
-                // Validações
-                if (!file.type.match('image.*')) {
-                    showMessage('Por favor, selecione apenas arquivos de imagem (JPG, PNG, GIF)', 'error');
-                    event.target.value = '';
-                    preview.style.display = 'none';
-                    label.innerHTML = '<i class="fas fa-cloud-upload-alt"></i><br>Clique para selecionar uma imagem<br><small>JPG, PNG ou GIF (máx. 5MB)</small>';
-                    return;
-                }
-                
                 if (file.size > 5 * 1024 * 1024) { // 5MB limit
                     showMessage('A imagem deve ter no máximo 5MB.', 'error');
                     event.target.value = '';
                     preview.style.display = 'none';
-                    label.innerHTML = '<i class="fas fa-cloud-upload-alt"></i><br>Clique para selecionar uma imagem<br><small>JPG, PNG ou GIF (máx. 5MB)</small>';
                     return;
                 }
-                
-                if (file.size === 0) {
-                    showMessage('Arquivo vazio ou inválido. Selecione outro arquivo.', 'error');
-                    event.target.value = '';
-                    preview.style.display = 'none';
-                    label.innerHTML = '<i class="fas fa-cloud-upload-alt"></i><br>Clique para selecionar uma imagem<br><small>JPG, PNG ou GIF (máx. 5MB)</small>';
-                    return;
-                }
-                
+
                 label.innerHTML = `<i class="fas fa-check-circle"></i><br>Imagem selecionada: ${file.name}`;
-                
+
                 // Show preview
                 const reader = new FileReader();
-                
                 reader.onload = function(e) {
-                    console.log('✅ Preview carregado com sucesso');
                     previewImg.src = e.target.result;
                     fileName.textContent = file.name;
                     preview.style.display = 'block';
-                    isProcessingImage = false;
                 };
-                
-                reader.onerror = function(error) {
-                    console.error('❌ Erro ao carregar preview:', error);
-                    showMessage('Erro ao carregar preview da imagem', 'error');
-                    event.target.value = '';
-                    preview.style.display = 'none';
-                    isProcessingImage = false;
-                };
-                
-                try {
-                    reader.readAsDataURL(file);
-                } catch (error) {
-                    console.error('❌ Erro ao tentar ler arquivo:', error);
-                    showMessage('Erro ao processar arquivo. Tente outro arquivo.', 'error');
-                    event.target.value = '';
-                    preview.style.display = 'none';
-                    isProcessingImage = false;
-                }
+                reader.readAsDataURL(file);
             } else {
                 preview.style.display = 'none';
-                isProcessingImage = false;
             }
         }
 
         async function handleSubmit(event) {
             event.preventDefault();
-            
+
             const submitBtn = document.getElementById('submitBtn');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<div class="loading"></div> Publicando...';
@@ -536,54 +546,17 @@
                     status: 'published'
                 };
 
-                // Handle image upload if provided - now using imgbb
+                // Handle image upload if provided
                 const imageFile = document.getElementById('image').files[0];
                 if (imageFile) {
-                    console.log('📤 Iniciando upload da imagem:', {
-                        name: imageFile.name,
-                        type: imageFile.type,
-                        size: imageFile.size
-                    });
-                    
-                    // Validações antes do upload
-                    if (!imageFile.type.match('image.*')) {
-                        showMessage('Apenas arquivos de imagem são permitidos', 'error');
-                        throw new Error('Tipo de arquivo inválido');
-                    }
-                    
-                    if (imageFile.size > 5 * 1024 * 1024) {
-                        showMessage('A imagem deve ter no máximo 5MB', 'error');
-                        throw new Error('Arquivo muito grande');
-                    }
-                    
-                    if (imageFile.size === 0) {
-                        showMessage('Arquivo vazio. Selecione outro arquivo.', 'error');
-                        throw new Error('Arquivo vazio');
-                    }
-                    
                     try {
-                        formData.imageUrl = await uploadToImgbb(imageFile, null, 'article');
-                        console.log('✅ URL da imagem recebida:', formData.imageUrl);
+                        formData.imageUrl = await uploadImage(imageFile);
                         showMessage('Imagem enviada com sucesso!', 'success');
                     } catch (error) {
-                        console.error('❌ Erro completo ao enviar imagem:', {
-                            message: error.message,
-                            stack: error.stack,
-                            error: error,
-                            name: error.name
-                        });
-                        
-                        let errorMsg = 'Erro ao enviar imagem';
-                        if (error.message) {
-                            errorMsg = error.message;
-                        }
-                        
-                        showMessage('Erro: ' + errorMsg + '. Tente selecionar a imagem novamente.', 'error');
+                        console.error('Erro ao enviar imagem:', error);
+                        showMessage('Erro ao enviar imagem: ' + error.message, 'error');
                         throw error;
                     }
-                } else {
-                    console.log('ℹ️ Nenhuma imagem selecionada, usando imagem padrão');
-                    formData.imageUrl = '/icon/fatomania.png';
                 }
 
                 // Save to Firestore
@@ -591,9 +564,10 @@
 
                 showMessage('Mistério publicado com sucesso!', 'success');
                 document.getElementById('mysticForm').reset();
-                
+                document.getElementById('imagePreview').style.display = 'none';
+
                 setTimeout(() => {
-                    window.location.href = '/mania/misticmania.html';
+                    window.location.href = '/mania/misticmania-modern.html';
                 }, 2000);
 
             } catch (error) {
