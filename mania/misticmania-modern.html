@@ -986,29 +986,56 @@
         }
 
         function setupModalInteractions() {
-            closeModalBtn.onclick = () => modal.style.display = "none";
+            closeModalBtn.onclick = () => {
+                modal.style.display = "none";
+                document.body.style.overflow = 'auto';
+                currentArticleId = null;
+            };
+            
             window.onclick = (event) => {
                 if (event.target == modal) {
                     modal.style.display = "none";
+                    document.body.style.overflow = 'auto';
+                    currentArticleId = null;
                 }
             };
+            
+            // Fechar com ESC
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && modal.style.display === 'flex') {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                    currentArticleId = null;
+                }
+            });
         }
 
         async function openArticle(articleId) {
             try {
+                console.log('🔍 Abrindo artigo:', articleId);
                 currentArticleId = articleId;
+                
+                // Buscar artigo do Firestore
                 const articleRef = window.firebaseDB.doc(window.firebaseDB.db, 'mystic-articles', articleId);
                 const docSnap = await window.firebaseDB.getDoc(articleRef);
 
                 if (!docSnap.exists()) {
-                    console.error('Artigo não encontrado');
+                    console.error('❌ Artigo não encontrado no Firestore');
+                    alert('Artigo não encontrado. Por favor, tente novamente.');
                     return;
                 }
 
                 const article = { id: docSnap.id, ...docSnap.data() };
+                console.log('✅ Artigo carregado:', article);
 
-                modalTitle.textContent = article.title;
-                modalContent.textContent = article.content;
+                // Preencher modal
+                modalTitle.textContent = article.title || 'Sem título';
+                
+                // Usar summary se content não existir
+                const contentText = article.content || article.summary || 'Conteúdo não disponível.';
+                modalContent.innerHTML = contentText.replace(/\n/g, '<br>');
+                
+                // Tags
                 modalTags.innerHTML = '';
                 if (article.tags && article.tags.length > 0) {
                     article.tags.forEach(tag => {
@@ -1019,30 +1046,49 @@
                     });
                 }
 
+                // Imagem
                 if (article.imageUrl) {
                     modalImage.src = article.imageUrl;
                     modalImage.style.display = 'block';
+                    modalImage.alt = article.title || 'Imagem do artigo';
                 } else {
                     modalImage.style.display = 'none';
                 }
 
                 // Likes
-                likeCount.textContent = article.likes || 0;
-                likeBtn.onclick = () => handleLike(articleId, article.likes || 0);
+                const currentLikes = article.likes || 0;
+                likeCount.textContent = currentLikes;
+                likeBtn.onclick = () => handleLike(articleId, currentLikes);
+                likeBtn.disabled = false;
+                likeBtn.style.cursor = 'pointer';
 
-                // Load comments
+                // Carregar comentários
                 await loadComments(articleId);
 
-                modal.style.display = "flex"; // Use flex to center content
+                // Incrementar visualizações
+                try {
+                    await window.firebaseDB.updateDoc(articleRef, {
+                        views: window.firebaseDB.increment(1)
+                    });
+                    console.log('✅ Visualização incrementada');
+                } catch (viewError) {
+                    console.warn('⚠️ Não foi possível incrementar visualizações:', viewError);
+                }
+
+                // Mostrar modal
+                modal.style.display = "flex";
                 modal.style.justifyContent = "center";
                 modal.style.alignItems = "center";
-
+                document.body.style.overflow = 'hidden';
 
             } catch (error) {
-                console.error('Erro ao abrir artigo:', error);
-                // Display error message in modal or alert
-                modalTitle.textContent = "Erro";
-                modalContent.textContent = "Não foi possível carregar o artigo. Tente novamente mais tarde.";
+                console.error('❌ Erro ao abrir artigo:', error);
+                alert('Erro ao carregar o artigo. Por favor, tente novamente.');
+                
+                // Mostrar mensagem de erro no modal
+                modalTitle.textContent = "Erro ao Carregar";
+                modalContent.innerHTML = `<p style="color: var(--perigo);">Não foi possível carregar o artigo. Por favor, tente novamente mais tarde.</p>
+                <p style="font-size: 0.9rem; opacity: 0.8;">Erro técnico: ${error.message}</p>`;
                 modalImage.style.display = 'none';
                 modalTags.innerHTML = '';
                 modal.style.display = "flex";
