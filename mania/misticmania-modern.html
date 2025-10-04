@@ -937,7 +937,7 @@
             noResults.style.display = 'none';
 
             articlesGrid.innerHTML = filteredArticles.map(article => `
-                <div class="article-card" onclick="openArticle('${article.id}')">
+                <div class="article-card" onclick="openArticle('${article.id}')" data-article-id="${article.id}">
                     ${article.imageUrl ? `
                         <div class="article-image" style="background-image: url('${article.imageUrl}')">
                             <div class="article-category">${getCategoryIcon(article.category)} ${article.category}</div>
@@ -1012,33 +1012,37 @@
 
         async function openArticle(articleId) {
             try {
-                console.log('🔍 Abrindo artigo:', articleId);
-                currentArticleId = articleId;
+                console.log('🔍 Tentando abrir artigo com ID:', articleId);
                 
-                // Buscar artigo do Firestore
-                const articleRef = window.firebaseDB.doc(window.firebaseDB.db, 'mystic-articles', articleId);
-                const docSnap = await window.firebaseDB.getDoc(articleRef);
-
-                if (!docSnap.exists()) {
-                    console.error('❌ Artigo não encontrado no Firestore');
-                    alert('Artigo não encontrado. Por favor, tente novamente.');
+                if (!articleId) {
+                    console.error('❌ ID do artigo não fornecido');
+                    alert('Erro: ID do artigo inválido');
                     return;
                 }
-
-                const article = { id: docSnap.id, ...docSnap.data() };
-                console.log('✅ Artigo carregado:', article);
-
-                // Preencher modal
-                modalTitle.textContent = article.title || 'Sem título';
+                
+                // Primeiro, buscar o artigo do array local (mais rápido)
+                const localArticle = currentArticles.find(a => a.id === articleId);
+                
+                if (!localArticle) {
+                    console.error('❌ Artigo não encontrado no cache local');
+                    alert('Artigo não encontrado. Por favor, recarregue a página.');
+                    return;
+                }
+                
+                console.log('✅ Artigo encontrado:', localArticle.title);
+                currentArticleId = articleId;
+                
+                // Preencher modal com dados locais primeiro (para resposta rápida)
+                modalTitle.textContent = localArticle.title || 'Sem título';
                 
                 // Usar summary se content não existir
-                const contentText = article.content || article.summary || 'Conteúdo não disponível.';
+                const contentText = localArticle.content || localArticle.summary || 'Conteúdo não disponível.';
                 modalContent.innerHTML = contentText.replace(/\n/g, '<br>');
                 
                 // Tags
                 modalTags.innerHTML = '';
-                if (article.tags && article.tags.length > 0) {
-                    article.tags.forEach(tag => {
+                if (localArticle.tags && localArticle.tags.length > 0) {
+                    localArticle.tags.forEach(tag => {
                         const tagElement = document.createElement('span');
                         tagElement.className = 'modal-tag';
                         tagElement.textContent = tag;
@@ -1047,51 +1051,51 @@
                 }
 
                 // Imagem
-                if (article.imageUrl) {
-                    modalImage.src = article.imageUrl;
+                if (localArticle.imageUrl) {
+                    modalImage.src = localArticle.imageUrl;
                     modalImage.style.display = 'block';
-                    modalImage.alt = article.title || 'Imagem do artigo';
+                    modalImage.alt = localArticle.title || 'Imagem do artigo';
                 } else {
                     modalImage.style.display = 'none';
                 }
 
                 // Likes
-                const currentLikes = article.likes || 0;
+                const currentLikes = localArticle.likes || 0;
                 likeCount.textContent = currentLikes;
                 likeBtn.onclick = () => handleLike(articleId, currentLikes);
                 likeBtn.disabled = false;
                 likeBtn.style.cursor = 'pointer';
 
-                // Carregar comentários
-                await loadComments(articleId);
+                // Mostrar modal IMEDIATAMENTE
+                modal.style.display = "flex";
+                modal.style.justifyContent = "center";
+                modal.style.alignItems = "center";
+                document.body.style.overflow = 'hidden';
+                
+                console.log('✅ Modal aberto com sucesso');
 
-                // Incrementar visualizações
+                // Depois, tentar incrementar visualizações em segundo plano
                 try {
+                    const articleRef = window.firebaseDB.doc(window.firebaseDB.db, 'mystic-articles', articleId);
                     await window.firebaseDB.updateDoc(articleRef, {
                         views: window.firebaseDB.increment(1)
                     });
                     console.log('✅ Visualização incrementada');
                 } catch (viewError) {
                     console.warn('⚠️ Não foi possível incrementar visualizações:', viewError);
+                    // Não bloqueia a abertura do modal
                 }
 
-                // Mostrar modal
-                modal.style.display = "flex";
-                modal.style.justifyContent = "center";
-                modal.style.alignItems = "center";
-                document.body.style.overflow = 'hidden';
+                // Carregar comentários em segundo plano
+                try {
+                    await loadComments(articleId);
+                } catch (commentError) {
+                    console.warn('⚠️ Erro ao carregar comentários:', commentError);
+                }
 
             } catch (error) {
                 console.error('❌ Erro ao abrir artigo:', error);
-                alert('Erro ao carregar o artigo. Por favor, tente novamente.');
-                
-                // Mostrar mensagem de erro no modal
-                modalTitle.textContent = "Erro ao Carregar";
-                modalContent.innerHTML = `<p style="color: var(--perigo);">Não foi possível carregar o artigo. Por favor, tente novamente mais tarde.</p>
-                <p style="font-size: 0.9rem; opacity: 0.8;">Erro técnico: ${error.message}</p>`;
-                modalImage.style.display = 'none';
-                modalTags.innerHTML = '';
-                modal.style.display = "flex";
+                alert('Erro ao carregar o artigo: ' + error.message);
             }
         }
 
